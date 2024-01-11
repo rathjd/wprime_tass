@@ -24,6 +24,9 @@
 
 #include "ProgressBar.cc"
 
+#include "TProfile.h"
+#include "TProfile2D.h"
+
 using namespace std;
 
 class NanoAODReader {
@@ -74,6 +77,13 @@ public:
     }
     EntriesMax = EntryEnd - EntryBegin;
     cout << "EntryBegin = " << EntryBegin << ", EntryEnd = " << EntryEnd << ". Running over " << EntriesMax << " events" << endl;
+
+    //Book TProfiles for cutflow components
+    TProfile CutflowSkim             = *(new TProfile("CutflowSkim",         "Cutflow skim level;cut;efficiency",                      3, -0.5, 2.5)); //AnyTrigger, nPV, METFilter
+    TProfile CutflowMuon             = *(new TProfile("CutflowMuon",         "Cutflow after skim level: Muons;cut;efficiency",         6, -0.5, 5.5)); //muon: trigger, eta, pT, ID, isolation, additional lepton veto
+    TProfile CutflowElectron         = *(new TProfile("CutflowElectron",     "Cutflow after skim level: Electrons;cut;efficiency",     6, -0.5, 5.5)); //electron: trigger, eta, pT, ID, isolation, additional lepton veto
+    TProfile2D CutflowJetsMuon       = *(newTProfile2D("CutflowJetsMuon",    "Cutflow after muon selection: Jets;N jets; N b-tags",    7, -0.5, 6.5, 7, -0.5, 6.5)); //after muons -> jets: number of jets vs number of b-tags
+    TProfile2D CutflowJetsElectron   = *(newTProfile2D("CutflowJetsElectron","Cutflow after electron selection: Jets;N jets; N b-tags",7, -0.5, 6.5, 7, -0.5, 6.5)); //after electrons -> jets: number of jets vs number of b-tags
   };
 
   ~NanoAODReader() {
@@ -152,10 +162,30 @@ public:
     Long64_t evtcode = evts->LoadTree(i);
     if (evtcode < 0) return -1;
     iEvent = i;
-    iEventInChain = iEvent + EntryBegin;
+    iEventInChain = iEvent + EntryBegin; //FIXME: For external logic to work flawlessly, remove functionality to split files
     evts->GetEntry(iEventInChain);
+
+    ReadTriggers(); //Logically, this should be the first step. Untrigggered events should not be processed further
+    if(Triggers.size() == 0){
+      CutflowSkim.Fill(0., 0.); //fail all triggers
+      return 0; //FIXME: Return codes should be purged, but for actual programming discrepancies
+    }
+    CutflowSkim.Fill(0., 1.); //pass any trigger
     // cout << endl << "Reading real iEvent in Chain = " << iEventInChain << endl;
-    if (ReadMETFilterStatus() == false) return -2; //skip events not passing MET filter flags
+    
+    ReadVertices();
+    if (PV_npvsGood < 1){
+      CutflowSkim.Fill(1.,0.); //fail at least 1 good vertex
+      return -3; //FIXME: Superfluous error flag
+    }
+    CutflowSkim.Fill(1.,1.); //pass at least 1 good vertex
+     
+    if (ReadMETFilterStatus() == false){
+      CutflowSkim.Fill(2., 0.); //fail MET filters
+      return -2; //FIXME: Superfluous error flag
+    }
+    CutflowSkim.Fill(2., 1.); //pass MET filters
+
     run = evts->run;
     luminosityBlock = evts->luminosityBlock;
     if (!IsMC && (run < 0 || luminosityBlock < 0)) cout << "Run/LuminosityBlock number is negative" <<endl;
@@ -168,11 +198,8 @@ public:
     }
     ReadJets();
     if (conf->bTagEffHistCreation) return 0;
-    ReadTriggers();
     ReadLeptons();
     ReadMET();
-    ReadVertices();
-    if (PV_npvsGood < 1) return -3; // Requires PV_npvsGood >= 1
     // if (!PassedHEMCut) return -3;
     RegionAssociations = RegionReader();
     EventWeights = CalcEventSFweights();
@@ -204,8 +231,9 @@ public:
     }
   }
 
+  //2018 only remove event if any object falls into HEM failure region => currently brute force remove all version
   bool PassHEMCut(TLorentzVector &v) {
-    if (conf->SampleYear != "2018") return true;
+    if (conf->SampleYear != "2018") return true; //2018 only safeguard, as appropriate
     if (v.Eta() < -3.) return true;
     if (v.Eta() > -1.3) return true;
     if (v.Phi() < -1.57) return true;
@@ -478,7 +506,10 @@ public:
     Electrons.clear();
     Muons.clear();
     // if (!PassedHEMCut) return;
+    
+    //electron readout section
     int emptysequence = 0;
+    bool bestElectron[5] = {false, false, false, false, false};
     for (unsigned i = 0; i < evts->nElectron; ++i) {
       if (emptysequence >= 3) break;
       if (evts->Electron_pt[i] == 0) {
@@ -507,11 +538,23 @@ public:
       tmp.cutBasedHEEP = evts->Electron_cutBased_HEEP[i];
       tmp.mva = evts->Electron_mvaFall17V2Iso_WP90[i];
 
+      //electron cutlfow
+      tmp.TriggerMatched = TriggerMatch(tmp);
+      if(tmp.TriggerMatched){
+	bestElectron[0] = true; //trigger
+	if((fabs(tmp.Eta()) < 2.4) || ((fabs(tmp.Eta()) > 1.44) && (fabs(tmp.Eta()) < 1.57))){
+	  bestElectron[1] = true; //eta
+	  if(tmp.Pt() > 30.){
+	    bestElectron[2] = true; //pT
+	    if(tmp.mva) {bestElectron[3] = true; bestElectron[4] = true;} //ID & ISO
+	  }
+	}
+      }
+
       if (!PassCommon(tmp)) continue;
 
       //check for jet overlaps
       tmp.JetProximity = JetProximityCheck(tmp);
-      tmp.TriggerMatched = TriggerMatch(tmp);      
 
       //set SF and variation for primary only, HEEP as in https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaRunIIRecommendations#HEEPV7_0
       tmp.SFs = {1., 1., 1.};
@@ -524,8 +567,12 @@ public:
       Electrons.push_back(tmp);
       Leptons.push_back(tmp);
     }
+    //fill best eleectron cutflow
+    for(unsigned i = 0; i < 5; ++i) CutflowElectron.Fill((float)i, (float) bestElectron[i]);
 
+    //muon readout section
     emptysequence = 0;
+    bool bestMuon[5] = {false, false, false, false, false};
     bool ZeroMuonErrOccurred = false;
     for (unsigned i = 0; i < evts->nMuon; ++i) {
       if (emptysequence >= 3) break; // [9] is the hard cap of Muon array size
@@ -554,11 +601,26 @@ public:
       tmp.ScaleUp() = dummy;
       tmp.ScaleDown() = dummy;
 
+      //muon cutflow
+      tmp.TriggerMatched = TriggerMatch(tmp);
+      if(tmp.TriggerMatched){
+        bestMuon[0] = true; //trigger
+        if(fabs(tmp.Eta()) < 2.4){
+          bestMuon[1] = true; //eta
+          if(tmp.Pt() > 27.){
+            bestMuon[2] = true; //pT
+            if(tmp.tightId){
+	      bestMuon[3] = true;
+	      if(tmp.relIso < 0.15) bestMuon[4] = true; //ID & ISO
+	      }
+          }
+        }
+      }
+
       if (!PassCommon(tmp)) continue;
 
       //check for jet overlaps
       tmp.JetProximity = JetProximityCheck(tmp);
-      tmp.TriggerMatched = TriggerMatch(tmp);    
 
       // //CommonSelectionBlock
       // float absEta = fabs(tmp.Eta());
@@ -603,6 +665,9 @@ public:
       Muons.push_back(tmp);
       Leptons.push_back(tmp);
     }
+    //fill best muon cutflow
+    for(unsigned i = 0; i < 5; ++i) CutflowMuon.Fill((float)i, (float) bestMuon[i]);
+
     if (ZeroMuonErrOccurred) MuonSFZeroErrorEvts++;
     if (evts->nElectron > evts->nElectronMax) cout << "Error: nElectron = " << evts->nElectron << " at iEvent = " << iEvent << endl;
     if (evts->nMuon > evts->nMuonMax) cout << "Error: nMuon = " << evts->nMuon << " at iEvent = " << iEvent << endl;
@@ -771,6 +836,15 @@ public:
         nj++;
         if(Jets[j].bTagPasses[bTagWP]) nb++;//select working point for b-tagging by bTagPasses[0] = loose, 1 medium and 2 tight
       }
+
+      //fill jet multiplicity maps only for central variation
+      if(i == 0){
+        for(float x = 0.; x < 7.; ++x) for(float y = 0.; float y <= x; ++y){ //x is number of jets, b is number of b-tags, fill every bin and only count a 1 if both number of jets and b-tags matches, to get correct percentages and totals after all other overlap cut vetos
+	  if(RegionNumber == 1100) CutflowMuons.Fill(x, y, (nj==x?1:0)*(nb==y?1:0));
+	  if(RegionNumber == 2100) CutflowElectrons.Fill(x, y, (nj==x?1:0)*(nb==y?1:0));
+	}
+      }
+
       // if(nj<5 || nj>6) {
       //   rids.Regions[i] = -3;
       //   continue; //in no region we're interested in

@@ -68,28 +68,6 @@ public:
     }
     TString ofname = path + subpath + outname;
     cout << "Output will be saved to " << ofname << endl;
-    bool torun = false;
-    cout << "Output Status: ";
-    if (conf->ErrorRerunCode == 2) {
-      cout << "FirstRun" << endl;
-      torun = true;
-    }
-    if (conf->ErrorRerunCode == 1) {
-      cout << "RetryFailedJob" << endl;
-      torun = true;
-    }
-    if (!torun && HasZombieOutput(ofname)) {
-      cout << "Zombie" << endl;
-      torun = true;
-    }
-    if (!torun && conf->InRerunList) {
-      cout << "InRerunList" << endl;
-      torun = true;
-    }
-    if (!torun) {
-      cout << "File skipped. Ending job" << endl;
-      return false;
-    }
     ofile = new TFile(ofname,"RECREATE");
     ofile->cd();
     t = new TTree("t","EventTree");
