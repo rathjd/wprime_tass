@@ -220,6 +220,10 @@ public:
       // cout << Form("OutParts size = %d, OutGenJets size = %d, OutJets size = %d", gh->OutParts.size(), gh->OutGenJets.size(), gh->OutJets.size() ) << endl;
     }
 
+    BestHypo->Reset();
+    TrueHypo->Reset();
+    TTHypo->Reset();
+
     for (unsigned i = 0; i < 9; ++i) {
       TLorentzVector lepton = r->TheLepton.v(i);
       TLorentzVector met = r->Met.v(i);
@@ -230,9 +234,6 @@ public:
       WPrimeMassSimpleLL->at(i) = vWprimeLL.M();
       
       if (!conf->RunFitter) continue;
-      BestHypo->Reset();
-      TrueHypo->Reset();
-      TTHypo->Reset();
       Ftr->SetTruePerm(TruePermVector);
       SetEventFitter(i);
       if (Ftr->Optimize() < 0) continue;
