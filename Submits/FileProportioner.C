@@ -9,7 +9,7 @@ void FileProportioner(TString InputFilepath, TString OutputFilepath, TString Out
 
   //add files in InputFilepath to chain
   TChain *InputChain = new TChain("Events");//tree name is fixed to "Events" for this purpose
-  InputChain->Add(InputFilepath+"/*.root");
+  InputChain->Add(InputFilepath+"/"+OutputFilename+".root");//changed to add a single file only, for compatibility with solution two this remains a Chain, not a tree
 
   const auto nentries = InputChain->GetEntries(); //count entries in input chain
 
@@ -18,7 +18,8 @@ void FileProportioner(TString InputFilepath, TString OutputFilepath, TString Out
 
   //This solution works, but only on a single initial file, because GetTree gets the first tree in the chain only that is copied...
   //calculate number of new files 
-  /*unsigned FilesNumber = (unsigned) std::ceil((float)nentries / (float) FileSizeTarget);
+  unsigned FilesNumber = (unsigned) std::ceil((float)nentries / (float) FileSizeTarget);
+  if((nentries % FileSizeTarget) < (FileSizeTarget / 2)) FilesNumber--; //if the last file would be smaller than half the intended size, just add it to the second to last
 
   //loop over new files to be produced
   for(unsigned i = 0; i < FilesNumber; ++i){
@@ -27,17 +28,19 @@ void FileProportioner(TString InputFilepath, TString OutputFilepath, TString Out
     TFile *NewFile = new TFile(OutputFilepath + "/" + OutputFilename + TString::Format("_%d.root", i), "RECREATE");
 
     //makes copy of original tree starting at i*FileSizeTarget of size up to FileSizeTarget
-    TTree *NewTree = BaseTree->CopyTree("","", FileSizeTarget, i * FileSizeTarget);
+    TTree *NewTree;
+    if(i < FilesNumber-1) NewTree = BaseTree->CopyTree("","", FileSizeTarget, i * FileSizeTarget);
+    else NewTree = BaseTree->CopyTree("","", FileSizeTarget*2, i * FileSizeTarget);//make sure to dump the entire rest, if oversized, into the last file
 
     //file operations
     NewFile->Write();
     NewTree->Clear();
     NewFile->Close();
-  }*/
+  }
 
   //This solution produces the right size of files and with draw commands gives the exact same output as the original files.
   //When loaded in the same order as the files were written, events match original by bytes read (GetEntry function result on TChain) for every single event
-  unsigned FileCounter = 0;
+  /*unsigned FileCounter = 0;
   TFile *NewFile;
   TTree *NewTree = (TTree*) BaseTree->CloneTree(0); //initialize it to be safe
 
@@ -59,5 +62,5 @@ void FileProportioner(TString InputFilepath, TString OutputFilepath, TString Out
       NewFile->Write();
       NewFile->Close();
     }
-  }
+  }*/
 }
