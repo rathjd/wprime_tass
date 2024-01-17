@@ -1,13 +1,16 @@
 import os, sys
 
+#current behaviour does not allow for file mergers
+#files can only be split, small splitoffs less than half the target size are avoided for the last split decision
 #determine folder path to be split and output path to put into, as well as target file size in events
-#inputPath = "/eos/cms/store/group/phys_b2g/wprime/skimmed_samples"
-#outputPath = "/eos/cms/store/group/phys_b2g/wprime/ReportionedSkimmedSamples"
-#TargetSize = "25000"
+inputPath = "/eos/cms/store/group/phys_b2g/wprime/skimmed_samples"
+outputPath = "/eos/cms/store/group/phys_b2g/wprime/ReportionedSkimmedSamples"
+TargetSize = "25000"
 
-inputPath = "/afs/cern.ch/user/r/rathjd/work/private/TakeOverWprime/wprime/Submits/Testdir"
-outputPath = "/afs/cern.ch/user/r/rathjd/work/private/TakeOverWprime/wprime/Submits/OutTest"
-TargetSize = "2500"
+#LocalTesting
+#inputPath = "/afs/cern.ch/user/r/rathjd/work/private/TakeOverWprime/wprime/Submits/Testdir"
+#outputPath = "/afs/cern.ch/user/r/rathjd/work/private/TakeOverWprime/wprime/Submits/OutTest"
+#TargetSize = "2500"
 
 print("Attempting to reportion files in all subdirectories of " + inputPath + "to a size of " + TargetSize)
 
