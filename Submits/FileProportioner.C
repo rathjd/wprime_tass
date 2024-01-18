@@ -20,7 +20,7 @@ void FileProportioner(TString InputFilepath, TString OutputFilepath, TString Out
   //calculate number of new files 
   unsigned FilesNumber = (unsigned) std::ceil((float)nentries / (float) FileSizeTarget);
   if((nentries % FileSizeTarget) < (FileSizeTarget / 2)) FilesNumber--; //if the last file would be smaller than half the intended size, just add it to the second to last
-  if(FilesNumber == 0) FilesNumber == 1; //catch the case of a single file with less than half the intended size having to be copied to be accidentally skipped
+  if(FilesNumber == 0) FilesNumber = 1; //catch the case of a single file with less than half the intended size having to be copied to be accidentally skipped
 
   //loop over new files to be produced
   for(unsigned i = 0; i < FilesNumber; ++i){
