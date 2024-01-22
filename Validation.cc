@@ -276,31 +276,28 @@ public:
   }
 };
 
-int Validation(int isampleyear = 3, int isampletype = 24, int ifile = 0, double DoFitterFilesPerJob = 0, int TestRun = 0) {
+int Validation(int isampleyear = 3, int isampletype = 24, int ifile = 0, int TestRun = 0) {
   Configs *conf = new Configs(isampleyear, isampletype, ifile);
   // if (conf->ErrorRerun() == 0) return 0;
-  // conf->InputFile = "/eos/user/p/pflanaga/andrewsdata/skimmed_samples/SingleMuon/2018/2B07B4C0-852B-9B4F-83FA-CA6B047542D1.root";
+  //conf->InputFile = "/eos/cms/store/group/phys_b2g/wprime/skimmed_samples/wjets_inclusive/2017/C24175E7-C8C7-2643-B486-9DA4CC5594F4.root";
+   //conf->InputFile = "/eos/user/p/pflanaga/andrewsdata/skimmed_samples/SingleMuon/2018/2B07B4C0-852B-9B4F-83FA-CA6B047542D1.root";
   // conf->InputFile = "All";
   conf->PrintProgress = true;
   conf->UseMergedAuxHist = true;
   conf->AcceptRegions({1,2},{1},{5,6},{1,2,3,4});
   conf->AcceptRegions({-4,-3,-2});
   conf->TWMassMode = 0;
+  conf->RunFitter = true;
   // conf->DebugList = {"LeptonRegion"};
-  if (DoFitterFilesPerJob) {
-    conf->RunFitter = true;
-    conf->FilesPerJob = DoFitterFilesPerJob;
-  }
   if (TestRun >= 1) { // Benchmark run time
     conf->ProgressInterval = 1;
     conf->LocalOutput = true;
   }
-  if (TestRun >= 2) conf->EntriesMax = 2000; // for debug
   
   ThisAnalysis *a = new ThisAnalysis(conf);
-  if (!(a->SetOutput("ValidationFitted"))) return 0;
+  if (!(a->SetOutput("SifuFW_Fitted"))) return 0;
   int proceededEvts = 0;
-  for (Long64_t iEvent = 0; iEvent < a->GetEntriesMax(); ++iEvent) {
+  for (Long64_t iEvent = 0; iEvent < a->GetEntries(); ++iEvent) {
     if (a->ReadEvent(iEvent) < 0) continue;
     if (!a->WithinROI()) continue;
     // a->r->BranchSizeCheck();
@@ -311,5 +308,5 @@ int Validation(int isampleyear = 3, int isampletype = 24, int ifile = 0, double 
   a->SaveOutput();
   a->CloseOutput();
   cout << "Total Events processed: " << proceededEvts << endl;
-  return conf->ErrorRerun();
+  return 0;
 }

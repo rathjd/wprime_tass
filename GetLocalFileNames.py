@@ -1,5 +1,6 @@
 import os
 
+#Sifu's filelist making script
 def GetLocalDataset(names, iy):
   outname = names[0]
   inname = names[0]
@@ -8,12 +9,13 @@ def GetLocalDataset(names, iy):
   # basepath = "/eos/user/d/doverton/skimmed_samples"
   pbasepath = "/eos/user/p/pflanaga/andrewsdata/skimmed_samples/"
   ebasepath = "/eos/user/e/eusebi/andrewsdata/skimmed_samples/"
-  b2gbasepath = "/eos/cms/store/group/phys_b2g/wprime/skimmed_samples/"
+  b2gbasepath = "/eos/cms/store/group/phys_b2g/wprime/ReportionedSkimmedSamples/"
   inyears = ["2016_APV","2016","2017","2018"]
   outyears = ["2016apv","2016","2017","2018"]
   if inname == "SingleElectron" and iy == 3: inname = "EGamma/"
   else: inname = inname + "/"
 
+  #FIXME: Needs to be adjusted when moving samples
   if iy == 3: basepath = ebasepath
   elif iy == 2: basepath = b2gbasepath
   elif iy == 1: basepath = b2gbasepath

@@ -27,16 +27,11 @@ struct Configs {
     if (st.Contains("FL")) WPType = 0;
     else if (st.Contains("LL")) WPType = 1;
     else WPType = -1;
-    ErrorRerunCode = ErrorRerun();
     // ROOT::EnableImplicitMT();
   };
 
   ~Configs() {
     cout << "Configs Destructed" << endl;
-  }
-
-  void SignalFilesPerJob(double n) {
-    if (WPType > -1) FilesPerJob = n;
   }
 
   // Indices and items are emumerated in Constants.cc
@@ -53,11 +48,6 @@ struct Configs {
   int iFile; 
   // InputFile override. If InputFile = "All", all files in the text file will be processed.
   TString InputFile = "";
-
-  //Number of entry to process
-  Long64_t EntriesMax = 0;
-  //Number of files to process
-  double FilesPerJob = 1.;
 
   int bTagWP = 2; //0 loose, 1 medium, 2 tight
   int PUIDWP = 2; //0 loose, 1 medium, 2 tight
@@ -79,7 +69,7 @@ struct Configs {
 
   bool bTagEffHistCreation = false;
   bool AuxHistCreation = false;
-  string AuxHistBasePath = UserSpecifics::EOSBasePath + "AuxHists/";
+  string AuxHistBasePath = UserSpecifics::EOSBasePath + "AuxHistsSifu/";
   bool UseMergedAuxHist = true;
 
   bool RunFitter = false;
@@ -95,27 +85,6 @@ struct Configs {
     for (int aa : a) AcceptedRegions.push_back(aa);
   }
   
-  int ErrorRerunCode;
-  int ErrorRerun(){ // 0: Empty log (Succeeded run);  1: non-empty log (failed run);  2: no log (first run)
-    return ErrorRerunCode = ErrorLogDetected(iSampleYear, iSampleType, iFile);
-  } 
-  bool InRerunList = false;
-  bool RerunList(vector<int>& l) {
-    for (unsigned i = 0; i < l.size(); ++i) if (l[i] == iFile) {
-      InRerunList = true;
-      return true;
-    }
-    return false;
-  }
-  bool RerunList(int y, int st, vector<int> l) {
-    if (iSampleYear == y && iSampleType == st) return RerunList(l);
-    return false;
-  }
-  bool RerunList(string y, string st, vector<int> l) {
-    if (SampleYear == y && SampleType == st) return RerunList(l);
-    return false;
-  }
-
   vector<string> DebugList; // Look for "conf->Debug()" in modules to see candidates.
   bool Debug(string n) {
     for (string nl : DebugList) {

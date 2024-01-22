@@ -32,7 +32,7 @@ using namespace std;
 class NanoAODReader {
 public:
   NanoAODReader(Configs *conf_) {
-    chain = new TChain("Events;2");
+    chain = new TChain("Events");
 
     conf = conf_;
 
@@ -61,29 +61,17 @@ public:
     cout << "Running with SampleYear = " << conf->SampleYear << ", SampleType = " << conf->SampleType <<  endl;
     evts = new Events(chain, conf->SampleYear, IsMC);
     ChainEntries = GetEntries();
-    if (conf->InputFile != "All" && conf->FilesPerJob == 1) cout << "This file contains " << GetEntries() << " events" <<endl;
-    if (conf->FilesPerJob > 1.0 && conf->FilesPerJob != (int) conf->FilesPerJob) cout << "FilesPerJob should be integer if > 1.0!!!" << endl;
+    if (conf->InputFile != "All") cout << "This file contains " << GetEntries() << " events" <<endl;
+    //FIXME: Leftovers from the event splitting logic that should be superfluous
     EntryBegin = 0;
     EntryEnd = ChainEntries;
-    if (conf->FilesPerJob < 1.0 && conf->iFile >= 0) {
-      int EntriesPerJob = floor(((double) ChainEntries) * conf->FilesPerJob);
-      double JobsPerFile = 1.0 / conf->FilesPerJob;
-      if (JobsPerFile - floor(JobsPerFile) != 0) cout << "FilesPerJob divided by 1 is not an integer" << endl;
-      int iSeg = conf->iFile % ((int)JobsPerFile);
-      EntryBegin = iSeg * EntriesPerJob;
-      EntryEnd = (iSeg + 1) * EntriesPerJob;
-      if (iSeg + 1 == JobsPerFile) EntryEnd = ChainEntries;
-      cout << "This Iteration Divided the file containing " << ChainEntries << " entries into " << JobsPerFile << " jobs, each containing " << EntriesPerJob << " entries" << endl;
-    }
-    EntriesMax = EntryEnd - EntryBegin;
-    cout << "EntryBegin = " << EntryBegin << ", EntryEnd = " << EntryEnd << ". Running over " << EntriesMax << " events" << endl;
 
     //Book TProfiles for cutflow components
-    TProfile CutflowSkim             = *(new TProfile("CutflowSkim",         "Cutflow skim level;cut;efficiency",                      3, -0.5, 2.5)); //AnyTrigger, nPV, METFilter
-    TProfile CutflowMuon             = *(new TProfile("CutflowMuon",         "Cutflow after skim level: Muons;cut;efficiency",         6, -0.5, 5.5)); //muon: trigger, eta, pT, ID, isolation, additional lepton veto
-    TProfile CutflowElectron         = *(new TProfile("CutflowElectron",     "Cutflow after skim level: Electrons;cut;efficiency",     6, -0.5, 5.5)); //electron: trigger, eta, pT, ID, isolation, additional lepton veto
-    TProfile2D CutflowJetsMuon       = *(newTProfile2D("CutflowJetsMuon",    "Cutflow after muon selection: Jets;N jets; N b-tags",    7, -0.5, 6.5, 7, -0.5, 6.5)); //after muons -> jets: number of jets vs number of b-tags
-    TProfile2D CutflowJetsElectron   = *(newTProfile2D("CutflowJetsElectron","Cutflow after electron selection: Jets;N jets; N b-tags",7, -0.5, 6.5, 7, -0.5, 6.5)); //after electrons -> jets: number of jets vs number of b-tags
+    CutflowSkim             = *(new TProfile("CutflowSkim",         "Cutflow skim level;cut;efficiency",                      3, -0.5, 2.5, 0., 1., "")); //AnyTrigger, nPV, METFilter
+    CutflowMuon             = *(new TProfile("CutflowMuon",         "Cutflow after skim level: Muons;cut;efficiency",         6, -0.5, 5.5, 0., 1., "")); //muon: trigger, eta, pT, ID, isolation, additional lepton veto
+    CutflowElectron         = *(new TProfile("CutflowElectron",     "Cutflow after skim level: Electrons;cut;efficiency",     6, -0.5, 5.5, 0., 1., "")); //electron: trigger, eta, pT, ID, isolation, additional lepton veto
+    CutflowJetsMuon       = *(new TProfile2D("CutflowJetsMuon",    "Cutflow after muon selection: Jets;N jets; N b-tags",    7, -0.5, 6.5, 7, -0.5, 6.5, 0., 1., "")); //after muons -> jets: number of jets vs number of b-tags
+    CutflowJetsElectron   = *(new TProfile2D("CutflowJetsElectron","Cutflow after electron selection: Jets;N jets; N b-tags",7, -0.5, 6.5, 7, -0.5, 6.5, 0., 1., "")); //after electrons -> jets: number of jets vs number of b-tags
   };
 
   ~NanoAODReader() {
@@ -103,15 +91,9 @@ public:
     }
     else cout << "Reading from file " << filename << endl;
 
+    //FIXME: loop over set of files, instead of single file logic. Should be cleaned up
     int startfile = conf->iFile;
     int endfile = conf->iFile;
-    if (conf->FilesPerJob >= 1.) {
-      startfile = conf->iFile * conf->FilesPerJob;
-      endfile = (conf->iFile + 1) * conf->FilesPerJob - 1;
-    }
-    else {
-      startfile = endfile = floor(conf->iFile * conf->FilesPerJob);
-    }
     string rootf;
     int counter = -1;
     while (getline(infile, rootf)) {
@@ -164,7 +146,6 @@ public:
     iEvent = i;
     iEventInChain = iEvent + EntryBegin; //FIXME: For external logic to work flawlessly, remove functionality to split files
     evts->GetEntry(iEventInChain);
-
     ReadTriggers(); //Logically, this should be the first step. Untrigggered events should not be processed further
     if(Triggers.size() == 0){
       CutflowSkim.Fill(0., 0.); //fail all triggers
@@ -839,9 +820,9 @@ public:
 
       //fill jet multiplicity maps only for central variation
       if(i == 0){
-        for(float x = 0.; x < 7.; ++x) for(float y = 0.; float y <= x; ++y){ //x is number of jets, b is number of b-tags, fill every bin and only count a 1 if both number of jets and b-tags matches, to get correct percentages and totals after all other overlap cut vetos
-	  if(RegionNumber == 1100) CutflowMuons.Fill(x, y, (nj==x?1:0)*(nb==y?1:0));
-	  if(RegionNumber == 2100) CutflowElectrons.Fill(x, y, (nj==x?1:0)*(nb==y?1:0));
+        for(float njets = 0.; njets < 7.; ++njets) for(float nbtags = 0.; nbtags <= njets; ++nbtags){ //x is number of jets, b is number of b-tags, fill every bin and only count a 1 if both number of jets and b-tags matches, to get correct percentages and totals after all other overlap cut vetos
+	  if(RegionNumber == 1100) CutflowJetsMuon.Fill(njets, nbtags, (nj==njets?1:0)*(nb==nbtags?1:0));
+	  if(RegionNumber == 2100) CutflowJetsElectron.Fill(njets, nbtags, (nj==njets?1:0)*(nb==nbtags?1:0));
 	}
       }
 
@@ -1055,6 +1036,9 @@ public:
   vector<Muon> Muons;
   MET Met;
   GenMET GenMet;
+
+  TProfile CutflowSkim, CutflowElectron, CutflowMuon;
+  TProfile2D CutflowJetsElectron, CutflowJetsMuon;
 
   bool isolated_electron_trigger, isolated_muon_trigger, isolated_muon_track_trigger;
   int Pileup_nPU;

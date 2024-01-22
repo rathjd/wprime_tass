@@ -39,13 +39,9 @@ public:
       Ftr->SetJetScale(JS);
       Ftr->SetPermutation(PM);
     }
-    if (conf->EntriesMax > 0 && conf->EntriesMax < r->GetEntriesMax()) EntriesMax = conf->EntriesMax;
-    else EntriesMax = r->GetEntriesMax();
-    cout << "Processing " << EntriesMax << " events" << endl;
-    progress = new Progress(EntriesMax, conf->ProgressInterval);
+    cout << "Processing " << r->GetEntries() << " events" << endl;
+    progress = new Progress(r->GetEntries(), conf->ProgressInterval);
   }
-
-  Long64_t GetEntriesMax() {return EntriesMax;}
 
   Long64_t GetEntries() {return r->GetEntries();}
 
@@ -60,7 +56,7 @@ public:
 
   bool SetOutput(string folder = "Validation") {
     string path = UserSpecifics::EOSBasePath + folder + "/";
-    string subpath = Form("%s_%s/",conf->SampleYear.c_str(), conf->SampleType.c_str());
+    string subpath = Form("%s_%s/",conf->SampleYear.c_str(),conf->SampleType.c_str());
     string outname = Form("%s_%s_%i.root",conf->SampleYear.c_str(), conf->SampleType.c_str(), conf->iFile);
     if (conf->LocalOutput) {
       path = "";
@@ -110,6 +106,12 @@ public:
 
   void SaveOutput() {
     r->RunEndSummary();
+    ofile->cd();
+    r->CutflowSkim.Write();
+    r->CutflowElectron.Write();
+    r->CutflowMuon.Write();
+    r->CutflowJetsElectron.Write();
+    r->CutflowJetsMuon.Write();
     ofile->Write();
     ofile->Save();
   }
@@ -119,7 +121,6 @@ public:
     if (conf->PrintProgress) progress->JobEnd();
   }
 
-  Long64_t EntriesMax;
   Long64_t iEvent;
   TFile *ofile;
   TTree *t;

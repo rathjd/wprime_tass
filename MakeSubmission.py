@@ -10,10 +10,11 @@ SampleYears = ["2016apv","2016","2017","2018"]
 SampleTypes = GetSampleTypes()
 print(SampleTypes)
 
-EOSPath = "/eos/user/s/siluo/WPrimeAnalysis/"
-EOSSubFolderName = "ValidationFitted/"
+EOSPath = "/eos/cms/store/group/phys_b2g/wprime/"
+PersonalEOSPath = "/eos/cms/store/user/r/rathjd/"
+EOSSubFolderName = "SifuFW_Fitted/"
 
-AuxHistsPath = EOSPath + "AuxHists/"
+AuxHistsPath = EOSPath + "AuxHistsSifu/"
 if not os.path.exists(AuxHistsPath):
   os.makedirs(AuxHistsPath)
 AuxHistsPathBatch = AuxHistsPath + "batch/"
@@ -41,12 +42,10 @@ with open("Submits/SubmitTemplate.sh","r") as skeleton:
       el = el.replace("__cwd__",os.getcwd())
       fout.write(el)
 
-
-FileSplit = 10 # set to 0 if not running fitter
-SplitKeywords = ["FL", "LL", "ttbar", "top"] # Keywords for samples whose single file needs too long time to run, and each file will be splitted into FileSplit jobs.
+#FIXME: filelist splitting is now that files have been cut down to manageable sizes to be purged
 BatchHistKeywords = ["SingleMuon", "SingleElectron", "ttbar"] # Keyworks for samples that contain too many events in the output tree, that making hist out of them take too long, to run batch jobs.
 for iy, year in enumerate(SampleYears):
-  if iy < 3: continue # only 2018
+  if not iy==2: continue #FIXME: only 2017
   for isa, sampletype in enumerate(SampleTypes):
     print(SampleYears[iy] + "| " + str(isa) + ":" + sampletype)
     filenamesfolder = "filenames/"
@@ -58,15 +57,10 @@ for iy, year in enumerate(SampleYears):
     nf = len(open(fnfile).readlines())
     if nf == 0: continue
     fpj = 1.0 
-    for kw in SplitKeywords:
-      if kw in sampletype and FileSplit > 0:
-        nf = nf * FileSplit
-        fpj = 1.0 / FileSplit
-        break
     lines = []
     # lines.append("Proxy_path   = /afs/cern.ch/user/s/siluo/x509up\n")
     # lines.append("arguments    = $(Proxy_path) $(ProcID) "+str(iy)+ " " + str(isa) + "\n")
-    lines.append("arguments    = $(ProcID) "+str(iy)+ " " + str(isa) + " " + str(fpj) + "\n")
+    lines.append("arguments    = $(ProcID) "+str(iy)+ " " + str(isa) + " 0\n")
     lines.append("executable   = Submit.sh\n")
     lines.append("max_retries  = 10\n")
     # lines.append("+JobBatchName= " + runname +"\n")
