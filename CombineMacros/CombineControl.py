@@ -7,17 +7,35 @@ bgrNames = ["ttbar", "wjets", "single_top", "diboson"]
 binNumber = 1153 #this needs to be set
 yearNumber = 2018
 
+try:
+    if int(sys.argv[1]) > 0:
+        binNumber = int(sys.argv[1])
+        print("bin number set to "+str(binNumber))
+except:
+    print("bin number defaults to "+str(binNumber))
+
+try:
+    if int(sys.argv[2]) > 0:
+        yearNumber = int(sys.argv[2])
+        print("year number set to "+str(yearNumber))
+except:
+    print("year number defautls to "+str(yearNumber))
+
+
+
 yearName = str(yearNumber)
 binName = "Wprime" + str(binNumber)
 
 #First, generate the shape variation histograms
-print("Starting processing of intermediate files")
-if os.path.isdir("TestHistograms"):
-  os.system("rm TestHistograms/*.root") #reset 
-else:
-  os.system("mkdir TestHistograms") #make directory, if it doesn't exist
+#print("Starting processing of intermediate files")
+#if os.path.isdir("TestHistograms"):
+#  os.system("rm TestHistograms/*.root") #reset 
+#else:
+#  os.system("mkdir TestHistograms") #make directory, if it doesn't exist
 os.system("root -l -b -q 'runCombineHistogramDumpster.C+(" + str(binNumber) + ", " + str(yearNumber) + ")'") #This does not yet provide a year, as only 2018 is processed
 os.system("hadd -f SimpleShapes_" + binName + ".root TestHistograms/SimpleShapes_Bin" + str(binNumber) + "*.root") #hadd all histograms to a convenient combined file
+os.system("hadd -f HT_SimpleShapes_" + binName + ".root TestHistograms/HT_SimpleShapes_Bin" + str(binNumber) + "*.root") #hadd all histograms to a convenient combined file
+os.system("hadd -f TwoD_SimpleShapes_" + binName + ".root TestHistograms/TwoD_SimpleShapes_Bin" + str(binNumber) + "*.root") #hadd all histograms to a convenient combined file
 
 #define correlated entities for usage in card
 #https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun2#Combination_and_correlations

@@ -119,7 +119,7 @@ public:
     // Example command to get the sample size:
     // for i in 3 4 5 6 7 8 9 10 11; do dasgoclient -query="dataset=/btWprimeToBottomTop_LatterLeptonic_M-${i}00_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16NanoAODAPVv9-106X_mcRun2_asymptotic_preVFP_v11-v1/NANOAODSIM | grep dataset.nevents"; done
     AddDataset_NGTCXS("FL300"                  ,"M300"            , 2, 4 , 683.8,  {542974, 451706, 989541, 973312}); // 22
-    AddDataset_NGTCXS("FL400"                  ,"M400"            , 2, 5 , 321.7,  {542917, 457628, 1009763, 1005777}); // 23
+    AddDataset_NGTCXS("FL400"                  ,"M400"            , 2, 5 , 321.7,  {542917, 457628, 1009763, 1005777*9/10}); // 23 FIXME: In 2018 10% of jobs are missing
     AddDataset_NGTCXS("FL500"                  ,"M500"            , 2, 6 , 161.1,  {539889, 472634, 990910, 995846}); // 24
     AddDataset_NGTCXS("FL600"                  ,"M600"            , 2, 7 , 85.92,  {538626, 459533, 1002905, 1013268}); // 25
     AddDataset_NGTCXS("FL700"                  ,"M700"            , 2, 8 , 48.84,  {0, 458032, 993657, 1007434}); // 26

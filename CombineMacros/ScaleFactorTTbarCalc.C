@@ -31,15 +31,15 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
     TFile *infile = new TFile(TString::Format("TestHistograms/SimpleShapes_Bin%d_%d.root",bin,i),"READ");
     Dataset dset = dlib.GetDataset(i);
     TString gn = dset.GroupName;
-    if(i<=1) dataHist = *(TH1F*)(infile->Get(TString::Format("data_obs_Wprime%d_",bin)))->Clone("dataHist");
+    if(i<=1) dataHist = *(TH1F*)(infile->Get(TString::Format("ST_data_obs_Wprime%d_",bin)))->Clone("dataHist");
     else if(i==2){
-      for(unsigned j = 0; j < variations.size(); ++j) ttbarHists.push_back(*(TH1F*)(infile->Get(TString::Format(gn+"_Wprime%d_"+variations[j],bin)))->Clone(TString::Format("ttbar_%d",j)));
+      for(unsigned j = 0; j < variations.size(); ++j) ttbarHists.push_back(*(TH1F*)(infile->Get(TString::Format("ST_"+gn+"_Wprime%d_"+variations[j],bin)))->Clone(TString::Format("ttbar_%d",j)));
     }
    else if (i==3){
-     for(unsigned j = 0; j < variations.size(); ++j) NonTtbarHists.push_back(*(TH1F*)(infile->Get(TString::Format(gn+"_Wprime%d_"+variations[j],bin)))->Clone(TString::Format("nonTtbar_%d",j)));
+     for(unsigned j = 0; j < variations.size(); ++j) NonTtbarHists.push_back(*(TH1F*)(infile->Get(TString::Format("ST_"+gn+"_Wprime%d_"+variations[j],bin)))->Clone(TString::Format("nonTtbar_%d",j)));
    }
    else{
-     for(unsigned j = 0; j < variations.size(); ++j) NonTtbarHists[j].Add((TH1F*)(infile->Get(TString::Format(gn+"_Wprime%d_"+variations[j],bin))));
+     for(unsigned j = 0; j < variations.size(); ++j) NonTtbarHists[j].Add((TH1F*)(infile->Get(TString::Format("ST_"+gn+"_Wprime%d_"+variations[j],bin))));
    }
   }
 
@@ -49,21 +49,30 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
     SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variations[i]));
     SFhists[i].Add(&NonTtbarHists[i],-1.);
     SFhists[i].Divide(&ttbarHists[i]);
+
+    //cleaning function
+    for(unsigned x = 0; x < dataHist.GetNbinsX(); ++x){
+      if(dataHist.GetBinContent(x+1) < 10.) {SFhists[i].SetBinContent(x+1,0.); SFhists[i].SetBinError(x+1,0.);}
+      if(dataHist.GetBinContent(x+1) < NonTtbarHists[i].GetBinContent(x+1)) {SFhists[i].SetBinContent(x+1,0.); SFhists[i].SetBinError(x+1,0.);}
+    }
+
     SFs.push_back(*(TH1F*)SFhists[i].Clone("SFcalc_"+variations[i]));
+
   }
 
+
   //define fit function
-  TF1 *fitFunction = new TF1("fitFunction","[0]/x+[1]*x+[2]*x*x+[3]", 150., 2000.);
+  TF1 *fitFunction = new TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x", 150., 2000.);
 
   //fit nominal variant with statistical uncertainties only, get covariance matrix, calculate statistical envelope
   TFitResultPtr fr = SFhists[0].Fit(fitFunction,"SRF");
   TMatrixD cov = fr->GetCovarianceMatrix();
   for(unsigned i = 0; i < SFhists[0].GetNbinsX(); ++i){
     float bc = SFhists[0].GetBinCenter(i+1);
-    float Deriv0 = 1./bc;
-    float Deriv1 = bc;
-    float Deriv2 = bc*bc;
-    float Deriv3 = 1.;
+    float Deriv0 = 1./bc/bc;
+    float Deriv1 = 1./bc;
+    float Deriv2 = 1.;
+    float Deriv3 = bc;
     float FinalEnvelope = 0.;
     //scan covariance matrix
     for(unsigned x = 0; x < 4; ++x){
@@ -99,4 +108,5 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
     SFhists[i].Write();
     SFs[i].Write();
   }
+  savefile->Close();
 } 

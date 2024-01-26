@@ -50,13 +50,15 @@ public :
   vector<float>   *mT;
   vector<float>   *WPrimeMassSimpleFL;
   vector<float>   *WPrimeMassSimpleLL;
-  vector<float>   *WPrimeMass;
-  vector<float>   *Likelihood;
-  vector<int>     *WPType;
+  //vector<float>   *WPrimeMass;
+  //vector<float>   *Likelihood;
+  //vector<int>     *WPType;
   Int_t           nPU;
   Float_t         nTrueInt;
   Int_t           nPV;
   Int_t           nPVGood;
+  vector<double>   *Best_Likelihood;
+  vector<double>   *Best_WPrimeMass;
 
   // List of branches
   TBranch        *b_RegionIdentifier;   //!
@@ -85,13 +87,15 @@ public :
   TBranch        *b_mT;   //!
   TBranch        *b_WPrimeMassSimpleFL;   //!
   TBranch        *b_WPrimeMassSimpleLL;   //!
-  TBranch	 *b_WPrimeMass; //!
-  TBranch	 *b_Likelihood; //!
-  TBranch	 *b_WPType; //!
+  //TBranch	 *b_WPrimeMass; //!
+  //TBranch	 *b_Likelihood; //!
+  //TBranch	 *b_WPType; //!
   TBranch        *b_nPU;   //!
   TBranch        *b_nTrueInt;   //!
   TBranch        *b_nPV;   //!
   TBranch        *b_nPVGood;   //!
+  TBranch	 *b_Best_Likelihood; //!
+  TBranch	 *b_Best_WPrimeMass; //!
 
   CombineHistogramDumpster(TChain *tree = 0, unsigned it_ = 99, int bin_ = 1152, TString year_ = "2018", int SFreg_ = 0);
   virtual ~CombineHistogramDumpster();
@@ -123,7 +127,8 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
 // used to generate this class and read the Tree.
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
-    TString FilePath = "/eos/user/s/siluo/WPrimeAnalysis/Validation/" + year_ + "_" + dset.Name + "/*.root";
+    TString FilePath = "/afs/cern.ch/user/s/siluo/EOS/WPrimeAnalysis/ValidationFitted/"+ year_ + "_" + dset.Name + "/*.root";
+	    //"/eos/user/s/siluo/WPrimeAnalysis/Validation/" + year_ + "_" + dset.Name + "/*.root";
     tree = new TChain("t");
     tree->Add(FilePath);
     Iterator = it_;
@@ -180,9 +185,11 @@ void CombineHistogramDumpster::Init(TChain *tree)
   mT = 0;
   WPrimeMassSimpleFL = 0;
   WPrimeMassSimpleLL = 0;
-  WPrimeMass = 0;
-  Likelihood = 0;
-  WPType = 0;
+  //WPrimeMass = 0;
+  //Likelihood = 0;
+  //WPType = 0;
+  Best_WPrimeMass = 0;
+  Best_Likelihood = 0;
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -215,13 +222,15 @@ void CombineHistogramDumpster::Init(TChain *tree)
   fChain->SetBranchAddress("mT", &mT, &b_mT);
   fChain->SetBranchAddress("WPrimeMassSimpleFL", &WPrimeMassSimpleFL, &b_WPrimeMassSimpleFL);
   fChain->SetBranchAddress("WPrimeMassSimpleLL", &WPrimeMassSimpleLL, &b_WPrimeMassSimpleLL);
-  fChain->SetBranchAddress("WPrimeMass", &WPrimeMass, &b_WPrimeMass);
-  fChain->SetBranchAddress("Likelihood", &Likelihood, &b_Likelihood);
-  fChain->SetBranchAddress("WPType", &WPType, &b_WPType);
+  //fChain->SetBranchAddress("WPrimeMass", &WPrimeMass, &b_WPrimeMass);
+  //fChain->SetBranchAddress("Likelihood", &Likelihood, &b_Likelihood);
+  //fChain->SetBranchAddress("WPType", &WPType, &b_WPType);
   fChain->SetBranchAddress("nPU", &nPU, &b_nPU);
   fChain->SetBranchAddress("nTrueInt", &nTrueInt, &b_nTrueInt);
   fChain->SetBranchAddress("nPV", &nPV, &b_nPV);
   fChain->SetBranchAddress("nPVGood", &nPVGood, &b_nPVGood);
+  fChain->SetBranchAddress("Best_Likelihood", &Best_Likelihood, &b_Best_Likelihood);
+  fChain->SetBranchAddress("Best_WPrimeMass", &Best_WPrimeMass, &b_Best_WPrimeMass);
   Notify();
 }
 
