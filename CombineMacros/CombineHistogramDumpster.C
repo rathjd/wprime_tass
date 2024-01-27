@@ -75,9 +75,9 @@ void CombineHistogramDumpster::Loop()
   int year = 0;
   float Lumi = 0.;
   if(YearType == "2016_APV")  {Year = 0; year = 2016; Lumi = 0.;}
-  else if(YearType == "2016") {Year = 1; year = 2016; Lumi = 41.58;}
-  else if(YearType == "2017") {Year = 2; year = 2017; Lumi = 49.81;}
-  else if(YearType == "2018") {Year = 3; year = 2018; Lumi = 67.86;}
+  else if(YearType == "2016") {Year = 1; year = 2016; Lumi = 36.31;}
+  else if(YearType == "2017") {Year = 2; year = 2017; Lumi = 41.48;}
+  else if(YearType == "2018") {Year = 3; year = 2018; Lumi = 59.83;}
   float SampleWeight = 1.;
   if(dset.Type != 0) SampleWeight = Lumi * dset.CrossSection / dset.Size[Year];
 
@@ -121,7 +121,10 @@ void CombineHistogramDumpster::Loop()
     //need to fill ST collection
     TString STname = "ST_";
     STname.Append(variationsName[i]);
-    ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 400, 0., 2000.));
+    ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 400, 0., 2000.)); //default version FIXME
+    //double STlimits[33] = { 200., 300., 350., 400., 420., 440., 460., 480., 500., 520., 540., 560., 580., 600., 620., 640., 660., 680., 700., 720., 740., 760., 780., 800., 850., 900., 950., 1000., 1100., 1200., 1300, 1500., 2000. }; //SIFU version
+    //ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 32, STlimits));
+
 
     //only activate for SR runs with ttbar sample
     if(SFreg != 0 && Iterator == 2){
