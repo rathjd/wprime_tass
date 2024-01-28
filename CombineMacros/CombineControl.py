@@ -27,7 +27,7 @@ yearName = str(yearNumber)
 binName = "Wprime" + str(binNumber)
 
 #First, generate the shape variation histograms
-#print("Starting processing of intermediate files")
+print("Starting processing of intermediate files")
 #if os.path.isdir("TestHistograms"):
 #  os.system("rm TestHistograms/*.root") #reset 
 #else:
@@ -42,14 +42,14 @@ os.system("hadd -f TwoD_SimpleShapes_" + binName + ".root TestHistograms/TwoD_Si
 lumiCorrVal = "0.0"
 lumiStatVal = "0.0"
 if yearNumber == 2016:
-  lumiCorrVal = "0.6"
-  lumiStatVal = "1.0"
+  lumiCorrVal = "1.006"
+  lumiStatVal = "1.01"
 if yearNumber == 2017:
-  lumiCorrVal = "0.9"
-  lumiStatVal = "2.0"
+  lumiCorrVal = "1.009"
+  lumiStatVal = "1.02"
 if yearNumber == 2018:
-  lumiCorrVal = "2.0"
-  lumiStatVal = "1.5"
+  lumiCorrVal = "1.02"
+  lumiStatVal = "1.015"
 
 #define all the systematic names, types, and values
 systNames = ["lumiCorr",  "lumiStat"+yearName, "electron", "muonTrigger", "muonId", "muonIso", "BjetTagCorr", "BjetTagUncorr"+yearName, "PUID",  "L1PreFiring", "PUreweight", "PDF",   "LHEScale", "electronScale", "electronRes", "JES",   "JER"]
