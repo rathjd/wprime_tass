@@ -121,9 +121,9 @@ void CombineHistogramDumpster::Loop()
     //need to fill ST collection
     TString STname = "ST_";
     STname.Append(variationsName[i]);
-    ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 400, 0., 2000.)); //default version FIXME
-    //double STlimits[33] = { 200., 300., 350., 400., 420., 440., 460., 480., 500., 520., 540., 560., 580., 600., 620., 640., 660., 680., 700., 720., 740., 760., 780., 800., 850., 900., 950., 1000., 1100., 1200., 1300, 1500., 2000. }; //SIFU version
-    //ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 32, STlimits));
+    //ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 400, 0., 2000.)); //default version FIXME
+    double STlimits[33] = { 200., 300., 350., 400., 420., 440., 460., 480., 500., 520., 540., 560., 580., 600., 620., 640., 660., 680., 700., 720., 740., 760., 780., 800., 850., 900., 950., 1000., 1100., 1200., 1300, 1500., 2000. }; //SIFU version
+    ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 32, STlimits));
 
 
     //only activate for SR runs with ttbar sample
@@ -241,11 +241,11 @@ void CombineHistogramDumpster::Loop()
 	float fillVar = Vals[0];
 
         if(Iterator == 2 && SFreg != 0){
-	  FitMass[i]->Fill(Best_WPrimeMass->at(0),EventWeight[i-8]*SampleWeight*SFs[0].Eval(STvals[0]));
-	  HT[i]->Fill(fillVar,EventWeight[i-8]*SampleWeight*SFs[0].Eval(STvals[0]));
+	  FitMass[i]->Fill(Best_WPrimeMass->at(0),EventWeight[i-8]*SampleWeight*SFs[i].Eval(STvals[0]));
+	  HT[i]->Fill(fillVar,EventWeight[i-8]*SampleWeight*SFs[i].Eval(STvals[0]));
 
-	  FitMass_2D[i]->Fill(Best_WPrimeMass->at(0),-log(Best_Likelihood->at(0)),EventWeight[i-8]*SampleWeight*SFs[0].Eval(STvals[0]));
-	  HT_2D[i]->Fill(fillVar,-log(Best_Likelihood->at(0)),EventWeight[i-8]*SampleWeight*SFs[0].Eval(STvals[0]));
+	  FitMass_2D[i]->Fill(Best_WPrimeMass->at(0),-log(Best_Likelihood->at(0)),EventWeight[i-8]*SampleWeight*SFs[i].Eval(STvals[0]));
+	  HT_2D[i]->Fill(fillVar,-log(Best_Likelihood->at(0)),EventWeight[i-8]*SampleWeight*SFs[i].Eval(STvals[0]));
 	}
         else{
 	  FitMass[i]->Fill(Best_WPrimeMass->at(0),EventWeight[i-8]*SampleWeight);
