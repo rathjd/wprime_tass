@@ -3,43 +3,49 @@
 #include "Utilities/MCReweight.cc"
 #include "TF1.h"
 #include "TROOT.h"
+#include "TMath.h"
 
-void DrawPlotValidation(int isampleyear = 3, int iobs = -99, bool DoMCReweight = false, bool DrawMCReweight = false, bool SaveUncerts = false) {
-  vector<pair<string,string> > obs;
+void DrawPlotValidation(int isampleyear = 3, int iobs = -99, int DoMCReweight = 0, int ForceLegPos = -1, bool SaveInfos = false) {
+  vector<PlotObservable> obs;
   vector<TString> extensions;
   // extensions.push_back(".root");
-  // extensions.push_back(".pdf");
-  extensions.push_back(".C");
-  obs.push_back({"LeptonPt", "Lepton p_{T}"});  // 0
-  obs.push_back({"LeptonEta", "Lepton #eta"} );  // 1
-  obs.push_back({"LeptonPhi", "Lepton #phi"} );  // 2
-  obs.push_back({"METPt", "#slash{E}_{T} p_{T}"} ); // 3
-  obs.push_back({"METPhi", "#slash{E}_{T} #phi"} ); // 4
-  obs.push_back({"dPhiMetLep","#Delta#phi(#slash{E}_{T},l)"}); // 5
-  obs.push_back({"mT", "m_{T}"} );  // 6
-  obs.push_back({"HT", "H_{T}"} );  // 7
-  obs.push_back({"ST","ST"}); // 8
-  obs.push_back({"WPrimeMassSimpleFL", "Simple m(W'_{H})"} ); // 9
-  obs.push_back({"WPrimeMassSimpleLL", "Simple m(W'_{L})"} ); // 10
-  obs.push_back({"WPrimeMass", "m(W')"} );  // 11
-  obs.push_back({"WPrimeMassFL", "m(W'_{H})"} );  // 12
-  obs.push_back({"WPrimeMassLL", "m(W'_{L})"} );  // 13
-  obs.push_back({"Likelihood", "Likelihood"} );   // 14
+  extensions.push_back(".pdf");
+  // extensions.push_back(".C");
+  int rebin = 1;
+  // PlotObservable(Observable Name, Xtitle, YTitle, YEnlarge, xmin, xmax, LegendPosType, LegendPos)
+  obs.push_back({"LeptonPt", "Lepton p_{T} [GeV]", "Number of Entries / 10 GeV", 1., -1, -1, 2, {}});  // 0
+  obs.push_back({"LeptonEta", "Lepton #eta", "Number of Entries / 0.1", 3., -1, -1, 0, {}} );  // 1
+  obs.push_back({"LeptonPhi", "Lepton #phi", "Number of Entries / 0.1", 3., -1, -1, 0, {}} );  // 2
+  obs.push_back({"METPt", "p_{T}^{miss} [GeV]", "Number of Entries / 20 GeV", 1., 0, 500, 2, {}} ); // 3
+  obs.push_back({"METPhi", "#phi_{p_{T}^{miss}}", "Number of Entries / 0.1", 0.7, -1, -1, 2, {}} ); // 4
+  obs.push_back({"dPhiMetLep","#Delta#phi(#slash{E}_{T},l)", "Number of Entries / 0.1", 3., -1, -1, 0, {}}); // 5
+  obs.push_back({"mT", "m_{T} [GeV]", "Number of Entries / 20 GeV", 1., 0., 400, 0, {}} );  // 6
+  obs.push_back({"HT", "H_{T} [GeV]", "Number of Entries / 10 GeV", 1., -1, -1, 0, {}} );  // 7
+  obs.push_back({"ST","S_{T} [GeV]", "Number of Entries / 10 GeV", 1., -1, -1, 0, {}}); // 8
+  obs.push_back({"WPrimeMassSimpleFL", "Simple m(W'_{H}) [GeV]", "Number of Entries / 20 GeV", 1., -1, -1, 0, {}} ); // 9
+  obs.push_back({"WPrimeMassSimpleLL", "Simple m(W'_{L}) [GeV]", "Number of Entries / 20 GeV", 1., -1, -1, 0, {}} ); // 10
+  obs.push_back({"WPrimeMass", "m(W') [GeV]", "Number of Entries / 20 GeV", 1., -1, -1, 2, {}} );  // 11
+  obs.push_back({"WPrimeMassFL", "m(W'_{H}) [GeV]", "Number of Entries / 20 GeV", 1., -1, -1, 2, {}} );  // 12
+  obs.push_back({"WPrimeMassLL", "m(W'_{L}) [GeV]", "Number of Entries / 20 GeV", 1., -1, -1, 2, {}} );  // 13
+  obs.push_back({"Likelihood", "log(Likelihood)", "Number of Entries / 0.1", 1., -1, -1, 1, {}} );   // 14
+  obs.push_back({"LikelihoodCorrect", "Correct Perm log(Likelihood)", "Number of Entries / 0.1", 1., -1, -1, 1, {}}); // 15
+  obs.push_back({"LikelihoodEffCorrect", "Effectively Correct Perm log(Likelihood)", "Number of Entries / 0.1", 1., -1, -1, 1, {}}); // 16
+  obs.push_back({"LikelihoodInCorrect", "Incorrect Perm log(Likelihood)", "Number of Entries / 0.1", 1., -1, -1, 1, {}}); // 17
   int JetQuantitiesIndex = obs.size();
   for (unsigned ij = 0; ij < 5; ++ij) { // 5 for JetPt,Eta,Phi, and 10 for dR(Jeta,Jetb), in total 15 in the loop
-    obs.push_back({Form("Jet%iPt", ij), Form("Jet[%i] p_{T}", ij)}); // 15, 18, 21, 24, 27 
-    obs.push_back({Form("Jet%iEta", ij), Form("Jet[%i] #eta", ij)}); // 16, 19, 22, 25, 28
-    obs.push_back({Form("Jet%iPhi", ij), Form("Jet[%i] #phi", ij)}); // 17, 20, 23, 26, 29
+    obs.push_back({Form("Jet%iPt", ij), Form("Jet[%i] p_{T} [GeV]", ij), "Number of Entries / 10 GeV", 1., -1, -1, 2, {}}); // 18, 21, 24, 27, 30 
+    obs.push_back({Form("Jet%iEta", ij), Form("Jet[%i] #eta", ij), "Number of Entries / 0.1", 8., -1, -1, 0, {}}); // 19, 22, 25, 28, 31
+    obs.push_back({Form("Jet%iPhi", ij), Form("Jet[%i] #phi", ij), "Number of Entries / 0.1", 3., -1, -1, 0, {}}); // 20, 23, 26, 29, 32
   }
   for (unsigned ij = 0; ij < 5; ++ij) {
     for (unsigned ij2 = ij + 1; ij2 < 5; ++ij2) {
-      obs.push_back({Form("dR(Jet%i,Jet%i)",ij, ij2), Form("dR(Jet%i,Jet%i)",ij, ij2)});
+      obs.push_back({Form("dR(Jet%i,Jet%i)",ij, ij2), Form("dR(Jet%i,Jet%i)",ij, ij2), "Number of Entries / 0.1", 3., -1, -1, 0, {}});
     }
   }
   if (iobs == -99) {
     cout << "Obs has size = " << obs.size() << " :" << endl;
     for (unsigned io = 0; io < obs.size(); ++io) {
-      cout << io << ": " << obs[io].first << endl;
+      cout << io << ": " << obs[io].Observable << endl;
     }
     return;
   }
@@ -48,89 +54,50 @@ void DrawPlotValidation(int isampleyear = 3, int iobs = -99, bool DoMCReweight =
     cout << "iobs = " << iobs << ", greater equal to obs size = " << obs.size() << ", terminating" << endl;
     return;
   }
-  if (iobs == -1 && !DrawMCReweight) {
+  if (iobs == -1) {
     cout << "Running over all observables but jets quantities" << endl;
     for (int iobss = 0; iobss < JetQuantitiesIndex; ++iobss) {
-      DrawPlotValidation(isampleyear, iobss, DoMCReweight, false, SaveUncerts);
+      DrawPlotValidation(isampleyear, iobss, DoMCReweight, ForceLegPos, SaveInfos);
     }
     return;
   }
-  if (iobs == -2 && !DrawMCReweight) {
+  if (iobs == -2) {
     cout << "Running over all jets quantities" << endl;
     for (int iobss = JetQuantitiesIndex; iobss < (int) obs.size(); ++iobss) {
-      DrawPlotValidation(isampleyear, iobss, DoMCReweight, false, SaveUncerts);
+      DrawPlotValidation(isampleyear, iobss, DoMCReweight, ForceLegPos, SaveInfos);
     }
     return;
   }
 
   string SampleYear = dlib.SampleYears[isampleyear];
   vector<string> SampleTypes = dlib.DatasetNames;
-  rm.AcceptRegions({1,2},{1},{5,6},{1,2,3,4,5,6});
-  rm.Variations = {"" // 0
-  , "EleScaleUp", "EleScaleDown", "EleResUp", "EleResDown", "JESUp", "JESDown", "JERUp", "JERDown" // 1-8
-  , "EleSFUp", "EleSFDown", "MuonTriggerUp", "MuonTriggerDown", "MuonIdUp", "MuonIdDown", "MuonIsoUp", "MuonIsoDown" // 9-16
-  , "BjetTagCorrUp", "BjetTagCorrDown", "BjetTagUncorrUp", "BjetTagUncorrDown", "PUIDSFUp", "PUIDSFDown", "L1PreFiringSFUp", "L1PreFiringSFDown" // 17-24
-  , "PUreweightSFUp", "PUreweightSFDown"
-  , "PDFUp", "PDFDown"
-  , "LHEScaleUp", "LHEScaleDown" // 25 - 30
-  };
-  // SampleTypes = {"FL500"};
-  // vector<string> StringRanges = rm.StringRanges;
+  rm.AcceptRegions({1,2},{1},{5,6},{1,2,3,4});
+  if (DoMCReweight) rm.AddVariationSource("RwStat");
+  if (ForceLegPos >= 0) obs[iobs].LegPos = ForceLegPos;
   
-  
-  string Observable = obs[iobs].first;
-  string ObservablesXTitle = obs[iobs].second;
+  // string Observable = obs[iobs].Observable;
+  // string ObservablesXTitle = obs[iobs].Title;
 
   // string HistFilePath = "outputs/";
   string HistFilePath = "/eos/user/s/siluo/WPrimeAnalysis/ValidationFitted/Hists/";
   string HistFilePrefix = SampleYear + "_Validation";
   string PlotNamePrefix = HistFilePrefix;
 
-  if (DrawMCReweight) {
-    setTDRStyle();
-    gStyle->SetOptFit(0000);
-    TCanvas* c1 = new TCanvas("c1","c1",800,800);
-    string MCRWVar = "ST";
-    MCReweightManager *mcrm = new MCReweightManager(MCRWVar);
-    mcrm->Init();
-    if (!mcrm->ReadFromFile(HistFilePath, HistFilePrefix)) return;
-    TString SFPlotTitle = "NoTitle; NoTitle; NoTitle";
-    for (unsigned i = 0; i < obs.size(); ++i) {
-      if (mcrm->Observable == obs[i].first) SFPlotTitle = ";" + obs[i].second + ";Scale Factor";
-    }
-    TLegend* leg = new TLegend(0.7,0.7,0.9,0.9);
-    vector<int> RegionColors = {2,3,4,5};
-    if (RegionColors.size() < mcrm->rws.size()) cout << "Not enough color palette set for " << mcrm->rws.size() << " plots" << endl;
-    c1->cd();
-    for (unsigned i = 0; i < mcrm->rws.size(); ++i) {
-      mcrm->rws[i]->SF1D->SetLineColor(RegionColors[i]);
-      mcrm->rws[i]->SF1DF->SetLineColor(RegionColors[i]);
-      TString label = "";
-      if (mcrm->rws[i]->SourceRegionInt / 1000 == 1) label += "#mu ";
-      else label += "e ";
-      label += Form("%ij%ib", mcrm->rws[i]->SourceRegionInt / 10 % 10, mcrm->rws[i]->SourceRegionInt % 10);
-      leg->AddEntry(mcrm->rws[i]->SF1D, label);
-      if (i == 0) {
-        mcrm->rws[i]->SF1D->SetMaximum(2.5);
-        mcrm->rws[i]->SF1D->GetXaxis()->CenterTitle();
-        mcrm->rws[i]->SF1D->Draw("E1");
-      }
-      else mcrm->rws[i]->SF1D->Draw("E1same");
-    }
-    leg->Draw();
-    TString rwfn = "plots/" + SampleYear + "/" + PlotNamePrefix + "_ReweightSF.pdf";
-    c1->SaveAs(rwfn);
-    return;
-  }
-
   HistManager* AllPlots = new HistManager();
   // AllPlots->SetSampleTypes(SampleTypes);
   // AllPlots->SetRegions(StringRanges);
-  AllPlots->SetTitles(ObservablesXTitle);
+  // AllPlots->SetTitles(ObservablesXTitle);
   AllPlots->SetPrefix(PlotNamePrefix);
-  AllPlots->SetObservable(Observable);
-  AllPlots->SetDrawSensitivity(true);
-  AllPlots->SetDrawPurity(true);
+  // Special rebinning for W' mass
+  if (!(iobs >=9 && iobs <= 13)) rebin = 1; // rebin only applies to WprimeMass related plots
+  if (rebin  > 1) {
+    AllPlots->Rebin(rebin);
+    obs[iobs].YTitle = Form("Number of Entries / %d GeV", 20 * rebin);
+  }
+  // End of special rebinning
+  AllPlots->SetObservable(obs[iobs]);
+  // AllPlots->SetDrawSensitivity(true);
+  // if (iobs == 0) AllPlots->SetDrawPurity(true);
   AllPlots->ReadHistograms(HistFilePath, HistFilePrefix, DoMCReweight);
 
   for (unsigned ir = 0; ir < rm.StringRanges.size(); ++ir) {
@@ -138,19 +105,27 @@ void DrawPlotValidation(int isampleyear = 3, int iobs = -99, bool DoMCReweight =
     AllPlots->CreateAuxiliaryPlots(ir);
     AllPlots->DrawPlot(ir, c1, isampleyear);
     TString PlotName = AllPlots->Plots[ir]->PlotName;
+    if (rebin > 1) PlotName = AllPlots->Plots[ir]->PlotName + Form("Rebin%d",rebin);
     TString PlotYear = SampleYear;
     TString pn  = "plots/" + SampleYear + "/" + PlotName;
     for (unsigned iext = 0; iext < extensions.size(); ++iext) {
-      if (DoMCReweight) pn += "_RW" + extensions[iext];
+      if (DoMCReweight == 1) pn += "_RW" + extensions[iext];
+      else if (DoMCReweight == 2) pn += "_RW2On2" + extensions[iext];
       else pn += extensions[iext];
       c1->SaveAs(pn);
     }
     string sr = rm.StringRanges[ir];
-    if (sr == "1153" || sr == "1163" || sr == "2153" || sr == "2163") if (SaveUncerts) AllPlots->SaveUncertContribution(ir, PlotName);
+    // if (sr == "1153" || sr == "1163" || sr == "2153" || sr == "2163") 
+    if (SaveInfos) {
+      TString uncname = PlotName;
+      if (DoMCReweight == 1) uncname += "RW";
+      else if (DoMCReweight == 2) uncname += "RW2On2";
+      AllPlots->SaveInfos(ir, uncname);
+    }
     delete c1;
   }
 
-
+  
   
 
 }

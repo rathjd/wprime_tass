@@ -51,7 +51,8 @@ public:
     else if (B1[3] == 2 && B2[3] == 2) l3 = " #font[12]{e},";
     else l3 = "#font[12]{{#mu}/e},";
 
-    if (B1[2] == 1 && B2[2] == 1) l2 = "Sig. Like";
+    // if (B1[2] == 1 && B2[2] == 1) l2 = "Sig. Like";
+    if (B1[2] == 1 && B2[2] == 1) l2 = "";
     else if (B1[2] == 2 && B2[2] == 2) l2 = "Bkg. Est.";
     else l2 = "Inclusive";
 
@@ -100,23 +101,60 @@ public:
 class RegionManager{
 public:
   RegionManager() {
+    MakeVariations();
   };
   vector<RegionIdRange> Ranges;
   vector<string> StringRanges;
   vector<TString> LatexRanges;
   // Variations is not very comfortable to be placed inside RegionManager.
   // But rest here at the momemt, as RegionManager is assured to be widely included.
-  vector<string> Variations = {"" // 0
-  , "EleScaleUp", "EleScaleDown", "EleResUp", "EleResDown", "JESUp", "JESDown", "JERUp", "JERDown" // 1-8
-  , "EleSFUp", "EleSFDown", "MuonTriggerUp", "MuonTriggerDown", "MuonIdUp", "MuonIdDown", "MuonIsoUp", "MuonIsoDown" // 9-16
-  , "BjetTagCorrUp", "BjetTagCorrDown", "BjetTagUncorrUp", "BjetTagUncorrDown", "PUIDSFUp", "PUIDSFDown", "L1PreFiringSFUp", "L1PreFiringSFDown" // 17-24
-  , "PUreweightSFUp", "PUreweightSFDown", "PDFUp", "PDFDown", "LHEScaleUp", "LHEScaleDown" // 25 - 30
-  };
+  vector<string> Variations = {""};
+  string UpPost = "Up";
+  string DownPost = "Down";
+  void AddVariationSource(string sr) {
+    Variations.push_back(sr + UpPost);
+    Variations.push_back(sr + DownPost);
+  }
+  
+  void MakeVariations() {
+    Variations = {""};
+    AddVariationSource("EleScale"); // 1 2
+    AddVariationSource("EleRes"); // 3 4
+    AddVariationSource("JES"); // 5 6
+    AddVariationSource("JER"); // 7 8
+    AddVariationSource("EleSF"); // 9 10
+    AddVariationSource("MuonTrigger"); // 11 12
+    AddVariationSource("MuonId"); // 13 14
+    AddVariationSource("MuonIso"); // 15 16
+    AddVariationSource("BjetTagCorr"); // 17 18
+    AddVariationSource("BjetTagUncorr"); // 19 20
+    AddVariationSource("PUIDSF"); // 21 22 
+    AddVariationSource("L1PreFiringSF"); // 23 24
+    AddVariationSource("PUreweightSF"); // 25 26
+    AddVariationSource("PDF"); // 27 28
+    AddVariationSource("LHEScale"); // 29 30
+  }
 
-  // Temperary working version below Take the version above next time. FIXME
-  // Variations have to be ordered as central followed by Up variations and Down variations.
-  // Histmanager will determine the variation type based on 
-  // vector<string> Variations = {"central", "EleScaleUp", "EleScaleDown", "EleResUp", "EleResDown", "JESup", "JESdown", "JERup", "JERdown", "SFup", "SFdown"};
+  void MakeCombineVariations() {
+    Variations = {""};
+    AddVariationSource("electronScale"); // 1 2
+    AddVariationSource("electronRes"); // 3 4
+    AddVariationSource("JES"); // 5 6
+    AddVariationSource("JER"); // 7 8
+    AddVariationSource("electron"); // 9 10
+    AddVariationSource("muonTrigger"); // 11 12
+    AddVariationSource("muonId"); // 13 14
+    AddVariationSource("muonIso"); // 15 16
+    AddVariationSource("BjetTagCorr"); // 17 18
+    AddVariationSource("BjetTagUncorr2018"); // 19 20
+    AddVariationSource("PUID"); // 21 22 
+    AddVariationSource("L1PreFiring"); // 23 24
+    AddVariationSource("PUreweight"); // 25 26
+    AddVariationSource("PDF"); // 27 28
+    AddVariationSource("LHEScale"); // 29 30
+    // AddVariationSource("RwStat"); // 31 32
+  }
+
   void AcceptRegions(vector<int> a, vector<int> b, vector<int> c, vector<int> d) {
     Reset();
     for (int aa : a) for (int bb : b) for (int cc : c) for (int dd: d) if (dd <= cc) {

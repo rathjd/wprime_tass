@@ -1,90 +1,219 @@
-{ 
+#include "TFile.h"
+#include "TH1.h"
+#include "TString.h"
+#include "TLegend.h"
+#include "TGraph.h"
+#include "TTree.h"
+#include "TCanvas.h"
+#include <vector>
+#include <string>
+#include <iostream>
+
+#include "Utilities/CMSStyle.cc"
+
+void Brazil(int iter = 0){
   TString SampleYear = "2018";
-  TString Observable = "WPrimeMassSimpleFL";
-  TString Region = "1153";
-  string inputr = "";
-  cout << "Please input a region to process, such as: " << Region << endl; 
-  cin >> inputr;
-  if (inputr != "") Region = inputr;
+  TString Observable = "WPrimeMass";
+  vector<TString> Regions = {"1153", "1163", "2153", "2163", "All"};
+  vector<TString> RegionTexts = {"#mu, 5 Jets, 3 bTags", "#mu, 6 Jets, 3 bTags", "e, 5 Jets, 3 bTags", "e, 6 Jets, 3 bTags"};
+  bool DoRegionCompare = true;
+  vector<TGraph*> RegionMedians;
+  RegionMedians.resize(4);
 
-  TString InFileName = "Limits_" + SampleYear + "_" + Observable + "_" + Region + ".root";
-  TString OutPlotName = "LimitBrazil_" + SampleYear + "_" + Observable + "_" + Region + ".pdf";
-  TFile *f = new TFile(InFileName);
-  TTree *t = (TTree*)f->Get("limit");
-  double b_limit, b_mass;
-  Float_t b_quant;
-  t->SetBranchAddress("limit", &b_limit);
-  t->SetBranchAddress("mh", &b_mass);
-  t->SetBranchAddress("quantileExpected", &b_quant);
+  TString basefolder = "CombinedFiles/";
+  TString folder = "BinW20/";
 
-  vector<double> masspoints = {300,400,500,600,700,800,900,1000,1100};
-  vector<vector<double> > vlimits = vector<vector<double> >(masspoints.size(), vector<double>(5,0));
+  if (iter == 1) {
+    folder = "BinW40/";
+  }
+  if (iter == 2) {
+    folder = "BinW80/";
+  }
+  if (iter == 3) {
+    Regions = {"All"}; // Test purpose
+    RegionTexts = {""};
+    folder = "SimpleWpBinW20/";
+  }
+  // basefolder = "CombinedFiles/Denis/";
+  // folder = folder + "Denis";
 
-  for (unsigned ievt = 0; ievt < t->GetEntries(); ++ievt) {
-    t->GetEntry(ievt);
-    int im(-1), iv(-1);
-    for (unsigned i = 0; i < masspoints.size(); ++i) {
-      if (b_mass != masspoints[i]) continue;
-      im = i;
+  
+  for (unsigned ir = 0; ir < Regions.size(); ++ ir) {
+    TString Region = Regions[ir];
+    TString InFileName = basefolder + folder + "Limits_" + SampleYear + "_" + Observable + "_" + Region + ".root";
+    TString OutPlotName = "Brazil/" + folder + "LimitBrazil_" + SampleYear + "_" + Observable + "_" + Region + ".pdf";
+    TFile *f = new TFile(InFileName);
+    TTree *t = (TTree*)f->Get("limit");
+    double b_limit, b_mass;
+    Float_t b_quant;
+    t->SetBranchAddress("limit", &b_limit);
+    t->SetBranchAddress("mh", &b_mass);
+    t->SetBranchAddress("quantileExpected", &b_quant);
+
+    vector<double> masspoints = {300,400,500,600,700,800,900,1000,1100};
+    vector<vector<double> > vlimits = vector<vector<double> >(masspoints.size(), vector<double>(5,0));
+
+    for (unsigned ievt = 0; ievt < t->GetEntries(); ++ievt) {
+      t->GetEntry(ievt);
+      int im(-1), iv(-1);
+      for (unsigned i = 0; i < masspoints.size(); ++i) {
+        if (b_mass != masspoints[i]) continue;
+        im = i;
+      }
+      if (im < 0) cout << "No mass point found for mass = " << b_mass << endl;
+      // quantileExpected values in the tree are 0.0250000, 0.1599999, 0.5, 0.8399999, 0.9750000
+      if (b_quant <= 0) continue;
+      else if (b_quant < 0.03) iv = 0;
+      else if (b_quant < 0.2) iv = 1;
+      else if (b_quant < 0.6) iv = 2;
+      else if (b_quant < 0.9) iv = 3;
+      else if (b_quant < 1.0) iv = 4;
+      else cout << "limit quantile not found for quantile = " << b_quant << endl;
+      if (im < 0 || iv < 0) {
+        cout << "Error" << endl;
+        throw runtime_error("Index for mass/quantile not found");
+      }
+      vlimits[im][iv] = b_limit;
     }
-    if (im < 0) cout << "No mass point found for mass = " << b_mass << endl;
-    // quantileExpected values in the tree are 0.0250000, 0.1599999, 0.5, 0.8399999, 0.9750000
-    if (b_quant <= 0) continue;
-    else if (b_quant < 0.03) iv = 0;
-    else if (b_quant < 0.2) iv = 1;
-    else if (b_quant < 0.6) iv = 2;
-    else if (b_quant < 0.9) iv = 3;
-    else if (b_quant < 1.0) iv = 4;
-    else cout << "limit quantile not found for quantile = " << b_quant << endl;
-    if (im < 0 || iv < 0) {
-      cout << "Error" << endl;
-      throw runtime_error("Index for mass/quantile not found");
+    vector<double> xsecs;
+    xsecs.push_back(683.8 + 708.3);
+    xsecs.push_back(321.7 + 336.1);
+    xsecs.push_back(161.1 + 165.3);
+    xsecs.push_back(85.92 + 85.82);
+    xsecs.push_back(48.84 + 47.47);
+    xsecs.push_back(29.81 + 27.73);
+    xsecs.push_back(18.33 + 16.49);
+    xsecs.push_back(11.73 + 10.25);
+    xsecs.push_back(7.683 + 6.646);
+
+    int n = vlimits.size();
+    if (n == 1) {
+      vlimits.push_back(vlimits[0]);
+      xsecs.push_back(xsecs[0]);
+      n = 2;
     }
-    vlimits[im][iv] = b_limit;
-  }
-  vector<double> xsecs;
-  xsecs.push_back(683.8 + 708.3);
-  xsecs.push_back(321.7 + 336.1);
-  xsecs.push_back(161.1 + 165.3);
-  xsecs.push_back(85.92 + 85.82);
-  xsecs.push_back(48.84 + 47.47);
-  xsecs.push_back(29.81 + 27.73);
-  xsecs.push_back(18.33 + 16.49);
-  xsecs.push_back(11.73 + 10.25);
-  xsecs.push_back(7.683 + 6.646);
-
-  int n = vlimits.size();
-  if (n == 1) {
-    vlimits.push_back(vlimits[0]);
-    xsecs.push_back(xsecs[0]);
-    n = 2;
-  }
-  if (n != masspoints.size()) cout << "Mass point wrong" <<endl;
-  for (unsigned i = 0; i < n; ++i) {
-    cout << "For M = " << masspoints[i] << ", limits are:" << endl;
-    for (unsigned j = 0; j < vlimits[i].size(); ++j) {
-      cout << "r = " << vlimits[i][j] << ", ";
-      vlimits[i][j] *= xsecs[i];
-      cout << "x-section = " << vlimits[i][j] <<endl;
+    if (n != masspoints.size()) cout << "Mass point wrong" <<endl;
+    for (unsigned i = 0; i < n; ++i) {
+      cout << "For M = " << masspoints[i] << ", limits are:" << endl;
+      for (unsigned j = 0; j < vlimits[i].size(); ++j) {
+        cout << "r = " << vlimits[i][j] << ", ";
+        vlimits[i][j] *= xsecs[i];
+        cout << "x-section = " << vlimits[i][j] <<endl;
+      }
+      cout <<endl;
     }
-    cout <<endl;
+
+
+    TGraph *gryellow = new TGraph(2*n);
+    TGraph *grgreen = new TGraph(2*n);
+    TGraph *grmedian = new TGraph(n);
+    double frameuplimit = 0;
+
+    for (unsigned i = 0; i< n; ++i) {
+      double mp = masspoints[i];
+      gryellow->SetPoint(i, mp, vlimits[i][4]);
+      grgreen->SetPoint(i, mp, vlimits[i][3]);
+      grmedian->SetPoint(i, mp, vlimits[i][2]);
+      grgreen->SetPoint(2*n-1-i, mp, vlimits[i][1]);
+      gryellow->SetPoint(2*n-1-i, mp, vlimits[i][0]);
+      if (vlimits[i][4] > frameuplimit) frameuplimit = vlimits[i][4];
+    }
+    double h1 = 600;
+    double w1 = 800;
+    double t1 = 0.08*h1;
+    double b1 = 0.12*h1;
+    double l1 = 0.12*w1;
+    double r1 = 0.04*w1;
+    setTDRStyle();
+    TCanvas *c = new TCanvas("c","c",100,100,w1,h1);
+    
+    c->SetFillColor(0);
+    c->SetBorderMode(0);
+    c->SetFrameFillStyle(0);
+    c->SetFrameBorderMode(0);
+    c->SetLeftMargin( l1/w1 );
+    c->SetRightMargin( r1/w1 );
+    c->SetTopMargin( t1/h1 );
+    c->SetBottomMargin( b1/h1 );
+    // c->SetTickx(0);
+    // c->SetTicky(0);
+    c->SetGrid();
+    c->cd();
+
+    TH1F * fr = c->DrawFrame(100,0,1000,1000);
+    // fr->GetYaxis()->CenterTitle();
+    fr->GetYaxis()->SetTitleSize(0.05);
+    fr->GetXaxis()->SetTitleSize(0.05);
+    fr->GetYaxis()->SetLabelSize(0.04);
+    fr->GetXaxis()->SetLabelSize(0.04);
+    fr->GetYaxis()->SetTitleOffset(0.9);
+    fr->GetXaxis()->SetNdivisions(512);
+    // fr->GetYaxis()->CenterTitle(true);
+    // fr->GetYaxis()->SetTitle("95% CL_{s} upper limit on #sigma_{sig} [fb]");
+    fr->GetYaxis()->SetTitle("#sigma_{W'} [fb]");
+    if (iter == 3) fr->GetXaxis()->SetTitle("m(W'_{h}) [GeV]");
+    else fr->GetXaxis()->SetTitle("m(W') [GeV]");
+    fr->SetMinimum(0);
+    fr->SetMaximum(frameuplimit*1.4);
+    
+    // if (Region == "All") fr->SetMaximum(160);
+    // else {
+    //   fr->SetMaximum(frameuplimit*1.2);
+    //   // fr->SetMaximum(450);
+    // }
+    fr->GetXaxis()->SetLimits(200,1200);
+
+    gryellow->SetFillColor(kOrange);
+    // gryellow->SetLineColor(kOrange);
+    gryellow->SetLineWidth(0);
+    gryellow->SetFillStyle(1001);
+    gryellow->Draw("F");
+
+    grgreen->SetFillColor(kGreen+1);
+    // grgreen->SetLineColor(kGreen+1);
+    grgreen->SetLineWidth(0);
+    grgreen->SetFillStyle(1001);
+    grgreen->Draw("Fsame");
+
+    grmedian->SetLineColor(1);
+    grmedian->SetLineWidth(2);
+    grmedian->SetLineStyle(2);
+    grmedian->Draw("Lsame");
+
+    fr->Draw("sameaxis");
+
+    TLegend *leg = new TLegend(0.5,0.65,0.9,0.86);
+    leg->SetFillStyle(0);
+    leg->SetBorderSize(0);
+    leg->SetTextSize(0.041);
+    leg->SetTextFont(42);
+    leg->AddEntry((TObject*)0, "95% CL_{s} upper limits","");
+    // leg->AddEntry(grmedian, "Asymptotic CL_{s} expected","L");
+    leg->AddEntry(grmedian, "Median expected","L");
+    leg->AddEntry(grgreen, "#pm 1 std. dev.","f");
+    leg->AddEntry(gryellow, "#pm 2 std. dev.","f");
+    leg->Draw();
+
+    if (Region != "All") {
+      RegionMedians[ir] = grmedian;
+      TLatex latex;
+      latex.SetNDC();
+      latex.SetTextSize(0.041);
+      // latex.SetTextAlign(23);
+      latex.SetTextAlign(13);
+      TString st = RegionTexts[ir];
+      // latex.DrawLatex((leg->GetX1() + leg->GetX2()) / 2., leg->GetY1() - 0.025, st);
+      latex.DrawLatex(0.2, 0.8, st);
+    }
+
+    CMSFrame(c,3,true);
+    c->SaveAs(OutPlotName);
+    delete c;
+    delete leg;
   }
-
-
-  TGraph *gryellow = new TGraph(2*n);
-  TGraph *grgreen = new TGraph(2*n);
-  TGraph *grmedian = new TGraph(n);
-  double frameuplimit = 0;
-
-  for (unsigned i = 0; i< n; ++i) {
-    double mp = masspoints[i];
-    gryellow->SetPoint(i, mp, vlimits[i][4]);
-    grgreen->SetPoint(i, mp, vlimits[i][3]);
-    grmedian->SetPoint(i, mp, vlimits[i][2]);
-    grgreen->SetPoint(2*n-1-i, mp, vlimits[i][1]);
-    gryellow->SetPoint(2*n-1-i, mp, vlimits[i][0]);
-    if (vlimits[i][4] > frameuplimit) frameuplimit = vlimits[i][4];
-  }
+  
+  if (Regions.size() < 4) return;
+  setTDRStyle();
   double h1 = 600;
   double w1 = 800;
   double t1 = 0.08*h1;
@@ -92,6 +221,7 @@
   double l1 = 0.12*w1;
   double r1 = 0.04*w1;
   TCanvas *c = new TCanvas("c","c",100,100,w1,h1);
+  c->cd();
   c->SetFillColor(0);
   c->SetBorderMode(0);
   c->SetFrameFillStyle(0);
@@ -100,53 +230,46 @@
   c->SetRightMargin( r1/w1 );
   c->SetTopMargin( t1/h1 );
   c->SetBottomMargin( b1/h1 );
-  c->SetTickx(0);
-  c->SetTicky(0);
+  // c->SetTickx(0);
+  // c->SetTicky(0);
   c->SetGrid();
   c->cd();
 
   TH1F * fr = c->DrawFrame(100,0,1000,1000);
-  fr->GetYaxis()->CenterTitle();
+  // fr->GetYaxis()->CenterTitle();
   fr->GetYaxis()->SetTitleSize(0.05);
   fr->GetXaxis()->SetTitleSize(0.05);
   fr->GetYaxis()->SetLabelSize(0.04);
   fr->GetXaxis()->SetLabelSize(0.04);
   fr->GetYaxis()->SetTitleOffset(0.9);
   fr->GetXaxis()->SetNdivisions(512);
-  fr->GetYaxis()->CenterTitle(true);
-  fr->GetYaxis()->SetTitle("95% CL_{s} limit on #sigma_{sig} [fb]");
-  fr->GetXaxis()->SetTitle("Simplified m(W'_{h}) [GeV]");
+  // fr->GetYaxis()->CenterTitle(true);
+  // fr->GetYaxis()->SetTitle("Expected upper limit on #sigma_{sig} [fb]");
+  fr->GetYaxis()->SetTitle("#sigma_{W'} [fb]");
+  if (iter == 3) fr->GetXaxis()->SetTitle("Simplified m(W'_{h}) [GeV]");
+  else fr->GetXaxis()->SetTitle("m(W') [GeV]");
   fr->SetMinimum(0);
-  fr->SetMaximum(frameuplimit*1.05);
+  fr->SetMaximum(600);
   fr->GetXaxis()->SetLimits(200,1200);
 
-  gryellow->SetFillColor(kOrange);
-  gryellow->SetLineColor(kOrange);
-  gryellow->SetFillStyle(1001);
-  gryellow->Draw("F");
-
-  grgreen->SetFillColor(kGreen+1);
-  grgreen->SetLineColor(kGreen+1);
-  grgreen->SetFillStyle(1001);
-  grgreen->Draw("Fsame");
-
-  grmedian->SetLineColor(1);
-  grmedian->SetLineWidth(2);
-  grmedian->SetLineStyle(2);
-  grmedian->Draw("Lsame");
-
-  fr->Draw("sameaxis");
-
-  TLegend *leg = new TLegend(0.5,0.6,0.9,0.76);
+  TLegend *leg = new TLegend(0.45,0.55,0.9,0.9);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.041);
   leg->SetTextFont(42);
-  leg->AddEntry(grmedian, "Asymptotic CL_{s} expected","L");
-  leg->AddEntry(grgreen, "#pm 1 std. dev.","f");
-  leg->AddEntry(gryellow, "#pm 2 std. dev.","f");
+  leg->AddEntry((TObject*)0, "95% CL_{s} upper limits medians","");
+  
+  vector<int> colors = {1,2,3,4};
+  for (unsigned ir = 0; ir < 4; ++ir) {
+    RegionMedians[ir]->SetLineColor(colors[ir]);
+    RegionMedians[ir]->SetLineWidth(2);
+    RegionMedians[ir]->SetLineStyle(1);
+    RegionMedians[ir]->Draw("Lsame");
+    leg->AddEntry(RegionMedians[ir], RegionTexts[ir], "L");
+  }
   leg->Draw();
-
+  CMSFrame(c,3,true);
+  TString OutPlotName = "Brazil/" + folder + "/LimitBrazil_" + SampleYear + "_" + Observable + "_Compare" + ".pdf";
   c->SaveAs(OutPlotName);
 
 }

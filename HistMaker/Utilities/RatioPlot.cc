@@ -4,6 +4,7 @@
 #include "TString.h"
 #include "TH1.h"
 #include "THStack.h"
+#include "TCanvas.h"
 #include "TPad.h"
 #include "TLegend.h"
 #include "TGraph.h"
@@ -59,6 +60,10 @@ public:
     SigHists.clear();
     MCSummed.resize(VarSize);
     //SigHists will be dynamically sized since it is [iSig][iVar] structure.
+  }
+
+  void YEnlarge(double ye) {
+    TrueMaximumScale *= ye;
   }
 
   void AddData(TH1F* h_) {
@@ -149,9 +154,9 @@ public:
       StackDummy = new TH1F("","",nbins,xlow, xup);
       // StackDummy->SetLineWidth(0);
       MCStack->Add(StackDummy);
-      // double x[2] = {xlow, xup};
-      // double y[2] = {1.,1.};
-      // MCErrorRatioGraph = new TGraph(2,x,y);
+      double x[2] = {xlow, xup};
+      double y[2] = {1.,1.};
+      MCErrorRatioGraph = new TGraph(2,x,y);
     }
     if (!HasMC && !HasData && HasSig) {
       for (unsigned i = 0; i < SigNames.size(); ++i) {
@@ -349,6 +354,7 @@ public:
         ExpOverMC[isig]->SetDirectory(0);
         ExpOverMC[isig]->Add(MCSummed[0]);
         ExpOverMC[isig]->Divide(MCSummed[0]);
+        ExpOverMC[isig]->SetFillColor(0);
       }
     }
     if (!IsSR && HasData) {
@@ -365,7 +371,7 @@ public:
     double x2 = lpos[2];
     double y2 = lpos[3];
     leg = new TLegend(x1,y1,x2,y2,"","NDC");
-    leg->SetBorderSize(1);
+    leg->SetBorderSize(0);
     leg->SetNColumns(2);
   }
 
@@ -417,14 +423,14 @@ public:
   TString GetMCPurityLatex() {
     TString out = "";
     for (unsigned i = 0; i < MCNames.size(); ++i) {
-      out += Form("#color[%i]{(%.2f%%)} ", MCHists[i]->GetLineColor(), MCHists[i]->Integral() / MCSummed[0]->Integral() * 100. );
+      out += Form("#color[%i]{(%.2f%%)} ", MCHists[i]->GetLineColor(), MCHists[i]->Integral(0,-1) / MCSummed[0]->Integral(0,-1) * 100. );
     }
     return out;
   }
 
   double GetMCPurity(TString sn) {
     for (unsigned i = 0; i < MCNames.size(); ++i) {
-      if (MCNames[i] == sn) return MCHists[i]->Integral() / MCSummed[0]->Integral();
+      if (MCNames[i] == sn) return MCHists[i]->Integral(0,-1) / MCSummed[0]->Integral(0,-1);
     }
     return 0;
   }
@@ -449,12 +455,16 @@ public:
     LPad->SetGridy();
   }
 
-  bool DrawPlot(int year) { // return false if nothing to draw
+  bool DrawPlot(int year, double cxmin = -1, double cxmax = -1) { // return false if nothing to draw
     if (!HasData && !HasMC && !SigNames.size()) return false;
+    if (cxmin < 0) cxmin = xlow;
+    if (cxmax < 0) cxmax = xup;
+
     UPad->cd();
-    
     if (CanvasMaximum > 0) MCStack->SetMaximum(CanvasMaximum);
     else MCStack->SetMaximum(TrueMaximum * TrueMaximumScale);
+    MCStack->Draw();
+    MCStack->GetXaxis()->SetRangeUser(cxmin, cxmax);
     MCStack->Draw("hist");
 
     if (MCErrorGraph != nullptr && HasMC) {
@@ -481,7 +491,7 @@ public:
 
     LPad->cd();
     LowerDummy->SetTitle(LTitle);
-    LowerDummy->GetXaxis()->SetRangeUser(xlow, xup);
+    LowerDummy->GetXaxis()->SetRangeUser(cxmin, cxmax);
     LowerDummy->GetYaxis()->SetRangeUser(0, 2.4);
     LowerDummy->GetYaxis()->SetNdivisions(505);
 
@@ -490,7 +500,7 @@ public:
       if (XBinLabels.size() < nbins) nb_ = XBinLabels.size();
       for (int ib = 1; ib <= nb_; ++ib) LowerDummy->GetXaxis()->SetBinLabel(ib, XBinLabels[ib - 1]);
     }
-    LowerDummy->GetXaxis()->CenterTitle();
+    // LowerDummy->GetXaxis()->CenterTitle();
     LowerDummy->GetXaxis()->SetTitleSize(gStyle->GetTitleSize() / 0.3 * 0.7);
     LowerDummy->GetXaxis()->SetTitleOffset(gStyle->GetTitleOffset());
     LowerDummy->GetXaxis()->SetLabelSize(gStyle->GetLabelSize() / 0.3 * 0.7);
@@ -512,7 +522,7 @@ public:
       }
     }
     
-    CMSFrame(UPad,year);
+    CMSFrame(UPad,year,IsSR);
     return true;
   }
 
@@ -525,13 +535,20 @@ public:
     latex.DrawLatex(x,y,st);
   }
 
-  void SaveUncertContribution(TString pn) {
+  void SaveInfos(TString pn) {
     TString OutFileName = pn + ".txt";
     ofstream f(OutFileName);
+    f << "Central BinContent Summation = " << MCStatUncertIntegral[0] << ", Central Integral = " << MCSummed[0]->Integral();
+    f << ", Maximum = " << MCSummed[0]->GetMaximum() << "\n";
+    f << "Uncertainties Contributions:" << "\n";
     f << "StatUp = " << MCStatUncertIntegral[1] / MCStatUncertIntegral[0] - 1. << "\n";
     f << "StatDown = " << MCStatUncertIntegral[2] / MCStatUncertIntegral[0] - 1. << "\n";
     for (unsigned i = 1; i < VarSize; ++i) {
       f << Variations[i] << " = " << MCSystUncertIntegral[i] / MCSystUncertIntegral[0] << "\n";
+    }
+    f << "\nMC Purity:\n";
+    for (unsigned i = 0; i < MCNames.size(); ++i) {
+      f << Form("[%s]: %.2f%% \n", MCNames[i].Data(), MCHists[i]->Integral(0,-1) / MCSummed[0]->Integral(0,-1) * 100. );
     }
     f.close();
   }
@@ -588,6 +605,15 @@ public:
 
 };
 
-
+struct PlotObservable {
+  string Observable;
+  string XTitle;
+  string YTitle = "";
+  double YEnlarge = 1.;
+  double xmin = -1;
+  double xmax = -1;
+  int LegPos = 0;
+  vector<double> LegendPos = {0.65,0.65,0.9,0.9};
+};
 
 #endif
