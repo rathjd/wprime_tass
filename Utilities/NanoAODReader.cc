@@ -142,10 +142,8 @@ public:
     PUIDWP = conf->PUIDWP;
 
     Long64_t evtcode = evts->LoadTree(i);
-    if (evtcode < 0) return -1;
-    iEvent = i;
-    iEventInChain = iEvent + EntryBegin; //FIXME: For external logic to work flawlessly, remove functionality to split files
-    evts->GetEntry(iEventInChain);
+    if (evtcode < 0) return -1; 
+    evts->GetEntry(i);
     ReadTriggers(); //Logically, this should be the first step. Untrigggered events should not be processed further
     if(Triggers.size() == 0){
       CutflowSkim.Fill(0., 0.); //fail all triggers
@@ -511,7 +509,7 @@ public:
       // set scale variations (only filled in data, should be applied to MC, for now FIXME inactive)
       // tmp.ScaleUp() = ((TLorentzVector) tmp) * (tmp.E() - evts->Electron_dEscaleUp[i]) / tmp.E();
       // tmp.ScaleDown() = ((TLorentzVector) tmp) * (tmp.E() - evts->Electron_dEscaleDown[i]) / tmp.E();
-      tmp.ScaleUp() = tmp;
+      tmp.ScaleUp() = tmp; //FIXME: Electron scale uncertainty is not taken
       tmp.ScaleDown() = tmp;
       tmp.index = i;
       tmp.charge = evts->Electron_charge[i];

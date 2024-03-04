@@ -59,6 +59,7 @@ public :
   Int_t           nPVGood;
   vector<double>   *Best_Likelihood;
   vector<double>   *Best_WPrimeMass;
+  vector<double>   *Best_PbTag;
 
   // List of branches
   TBranch        *b_RegionIdentifier;   //!
@@ -96,6 +97,7 @@ public :
   TBranch        *b_nPVGood;   //!
   TBranch	 *b_Best_Likelihood; //!
   TBranch	 *b_Best_WPrimeMass; //!
+  TBranch	 *b_Best_PbTag; //!
 
   CombineHistogramDumpster(TChain *tree = 0, unsigned it_ = 99, int bin_ = 1152, TString year_ = "2018", int SFreg_ = 0);
   virtual ~CombineHistogramDumpster();
@@ -127,7 +129,9 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
 // used to generate this class and read the Tree.
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
-    TString FilePath = "/afs/cern.ch/user/s/siluo/EOS/WPrimeAnalysis/ValidationFitted/"+ year_ + "_" + dset.Name + "/*.root";
+    TString FilePath;
+    if(year_=="2018") FilePath = "/afs/cern.ch/user/s/siluo/EOS/WPrimeAnalysis/ValidationFitted/"+ year_ + "_" + dset.Name + "/*.root";
+    else              FilePath = "/eos/cms/store/group/phys_b2g/wprime/SifuFW_Fitted/"+ year_ + "_" + dset.Name + "/*.root";
 	    //"/eos/user/s/siluo/WPrimeAnalysis/Validation/" + year_ + "_" + dset.Name + "/*.root";
     tree = new TChain("t");
     tree->Add(FilePath);
@@ -190,6 +194,7 @@ void CombineHistogramDumpster::Init(TChain *tree)
   //WPType = 0;
   Best_WPrimeMass = 0;
   Best_Likelihood = 0;
+  Best_PbTag = 0;
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -231,6 +236,7 @@ void CombineHistogramDumpster::Init(TChain *tree)
   fChain->SetBranchAddress("nPVGood", &nPVGood, &b_nPVGood);
   fChain->SetBranchAddress("Best_Likelihood", &Best_Likelihood, &b_Best_Likelihood);
   fChain->SetBranchAddress("Best_WPrimeMass", &Best_WPrimeMass, &b_Best_WPrimeMass);
+  fChain->SetBranchAddress("Best_PbTag", &Best_PbTag, &b_Best_PbTag);
   Notify();
 }
 
