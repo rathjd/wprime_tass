@@ -123,16 +123,16 @@ void CombineHistogramDumpster::Loop()
 	double HTlimits[47] = {125., 230., 245., 258., 265., 273., 281., 288., 294., 300., 306., 312., 318., 324., 330., 336., 342., 348., 354., 360., 367., 374., 381., 388., 395., 402., 409., 417., 426., 435., 445., 455., 465., 475., 487., 501., 515., 531., 550., 570., 595., 625., 660., 705., 780., 910.,  2000.};
         HT.push_back(new TH1F(HTvariationsName[i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 46, HTlimits));
 	double NLLlimits[53] = {0., 0.80, 1.05, 1.25, 1.45, 1.60, 1.75, 1.90, 2.00, 2.15, 2.30, 2.40, 2.65, 2.80, 2.92, 3.05, 3.20, 3.30, 3.45, 3.60, 3.75, 3.90, 4.00, 4.20, 4.30, 4.45, 4.60, 4.75, 4.90, 5.10, 5.25, 5.40, 5.60, 5.80, 6.00, 6.25, 6.50, 6.75, 7.00, 7.35, 7.70, 8.05, 8.40, 8.80, 9.20, 9.70, 10.10, 10.65, 11.25, 12.00, 12.95, 14.40, 30.};
-        FitMass_2D.push_back(new TH2F(FitMass2Dnames[i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 35, FitLimits, 53, NLLlimits));
-        HT_2D.push_back(new TH2F(HT2Dnames[i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 46, HTlimits, 53, NLLlimits));
+        FitMass_2D.push_back(new TH2F(FitMass2Dnames[i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 35, FitLimits, 52, NLLlimits));
+        HT_2D.push_back(new TH2F(HT2Dnames[i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 46, HTlimits, 52, NLLlimits));
       } else if(bin % 10 == 4){//5 jets 4 b-tags
 	  double FitLimits[2] = {120., 2000.};
 	  FitMass.push_back(new TH1F(variationsName[i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", 1, FitLimits));
 	  double HTlimits[15] = {155., 270., 300., 325., 345., 365., 385., 410., 435., 465., 495., 545., 610., 740., 2000.};
 	  HT.push_back(new TH1F(HTvariationsName[i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 14, HTlimits));
 	  double NLLlimits[53] = {0., 0.80, 1.05, 1.25, 1.45, 1.60, 1.75, 1.90, 2.00, 2.15, 2.30, 2.40, 2.65, 2.80, 2.92, 3.05, 3.20, 3.30, 3.45, 3.60, 3.75, 3.90, 4.00, 4.20, 4.30, 4.45, 4.60, 4.75, 4.90, 5.10, 5.25, 5.40, 5.60, 5.80, 6.00, 6.25, 6.50, 6.75, 7.00, 7.35, 7.70, 8.05, 8.40, 8.80, 9.20, 9.70, 10.10, 10.65, 11.25, 12.00, 12.95, 14.40, 30.};
-        FitMass_2D.push_back(new TH2F(FitMass2Dnames[i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 1, FitLimits, 53, NLLlimits));
-        HT_2D.push_back(new TH2F(HT2Dnames[i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 14, HTlimits, 53, NLLlimits));
+        FitMass_2D.push_back(new TH2F(FitMass2Dnames[i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 1, FitLimits, 52, NLLlimits));
+        HT_2D.push_back(new TH2F(HT2Dnames[i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 14, HTlimits, 52, NLLlimits));
       } else {
         FitMass.push_back(new TH1F(variationsName[i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", 400, 0., 2000.));
         HT.push_back(new TH1F(HTvariationsName[i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 400, 0., 2000.));
@@ -339,10 +339,13 @@ void CombineHistogramDumpster::Loop()
 	//float fillBranch = WPrimeMassSimpleFL->at(0);
 	float EvWeight = 1.;
 	if(i < variations.size()-4) EvWeight = EventWeight[i-8];
-	else if(i == variations.size()-4) EvWeight += LumiCorrVal;
-	else if(i == variations.size()-3) EvWeight -= LumiCorrVal;
-	else if(i == variations.size()-2) EvWeight += LumiStatVal;
-	else if(i == variations.size()-1) EvWeight -= LumiStatVal;
+	else{
+	  if(i == variations.size()-4) EvWeight += LumiCorrVal;
+	  else if(i == variations.size()-3) EvWeight -= LumiCorrVal;
+	  else if(i == variations.size()-2) EvWeight += LumiStatVal;
+	  else if(i == variations.size()-1) EvWeight -= LumiStatVal;
+	  EvWeight *= EventWeight[0];
+	}
 
         if(Iterator == 2 && SFreg != 0){
 	  FitMass[i]->Fill(fillBranch,EvWeight*SampleWeight*SFs[i].Eval(STvals[0]));
@@ -366,13 +369,11 @@ void CombineHistogramDumpster::Loop()
     }
     
   }
-  //save all the W' variation histograms into a file
+  //save all the W' variation histograms into files
+  //fit mass file
   TFile *savefile;
   savefile = new TFile(TString::Format("TestHistograms/SimpleShapes_Bin%d_",bin)+YearType+TString::Format("_%d.root",Iterator),"RECREATE");
-  //only activate for SR runs with ttbar sample
-  //if(SFreg != 0 && Iterator == 2) SFfile = new TFile(TString::Format("TestHistograms/SF_Bin%d_%d.root",SFreg,year));
-  
-  TString STvarName = gn + "_" + binS + "_" + "STfit_" + YearType + "_";
+  TString STvarName = gn + "_" + binS + "_" + "STfit_" + YearS + "_";
   STvarName.Append(TString::Format("%d",SFreg));
   savefile->cd();
   for(unsigned i = 0; i < FitMass.size(); ++i){
@@ -405,6 +406,7 @@ void CombineHistogramDumpster::Loop()
   NegLogLnoBvsNegLogL->Write(NegLogLnoBvsNegLogL->GetName());
   savefile->Close();
 
+  //HT file
   TFile *savefileHT;
   savefileHT = new TFile(TString::Format("TestHistograms/HT_SimpleShapes_Bin%d_",bin)+YearType+TString::Format("_%d.root",Iterator),"RECREATE");
   savefileHT->cd();
@@ -420,16 +422,16 @@ void CombineHistogramDumpster::Loop()
     else if(Iterator == 2 && SFreg != 0){ //case of applying SF to ttbar
       if(i == 0) /*for(unsigned x = 0; x < HT[i]->GetNbinsX(); ++x)*/{ //function to propagate ST-fit SF uncertainty to bin error
 	HT_STstatUp->Write("HT_" + STvarName + "_STfitUp");
-	HT_STstatUp->Write("HT_" + STvarName + "_STfitDown");
+	HT_STstatDown->Write("HT_" + STvarName + "_STfitDown");
         //float statBase = HT[i]->GetBinError(x+1);
         //float SFstat = fabs(HT_STstatUp->GetBinContent(x+1) - HT[i]->GetBinContent(x+1));
         //HT[i]->SetBinError(x+1,sqrt(pow(statBase,2)+pow(SFstat,2)));
       }
-      HT[i]->Write(variationsName[i]);
+      HT[i]->Write(HTvariationsName[i]);
       ST[i]->Write(ST[i]->GetName());
     }
     else{
-      HT[i]->Write(variationsName[i]);
+      HT[i]->Write(HTvariationsName[i]);
       ST[i]->Write(ST[i]->GetName());
     }
   }
@@ -437,6 +439,7 @@ void CombineHistogramDumpster::Loop()
   NegLogLnoBvsNegLogL->Write(NegLogLnoBvsNegLogL->GetName());
   savefileHT->Close();
 
+  //2D histograms file for cutting on NLL and splitting between fit mass and HT
   TFile* savefile2D;
   savefile2D = new TFile(TString::Format("TestHistograms/TwoD_SimpleShapes_Bin%d_",bin)+YearType+TString::Format("_%d.root",Iterator),"RECREATE");
   savefile2D->cd();
