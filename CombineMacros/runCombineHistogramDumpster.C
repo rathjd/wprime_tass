@@ -12,6 +12,8 @@ void runCombineHistogramDumpster(int bin = 1153, int year = 2018){
   int binMajor = 0;
   binMajor += (bin / 1000) * 1000 + 100 + ((bin % 100) / 10) * 10; //set muon or electron and primary selection region, as well as jet multiplicity
 
+  std::cout<<"binMajor = "<<binMajor<<" in year "<<year<<std::endl;
+
   //determine years to be run
   vector<TString> years;
   if(year==2016){

@@ -414,7 +414,7 @@ void CombineHistogramDumpster::Loop()
     if(dset.Type == 0){
       if(i>2) continue;
       if(Iterator <= 1){
-        HT[i]->Write("data_obs_" + binS + "_" + variations[i]);
+        HT[i]->Write("HT_data_obs_" + binS + "_" + variations[i]);
         ST[i]->Write("ST_data_obs_" + binS + "_" + variations[i]);
       }
       else continue;

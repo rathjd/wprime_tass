@@ -116,6 +116,7 @@ Ratio1b.GetLowerRefGraph().SetMaximum(1.5)
 canv.cd(2)
 SFfit = inSF.Get("SF_")
 SFfit.SetStats(0)
+SFfit.SetTitle("")
 SFfit.Draw();
 SFfit.GetXaxis().SetTitle("S_{T} [GeV/c]")
 SFfit.GetYaxis().SetTitle("(data-!ttbar)/ttbar")

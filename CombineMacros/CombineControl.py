@@ -39,13 +39,16 @@ os.system("root -l -b -q 'runCombineHistogramDumpster.C+(" + str(binNumber) + ",
 
 bins = [binString[0:3]+"1", binString[0:3]+"2", binString[0:3]+"3", binString[0:3]+"4"]
 
+print(bins)
+
 for binN in bins:
   fileName = binN + "_" + yearName
   binName = "Wprime" + binN + "_" + yearName
+  print(binName," ",fileName)
 
   if os.path.isdir(fileName):
       print(fileName," directory already exists, removing it")
-      os.system("rm -rf fileName")
+      os.system("rm -rf " + fileName)
   os.system("mkdir " + fileName)
 
   #assemble results
@@ -61,9 +64,11 @@ for binN in bins:
 
   #transfer SF files where appropriate
   if int(binN) % 10 == 2:
-      os.system("cp TestHistograms/SF_Bin1151_2016.root " + fileName + "/.")
+      os.system("cp TestHistograms/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
+      print("cp TestHistograms/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
   elif int(binN) % 10 > 2:
-      os.system("cp TestHistograms/SF_Bin1152_2016.root " + fileName + "/.")
+      os.system("cp TestHistograms/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + fileName + "/.")
+      print("cp TestHistograms/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + fileName + "/.")
 
   #skip making cards for 1- and 2-tag regions
   if int(binN) % 10 < 3:
@@ -73,7 +78,7 @@ for binN in bins:
   #https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun2#Combination_and_correlations is now a shape uncertainty built into histograms in the file
 
   #define all the systematic names, types, and values
-  systNames = ["lumiCorr", "lumiStat"+yearName, "electron"+yearName, "muonTrigger"+yearName, "muonId"+yearName, "muonIso"+yearName, "BjetTagCorr", "BjetTagUncorr"+yearName, "PUID"+yearName, "L1PreFiring"+yearName, "PUreweight"+yearName, "PDF",   "LHEScale", "electronScale"+yearName, "electronRes"+yearName, "JES"+yearName, "JER"+yearName, "STfit_"+yearName+"_"+binString[0:3]+"2", "NLLnonClosure"+yearName+"_"+binString[0:3]+"2"]
+  systNames = ["LumiCorr", "LumiStat"+yearName, "electron"+yearName, "muonTrigger"+yearName, "muonId"+yearName, "muonIso"+yearName, "BjetTagCorr", "BjetTagUncorr"+yearName, "PUID"+yearName, "L1PreFiring"+yearName, "PUreweight"+yearName, "PDF",   "LHEScale", "electronScale"+yearName, "electronRes"+yearName, "JES"+yearName, "JER"+yearName, "STfit_"+yearName+"_"+binString[0:3]+"2_STfit", "NLLnonClosure"+yearName+"_"+binString[0:3]+"2"]
   systTypes = ["shape",    "shape",             "shape",             "shape",                "shape",           "shape",            "shape",       "shape",                  "shape",         "shape",                "shape",               "shape", "shape",    "shape",                  "shape",                "shape",        "shape",        "shape",                                  "lnN"] 
   systVals  = ["1",        "1",                 "1",                 "1",                    "1",               "1",                "1",           "1",                      "1",             "1",                    "1",                   "1",     "1",        "1",                      "1",                    "1",            "1",            "0",                                      "0"]
 
@@ -86,14 +91,17 @@ for binN in bins:
     f.write("jmax " + str(len(bgrNames)) + "\n") #number of backgrounds
     f.write("kmax " + str(len(systNames)) + "\n") #number of nuisance parameters
     f.write("----------\n")
-    f.write("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root $PROCESS_$CHANNEL_ $PROCESS_$CHANNEL_$SYSTEMATIC\n")
+    f.write("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root "+ CardName[1] + "$PROCESS_$CHANNEL_ " + CardName[1] + "$PROCESS_$CHANNEL_$SYSTEMATIC\n")
     f.write("----------\n")
     f.write("bin         " + binName + "\n")
 
     #load ROOT file, find observation number
     print("Reading observed events numbers")
     r = ROOT.TFile.Open(fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root", "read")
-    h = r.Get(CardName[1] + "data_obs_" + binName + "_")
+    print(fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root")
+    h = r.Get(CardName[1]+"data_obs_" + binName + "_")
+    print("data_obs_" + binName + "_")
+    print(type(h))
     observed = h.Integral(0,-1)
     f.write("observation " + str(observed) + "\n")
     f.write("----------\n")
@@ -154,11 +162,12 @@ for binN in bins:
         if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
           systLines[j] += systVals[j].replace("0","1") #activate ST fit uncertainty for ttbar only in the card
         elif allNames[i] != "M$MASS" and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
-          NLLresF = ROOT.TFile.Open(fileName + "/" + CardName[1] + "SF_Bin" + binName[6:9] + "2" +binName[10:] + ".root", "read")
+          NLLresF = ROOT.TFile.Open(fileName + "/SF_Bin" + binName[6:9] + "2" +binName[10:] + ".root", "read")
           NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:])
           NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_")
           NLLresH.Multiply(NLLH)
           if NLLH.Integral() == 0:
+            systLines[j] += systVals[j]
             continue
           ratio = str(NLLresH.Integral()/NLLH.Integral())
           dot = ratio.find(".")

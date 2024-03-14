@@ -2,9 +2,40 @@ import os,sys
 from ROOT import TGraph, TFile, TTree, TCanvas
 from array import array
 
-year = "2018"
+binS = "1153"
 
-savefile = TFile("CombinedLimit_SplitMethod_"+year+".root","RECREATE");
+year = "2016"
+
+cardName = "FitMass"
+
+cardNameOptions = ["FitMass", "HT", "Combination"]
+
+#accept shell inputs
+try:
+    if sys.argv[1]:
+        binS = sys.argv[1]
+        print("bin set to "+binS)
+except:
+    print("bin defaults to "+binS)
+
+try:
+    if sys.argv[2]:
+        year = sys.argv[2]
+        print("year set to "+year)
+except:
+    print("year defaults to "+year)
+
+try:
+    if sys.argv[3] in cardNameOptions:
+        cardName = sys.argv[3]
+        print("card type set to "+cardName)
+except:
+    print("card type defaults to "+cardName)
+
+
+
+
+savefile = TFile("CombinationAll/CombinedLimit_"+cardName+"_"+binS+"_"+year+".root","RECREATE");
 
 masses = array( 'd' )
 
@@ -17,7 +48,7 @@ limitNumbers = []
 for mass in range(0,9):
     masses.append(float((3+mass)*100))
     massString = str((3+mass)*100)
-    os.system("combine -M AsymptoticLimits -m "+massString+" CombinedCard"+year+".txt")
+    os.system("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+".txt")
 
     infile = TFile("higgsCombineTest.AsymptoticLimits.mH"+massString+".root","READ")
 
@@ -72,4 +103,5 @@ CentralGraph.Draw("P,L,same")
 
 savefile.cd()
 canvas.Write()
+canvas.SaveAs(cardName+"_"+binS+"_"+year+".pdf")
 savefile.Close()
