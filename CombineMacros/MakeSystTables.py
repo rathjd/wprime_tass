@@ -24,8 +24,8 @@ except:
     print("year defaults to "+year)
 
 try:
-    if sys.argv[3] in cardNameOptions:
-        cardName = sys.argv[3]
+    if sys.argv[3] in varNameOptions:
+        varName = sys.argv[3]
         print("variable type set to "+varName)
 except:
     print("variable type defaults to "+varName)
@@ -73,9 +73,12 @@ for row in rowNames:
                 UpVar   = infile.Get(fileprefix + col + "_Wprime" + binS + "_" + year + "_" + row + "Up")
                 DownVar = infile.Get(fileprefix + col + "_Wprime" + binS + "_" + year + "_" + row + "Down")
                 Norm    = infile.Get(fileprefix + col + "_Wprime" + binS + "_" + year + "_")
-                UpS     = str(round(UpVar.Integral(0,-1)/Norm.Integral(0,-1),2))
-                DownS   = str(round(DownVar.Integral(0,-1)/Norm.Integral(0,-1),2))
-                rowS   += " & $^{" + UpS + "}_{" + DownS + "}$"
+                if Norm.Integral(0,-1) > 0.:
+                    UpS     = str(round(UpVar.Integral(0,-1)/Norm.Integral(0,-1),2))
+                    DownS   = str(round(DownVar.Integral(0,-1)/Norm.Integral(0,-1),2))
+                    rowS   += " & $^{" + UpS + "}_{" + DownS + "}$"
+                else:
+                    rowS   += " & 0 "
     else: #need an exception for the case of the NLL nonclosure, which is an lnN uncertainty in the card, not a shape uncertainty like all the others
         for line in incard.readlines():
             if line.find("NLLnonClosure") > -1:
