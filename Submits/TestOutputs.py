@@ -6,8 +6,8 @@ SubmitterName = "rathjd"
 
 #resembles Sifu's C++ configuration in Utilities/Dataset.cc
 
-years = [["2016", "0"],
-         ["2016apv", "1"],
+years = [["2016", "1"],
+         ["2016apv", "0"],
          ["2017", "2"],
          ["2018", "3"]]
 
@@ -118,7 +118,7 @@ print(CurrentlyRunning)
 
 #loop over years and datasets to find missing and incomplete files
 for year in years:
-    if year[0] != "2017": #FIXME: For a single year for now
+    if year[0] != "2016apv": #FIXME: For a single year for now
         continue
     for dataset in Datasets:
         print("__________Now testing " + year[0] + " " + dataset[0] + "__________")
@@ -193,6 +193,12 @@ for year in years:
                 outCutflow.GetBinEntries(1)
             except:
                 print("FAILED ! Cutflow inaccessible object")
+                continue
+
+            try:
+                outFile.Get("t")
+            except:
+                print("FAILED ! outFile has no tree")
                 continue
 
 
