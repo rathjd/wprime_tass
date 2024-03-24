@@ -52,7 +52,7 @@ for i in range(0, len(colNames)-1):
 columnS+="c"
 
 outf.write("\\begin{table}\n")
-outf.write("  \\footnotesize\n")
+outf.write("  \\scriptsize\n")
 outf.write("  \\begin{tabular}{l||" + columnS + "}\n")
 outf.write("    \multirow{2}*{systematic} & \multicolumn{" + str(len(colNames)) + "}{c}{samples}\\\\\cline{2-" + str(len(colNames)+1) + "}\n")
 

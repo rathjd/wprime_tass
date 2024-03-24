@@ -118,7 +118,7 @@ print(CurrentlyRunning)
 
 #loop over years and datasets to find missing and incomplete files
 for year in years:
-    if year[0] != "2016apv": #FIXME: For a single year for now
+    if year[0] != "2018": #FIXME: For a single year for now
         continue
     for dataset in Datasets:
         print("__________Now testing " + year[0] + " " + dataset[0] + "__________")

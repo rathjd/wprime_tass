@@ -39,27 +39,32 @@ void CreateAuxHists(int sampleyear = 3, int sampletype = 22, int ifile = -1, str
   Permutations *PM = new Permutations(conf);
   
   Long64_t nentries = r->GetEntries();
-  if (conf->EntryMax > 0 && conf->EntryMax < nentries) nentries = conf->EntryMax;
   Progress* progress = new Progress(nentries,conf->ProgressInterval);
   for (unsigned ievt = 0; ievt < nentries; ++ievt) {
     progress->Print(ievt);
     if (r->ReadEvent(ievt) < 0) continue;
     r->BranchSizeCheck();
-    if (conf->EntryMax > 0 && ievt == conf->EntryMax) break;
     //check jet multiplicity
     int nj = r->RegionAssociations.GetNJets(0); // Nominal region
     int nb = r->RegionAssociations.GetbTags(0); // Nominal region
+    //std::cout<<"event "<<ievt<<std::endl; //FIXME
     for (unsigned ij = 0; ij < r->Jets.size(); ++ij) {
+      //std::cout<<ij<<" permutation"<<std::endl; //FIXME
       if (r->Jets[ij].genJetIdx != -1 && ((nj >= 5 && nb >= 3) || (nj >= 6 && nb >= 3))) { // Fitter takes SR inputs
+	//std::cout<<r->Jets[ij].genJetIdx<<" out of "<<r->GenJets.size()<<std::endl;//FIXME jet genJetIdx can exceed genJet collection size?!?
+	if(r->Jets[ij].genJetIdx >= r->GenJets.size()) continue;
+	//std::cout<<"Fill jet"<<std::endl; //FIXME
         JS->FillJet(r->Jets[ij],r->GenJets[r->Jets[ij].genJetIdx], r->EventWeights[0].first);
       }
     }
     if (conf->Type != 2) continue;
 
     if (nj != 5 && nj != 6) continue;
+    //std::cout<<"pass selection, fill GenPart"<<std::endl;//FIXME
     gh->SetGenParts(r->GenParts);
     gh->MatchToJets(r->GenJets, r->Jets);
     if (!gh->ValidReco || !gh->ValidGen) continue;
+    //std::cout<<"valid"<<std::endl;//FIXME
     gh->MatchToLeptons(r->Leptons);
     gh->CreateHypothesisSet(r->TheLepton, r->Met);
     Hypothesis Tar = gh->TarRecoHypo;

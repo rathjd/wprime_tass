@@ -49,7 +49,7 @@ for sample in Samples:
         finalPath = subPath + "/" + year
         if os.path.isfile(finalPath): #skip stray files
             continue
-        if year != "2017": #FIXME: ONLY RUN ON 2017
+        if year != "2016" and year != "2016_APV": #FIXME: ONLY RUN ON 2016 and 2016_APV
             continue
         finalOutputPath = subOutputPath + "/" + year
         if not os.path.isdir(finalOutputPath):

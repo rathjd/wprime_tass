@@ -1,7 +1,7 @@
 import os
 from GetLocalFileNames import GetSampleTypes
 
-SampleYears = ["2016apv","2016","2017","2018"]
+SampleYears = ["2016apv","2016"]#,"2017","2018"]
 # SampleTypes = ["SingleElectron","SingleMuon"]
 # SampleTypes.extend(["ttbar"])
 # SampleTypes.extend(["wjets_HT_70_100", "wjets_HT_100_200", "wjets_HT_200_400", "wjets_HT_400_600","wjets_HT_600_800", "wjets_HT_800_1200", "wjets_HT_1200_2500", "wjets_HT_2500_inf"])
@@ -42,10 +42,7 @@ with open("Submits/SubmitTemplate.sh","r") as skeleton:
       el = el.replace("__cwd__",os.getcwd())
       fout.write(el)
 
-#FIXME: filelist splitting is now that files have been cut down to manageable sizes to be purged
-BatchHistKeywords = ["SingleMuon", "SingleElectron", "ttbar"] # Keyworks for samples that contain too many events in the output tree, that making hist out of them take too long, to run batch jobs.
 for iy, year in enumerate(SampleYears):
-  if not iy==2: continue #FIXME: only 2017
   for isa, sampletype in enumerate(SampleTypes):
     print(SampleYears[iy] + "| " + str(isa) + ":" + sampletype)
     filenamesfolder = "filenames/"
