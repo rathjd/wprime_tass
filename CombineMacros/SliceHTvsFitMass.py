@@ -15,7 +15,7 @@ try:
         year = sys.argv[1]
         print("year set to "+ year)
 except:
-    print("year defaults to "+ binNr)
+    print("year defaults to "+ year)
 
 try:
     if int(sys.argv[2]) > 0:
@@ -55,13 +55,11 @@ inFile = TFile("CombinationAll/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+year+".roo
 FileContent = [key.GetName() for key in gDirectory.GetListOfKeys()]
 
 #define output files
-outFileHT = TFile("CombinationAll/HTslices_SimpleShapes_Wprime"+binNr+"_"+year+".root","RECREATE")
-outFileFit = TFile("CombinationAll/FitSlices_SimpleShapes_Wprime"+binNr+"_"+year+".root","RECREATE")
+outFileHT = TFile("CombinationAll/HTslices_Wprime"+binNr+"_"+year+".root","RECREATE")
+outFileFit = TFile("CombinationAll/FitSlices_Wprime"+binNr+"_"+year+".root","RECREATE")
 
 #run over keys, sort and Project them appropriately
 for content in FileContent:
-    if content.find("STfit") > 0: #FIXME: This is currently broken, needs to be skipped
-        continue
     if content.find("HT2D_") > -1:
         HT = inFile.Get(content)
         keyname = content.replace("HT2D_", "HT_")
@@ -127,8 +125,6 @@ HTcardIn  = open("CombinationAll/HT_Wprime"+binNr+"_"+year+".txt","r")
 FitCardOut = open("CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt","w")
 HTcardOut = open("CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt","w")
 
-print("NLLvals",NLLvals)
-
 #make a sliced fit card
 FitLines = FitCardIn.readlines()
 newFitLines = []
@@ -172,7 +168,6 @@ for FitLine in FitLines:
                 newStartPos = FitLine[startPos:].find(val)+len(val)+1+startPos
                 currentPos = FitLine[startPos:].find(val)+startPos
                 newString = str(NLLvals[bgrIt][1])
-                print("newString = ",newString)
                 if len(newString) > 4:
                     newString = newString[0:4]
                 while len(newString) < len(val):
@@ -240,3 +235,6 @@ for HTline in HTlines:
 HTcardOut.writelines(newHTlines)
 HTcardOut.close()
 HTcardIn.close()
+
+#define combined card
+os.system("combineCards.py CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt > CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
