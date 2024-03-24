@@ -148,7 +148,7 @@ for FitLine in FitLines:
             else: #all backgrounds, in order
                 newStartPos = FitLine[startPos:].find(val)+3+startPos
                 currentPos = FitLine[startPos:].find(val)+startPos
-                if NLLvals[bgrIt][3] == 0: #deactivate backgrounds where any variation hits a 0 minimum to avoid the card from crashing
+                if NLLvals[bgrIt][3] <= 0: #deactivate backgrounds where any variation hits a 0 minimum to avoid the card from crashing
                     newString = "0 "
                     FitLine = FitLine[0:currentPos] + FitLine[currentPos:currentPos+2].replace(val,newString) + FitLine[currentPos+2:]
                 bgrIt += 1
@@ -203,7 +203,7 @@ for HTline in HTlines:
             else: #all backgrounds, in order
                 newStartPos = HTline[startPos:].find(val)+3+startPos
                 currentPos = HTline[startPos:].find(val)+startPos
-                if NLLvals[bgrIt][4] == 0: #deactivate backgrounds where any variation hits a 0 minimum to avoid the card from crashing
+                if NLLvals[bgrIt][4] <= 0: #deactivate backgrounds where any variation hits a 0 minimum to avoid the card from crashing
                     newString = "0 "
                     HTline = HTline[0:currentPos] + HTline[currentPos:currentPos+2].replace(val,newString) + HTline[currentPos+2:]
                 bgrIt += 1
