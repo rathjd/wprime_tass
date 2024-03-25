@@ -49,14 +49,14 @@ NLLvals = [["ttbar",      0., 0., 1., 1.],
            ["diboson",    0., 0., 1., 1.]]
 
 #load file with 2D distributions and get filenames
-inFileSF = TFile("CombinationAll/SF_Bin"+binNr[0:3]+"2_"+year+".root","READ")
-inFile = TFile("CombinationAll/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+year+".root","READ")
+inFileSF = TFile("../CombinationAll/SF_Bin"+binNr[0:3]+"2_"+year+".root","READ")
+inFile = TFile("../CombinationAll/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+year+".root","READ")
 
 FileContent = [key.GetName() for key in gDirectory.GetListOfKeys()]
 
 #define output files
-outFileHT = TFile("CombinationAll/HTslices_Wprime"+binNr+"_"+year+".root","RECREATE")
-outFileFit = TFile("CombinationAll/FitSlices_Wprime"+binNr+"_"+year+".root","RECREATE")
+outFileHT = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+".root","RECREATE")
+outFileFit = TFile("../CombinationAll/FitSlices_Wprime"+binNr+"_"+year+".root","RECREATE")
 
 #run over keys, sort and Project them appropriately
 for content in FileContent:
@@ -69,7 +69,7 @@ for content in FileContent:
         ProjHT.Write()
         for bgr in NLLvals: #check for empty variations
             if content.find(bgr[0]) > -1:
-                bgr[4] = min(bgr[4], ProjHT.Integral(0,-1))
+                bgr[4] = min(bgr[4], ProjHT.Integral())
     elif content.find("FitMass2D_") > -1:
         Fit = inFile.Get(content)
         keyname = content.replace("FitMass2D_", "Fit_")
@@ -79,7 +79,7 @@ for content in FileContent:
         ProjFit.Write()
         for bgr in NLLvals: #check for empty variations
             if content.find(bgr[0]) > -1:
-                bgr[3] = min(bgr[3], ProjFit.Integral(0,-1))
+                bgr[3] = min(bgr[3], ProjFit.Integral())
     elif content.find("HT_data_obs_") > -1:
         HT = inFile.Get(content)
         keyname = content.replace("HT_", "HT_")
@@ -97,18 +97,18 @@ for content in FileContent:
     elif content.find("NegLogLnoBvsNegLogL_") > -1: #calculate the NLL nonclosure uncertainty by cutting on -log(L), getting the corresponding -log(L)!b values, then multiply with the residuals
         NLL = inFile.Get(content)
         ProjNLLFit = NLL.ProjectionX("NLLFit", 0,          binSplit)
-        NLLFitVal = ProjNLLFit.Integral(0,-1)
+        NLLFitVal = ProjNLLFit.Integral()
         ProjNLLHT  = NLL.ProjectionX("NLLHT",  binSplit+1, binEnd)
-        NLLHTval = ProjNLLHT.Integral(0,-1)
+        NLLHTval = ProjNLLHT.Integral()
         for bgr in NLLvals:
             if content.find(bgr[0]) > -1:
                 NLLres = inFileSF.Get("NLLresidual_"+binNr[0:3]+"2_"+year)
                 ProjNLLFit.Multiply(NLLres)
                 if NLLFitVal > 0:
-                    bgr[1] = ProjNLLFit.Integral(0,-1)/NLLFitVal
+                    bgr[1] = ProjNLLFit.Integral()/NLLFitVal
                 ProjNLLHT.Multiply(NLLres)
                 if NLLHTval > 0:
-                    bgr[2] = ProjNLLHT.Integral(0,-1)/NLLHTval
+                    bgr[2] = ProjNLLHT.Integral()/NLLHTval
 
 
 #close files
@@ -119,11 +119,11 @@ inFileSF.Close()
     
 
 #write cards ready to be processed
-FitCardIn = open("CombinationAll/FitMass_Wprime"+binNr+"_"+year+".txt","r")
-HTcardIn  = open("CombinationAll/HT_Wprime"+binNr+"_"+year+".txt","r")
+FitCardIn = open("../CombinationAll/FitMass_Wprime"+binNr+"_"+year+".txt","r")
+HTcardIn  = open("../CombinationAll/HT_Wprime"+binNr+"_"+year+".txt","r")
 
-FitCardOut = open("CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt","w")
-HTcardOut = open("CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt","w")
+FitCardOut = open("../CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt","w")
+HTcardOut = open("../CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt","w")
 
 #make a sliced fit card
 FitLines = FitCardIn.readlines()
@@ -237,4 +237,4 @@ HTcardOut.close()
 HTcardIn.close()
 
 #define combined card
-os.system("combineCards.py CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt > CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
+os.system("combineCards.py ../CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt ../CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt > ../CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
