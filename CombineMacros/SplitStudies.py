@@ -1,7 +1,8 @@
 import os,sys
 
-from ROOT import TFile, TTree, TH3F, TH2F, TGraph, TCanvas
+from ROOT import TFile, TTree, TH3F, TH2F, TGraph, TCanvas, gStyle
 from array import array
+import math
 
 #macro to study splits between fit mass and HT along the negative log likelihood
 #needs to set up a cmsenv capable of running Combine to function
@@ -49,8 +50,8 @@ for mass in range(0,9):
     expLimits = array( 'd' )
     LimitUncAve = array( 'd' )
 
-    for binSplit in range(1,maxNLL):
-        for binEnd in range(binSplit+1,maxNLL):
+    for binSplit in range(1,3):#maxNLL):
+        for binEnd in range(binSplit+1,3):#maxNLL):
             #run the splitter
             os.system("python3 SliceHTvsFitMass.py "+year+" "+binNr+" "+str(binSplit)+" "+str(binEnd))
 
@@ -100,16 +101,18 @@ for mass in range(0,9):
             #extract the information on the fit
             infile = TFile("higgsCombineTest.AsymptoticLimits.mH"+massString+".root","READ")
             counter = 0
-            LimitUnc = 0.
+            LimitUnc = []
+            currLimit = 0.
             for event in infile.limit:
                 CombHist.SetBinContent(binSplit+1, binEnd+1, counter+1, event.limit)
-                if counter == 3: #expected limit
-                    expLimits.append(event.limit)
+                if counter == 2: #expected limit
+                    currLimit = event.limit
                     CombHistExp.SetBinContent(binSplit+1, binEnd+1, event.limit)
-                elif counter == 2 or counter == 4: #+/- 1 sigma
-                    LimitUnc += event.limit
+                elif counter == 1 or counter == 3: #+/- 1 sigma
+                    LimitUnc.append(event.limit)
                 counter+=1
-                LimitUncAve.append(LimitUnc/2.)
+            LimitUncAve.append((math.fabs(LimitUnc[0]-currLimit) + math.fabs(LimitUnc[1]-currLimit))/2.)
+            expLimits.append(currLimit)
 
             #clean up
             infile.Close()
@@ -126,7 +129,7 @@ for mass in range(0,9):
     Graph.SetMarkerStyle(47)
     Graph.SetMarkerColor(1)
     Graph.SetLineColor(1)
-    Graph,Draw("A,P,L")
+    Graph.Draw("A,P,L")
     canvas.Write()
     canvas.SaveAs("LimitGraph_"+year+"_"+ binNr+"_mWp"+massString+".pdf")
 
