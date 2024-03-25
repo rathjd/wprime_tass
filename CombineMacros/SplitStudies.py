@@ -50,8 +50,8 @@ for mass in range(0,9):
     expLimits = array( 'd' )
     LimitUncAve = array( 'd' )
 
-    for binSplit in range(1,3):#maxNLL):
-        for binEnd in range(binSplit+1,3):#maxNLL):
+    for binSplit in range(1, maxNLL):
+        for binEnd in range(binSplit+1, maxNLL):
             #run the splitter
             os.system("python3 SliceHTvsFitMass.py "+year+" "+binNr+" "+str(binSplit)+" "+str(binEnd))
 
