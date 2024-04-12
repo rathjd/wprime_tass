@@ -12,7 +12,7 @@
 #include "Utilities/CMSStyle.cc"
 
 void Brazil(int iter = 0){
-  TString SampleYear = "2018";
+  TString SampleYear = "2016";
   TString Observable = "WPrimeMass";
   vector<TString> Regions = {"1153", "1163", "2153", "2163", "All"};
   vector<TString> RegionTexts = {"#mu, 5 Jets, 3 bTags", "#mu, 6 Jets, 3 bTags", "e, 5 Jets, 3 bTags", "e, 6 Jets, 3 bTags"};
@@ -36,14 +36,16 @@ void Brazil(int iter = 0){
   }
   // basefolder = "CombinedFiles/Denis/";
   // folder = folder + "Denis";
-
-  
+    basefolder = "/afs/cern.ch/work/m/mkizilov/private/analysis/WPrimeAnalysis/HistMaker/CombineFiles/";
+    folder = "";
   for (unsigned ir = 0; ir < Regions.size(); ++ ir) {
     TString Region = Regions[ir];
-    TString InFileName = basefolder + folder + "Limits_" + SampleYear + "_" + Observable + "_" + Region + ".root";
+    TString InFileName = basefolder + folder + "FitSlices_" + "WPrime"+Region+ "_"+SampleYear+ ".root";
+    InFileName = basefolder + folder + "higgsCombineTest.root";
     TString OutPlotName = "Brazil/" + folder + "LimitBrazil_" + SampleYear + "_" + Observable + "_" + Region + ".pdf";
     TFile *f = new TFile(InFileName);
     TTree *t = (TTree*)f->Get("limit");
+    cout << "check if tree exists: " << t << endl;
     double b_limit, b_mass;
     Float_t b_quant;
     t->SetBranchAddress("limit", &b_limit);

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-pp=/afs/cern.ch/work/s/siluo/HiggsAnalysis/CombinedLimit
+pp=/afs/cern.ch/work/m/mkizilov/private/analysis/WPrimeAnalysis/HistMaker/CombineLimit
 # equivalent to CMSSW 11_3_0
 . /cvmfs/cms.cern.ch/slc7_amd64_gcc900/external/gcc/9.3.0/etc/profile.d/init.sh
 . /cvmfs/cms.cern.ch/slc7_amd64_gcc900/lcg/root/6.22.08-ljfedo/etc/profile.d/init.sh

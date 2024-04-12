@@ -6,6 +6,7 @@
 // #include "../Utilities/Configs.cc" // For checkpoints
 
 #include <math.h>
+#include <TSystem.h>
 
 #include "TChain.h"
 #include "TFile.h"
@@ -25,6 +26,7 @@ int MakeHistValidation(int isampleyear = 3, int isampletype = 0, int ifile = -1,
   bool DoFitter = true;
   double FilesPerJob = 10.;
   if (ErrorLogDetected(isampleyear, isampletype, ifile) == 0) return 0;
+  
 
   vector<string> SampleTypes = dlib.DatasetNames;
   string SampleType = SampleTypes[isampletype];
@@ -36,7 +38,7 @@ int MakeHistValidation(int isampleyear = 3, int isampletype = 0, int ifile = -1,
   if (isampletype != 2 && MCReweightStep == 2) return 0;
   
   rm.AcceptRegions({1,2},{1},{5,6},{1,2,3,4,5,6});
-  string basepath = "/eos/user/s/siluo/WPrimeAnalysis/ValidationFitted/";
+  string basepath = "/eos/user/m/mkizilov/WPrimeAnalysis/ValidationFitted/";
   string itpath = "";
   // string HistFilePath = "outputs/";
   string HistFilePath = basepath;
@@ -52,12 +54,23 @@ int MakeHistValidation(int isampleyear = 3, int isampletype = 0, int ifile = -1,
   if (SampleType == "ZZ") return 0;
 
   string MCRWVar = "ST";
-  vector<double> MCRWBinning = {200,300,350,850,900,950,1000,1100,1200,1300,1500,2000};
-  int inspos = 3; // position to insert repeatative bins.
-  for (int binv = 400; binv <= 800; binv += 20) {
-    MCRWBinning.insert(MCRWBinning.begin() + inspos, binv);
-    inspos++;
-  }
+
+  //Regular binning
+  // vector<double> MCRWBinning = {200,300,350,850,900,950,1000,1100,1200,1300,1500,2000};
+  // int inspos = 3; // position to insert repeatative bins.
+  // for (int binv = 400; binv <= 800; binv += 20) {
+  //   MCRWBinning.insert(MCRWBinning.begin() + inspos, binv);
+  //   inspos++;
+  // }
+
+  //Binning for St 5j
+
+  
+  vector<double> MCRWBinning = {180., 320., 337., 348., 358., 367., 374., 381., 388., 394., 400., 406., 412., 418., 424., 429., 435., 440., 446., 451., 457., 463., 468., 474., 480., 486., 492., 498., 504., 511., 517.,  524., 531., 538., 545., 553., 561., 570., 578., 588., 597., 607., 618., 630., 643., 656., 671., 688., 705., 724., 747., 773., 805., 843., 896., 972., 1104., 2000.};
+
+
+  
+
   double MCRWVal = 0.; // Evaluated quantity in the MCReweight
   MCReweightManager *mcrm = new MCReweightManager(MCRWVar); // MCReweight derive variable
   mcrm->Verbose = false;
@@ -79,21 +92,54 @@ int MakeHistValidation(int isampleyear = 3, int isampletype = 0, int ifile = -1,
       mcrm->SaveToFile(SourcePath, SourcePrefix);
     }
   }
-
+  
   if (MCReweightStep == 1) return 0;
 
   unsigned PrevVarSize = rm.Variations.size();
   if (MCReweightStep == 2) rm.AddVariationSource("RwStat");
 
   Histograms HistCol;
+  // HistCol.SetSampleTypes(SampleTypes);
+  // HistCol.AddObservable("LeptonPt",50,0,500);
+  // HistCol.AddObservable("LeptonEta",90,-4.5,4.5);
+  // HistCol.AddObservable("LeptonPhi",90,-4.5,4.5);
+  // for (unsigned ij = 0; ij < 5; ++ij) {
+  //   HistCol.AddObservable(Form("Jet%iPt",ij),100,0,1000);
+  //   HistCol.AddObservable(Form("Jet%iEta",ij),90,-4.5,4.5);
+  //   HistCol.AddObservable(Form("Jet%iPhi",ij),90,-4.5,4.5);
+  //   for (unsigned ij2 = ij + 1; ij2 < 5; ++ij2) {
+  //     string ob = Form("dR(Jet%i,Jet%i)",ij, ij2);
+  //     HistCol.AddObservable(ob, 45, 0, 4.5);
+  //   }
+  // }
+  // HistCol.AddObservable("METPt",100,0,2000);
+  // HistCol.AddObservable("METPhi",64,-3.2,3.2);
+  // HistCol.AddObservable("dPhiMetLep",90,-4.5,4.5);
+  // HistCol.AddObservable("mT",100,0,2000);
+  // HistCol.AddObservable("HT",200,0,2000);
+  // HistCol.AddObservable("ST",200,0,2000);
+  // HistCol.AddObservable("WPrimeMassSimpleFL",100,0,2000);
+  // HistCol.AddObservable("WPrimeMassSimpleLL",100,0,2000);
+  // if (DoFitter) {
+  //   HistCol.AddObservable("WPrimeMass",100,0,2000);
+  //   HistCol.AddObservable("WPrimeMassFL",100,0,2000);
+  //   HistCol.AddObservable("WPrimeMassLL",100,0,2000);
+  //   HistCol.AddObservable("Likelihood",100,-10,0);
+  //   if (IsSignal) {
+  //     HistCol.AddObservable("LikelihoodCorrect",100,-10,0);
+  //     HistCol.AddObservable("LikelihoodEffCorrect",100,-10,0);
+  //     HistCol.AddObservable("LikelihoodInCorrect",100,-10,0);
+  //   }
+  // }
+
   HistCol.SetSampleTypes(SampleTypes);
   HistCol.AddObservable("LeptonPt",50,0,500);
-  HistCol.AddObservable("LeptonEta",90,-4.5,4.5);
-  HistCol.AddObservable("LeptonPhi",90,-4.5,4.5);
+  HistCol.AddObservable("LeptonEta",90,-3.141592,3.141592);
+  HistCol.AddObservable("LeptonPhi",90,-3.141592,3.141592);
   for (unsigned ij = 0; ij < 5; ++ij) {
     HistCol.AddObservable(Form("Jet%iPt",ij),100,0,1000);
-    HistCol.AddObservable(Form("Jet%iEta",ij),90,-4.5,4.5);
-    HistCol.AddObservable(Form("Jet%iPhi",ij),90,-4.5,4.5);
+    HistCol.AddObservable(Form("Jet%iEta",ij),90,-3.141592,3.141592);
+    HistCol.AddObservable(Form("Jet%iPhi",ij),90,-43.141592,3.141592);
     for (unsigned ij2 = ij + 1; ij2 < 5; ++ij2) {
       string ob = Form("dR(Jet%i,Jet%i)",ij, ij2);
       HistCol.AddObservable(ob, 45, 0, 4.5);
@@ -104,7 +150,7 @@ int MakeHistValidation(int isampleyear = 3, int isampletype = 0, int ifile = -1,
   HistCol.AddObservable("dPhiMetLep",90,-4.5,4.5);
   HistCol.AddObservable("mT",100,0,2000);
   HistCol.AddObservable("HT",200,0,2000);
-  HistCol.AddObservable("ST",200,0,2000);
+  HistCol.AddObservable("ST",2000,0,2000);
   HistCol.AddObservable("WPrimeMassSimpleFL",100,0,2000);
   HistCol.AddObservable("WPrimeMassSimpleLL",100,0,2000);
   if (DoFitter) {
@@ -118,6 +164,8 @@ int MakeHistValidation(int isampleyear = 3, int isampletype = 0, int ifile = -1,
       HistCol.AddObservable("LikelihoodInCorrect",100,-10,0);
     }
   }
+
+
   HistCol.CreateHistograms(HistFilePath, HistFilePrefix, SampleType, ifile);
   
   TChain* t = new TChain("t");
@@ -136,11 +184,16 @@ int MakeHistValidation(int isampleyear = 3, int isampletype = 0, int ifile = -1,
     for (unsigned ikw = 0; ikw < BatchFileKeywords.size(); ++ikw) {
       if (stts.Contains(BatchFileKeywords[ikw])) InKeyWord = true;
     }
-    if (!InKeyWord) FilesPerJob = 1.0;
+    if (!InKeyWord) FilesPerJob = 10.0;
     for (int isubfile = 0; isubfile < FilesPerJob; ++isubfile) {
       int ii = ifile * FilesPerJob + isubfile;
       string sp = SamplePath + Form("_%i.root",ii);
       TString InFilePath = basepath + itpath + sp;
+      //Check if file exist
+      if (gSystem->AccessPathName(InFilePath)) {
+        cout << "File " << InFilePath << " does not exist" << endl;
+        continue;
+      }
       cout << "The InputFile path is " << InFilePath << endl;
       t->Add(InFilePath);
     }

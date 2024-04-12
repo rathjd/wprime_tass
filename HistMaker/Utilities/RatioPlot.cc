@@ -25,7 +25,7 @@ public:
   {
     Init();
     PlotName = pn;
-    Logy = true;
+    Logy = false;
     IsSR = IsSR_;
     UTitle = ";;" + yt;
     LTitle = ";" + xt + ";Obs./Exp.";
@@ -44,7 +44,18 @@ public:
 
   void SetLogy(bool l = true) {
     Logy = l;
-    // UPad->SetLogy(l);
+    //UPad->SetLogy(l);
+  }
+
+  void ReverseXAxis(TH1F* h) {
+    // int nbins = h->GetNbinsX();
+    // TH1F *hr = (TH1F*)h->Clone("hr");
+    // // Reverse the bin contents
+    // for (int i=1; i<=nbins; i++) {
+    //   h->SetBinContent(i, hr->GetBinContent(nbins-i+1));
+    //   h->SetBinError(i, hr->GetBinError(nbins-i+1));
+    // }
+    //cout << "Not reversing X axis" << std::endl;
   }
 
   void SetTitles(TString xt, TString yt = "Number of Entries") {
@@ -68,6 +79,8 @@ public:
 
   void AddData(TH1F* h_) {
     DataHist = (TH1F*)h_->Clone();
+    cout << "Data name = " << DataHist->GetName() << endl;
+    ReverseXAxis(DataHist);
     DataHist->SetDirectory(0);
     DataHist->SetBinErrorOption(TH1::kPoisson);
     DataHist->SetLineStyle(1);
@@ -85,16 +98,19 @@ public:
       TH1F* h = (TH1F*) h_->Clone();
       h->SetDirectory(0);
       h->SetLineStyle(1);
+
       MCHists.push_back(h); // Saved into vector, since THStack class doesn't own the histograms.
       MCNames.push_back(n_);
+
       MCStack->Add(h);
       HasMC = true;
+      // print integral of h
+      cout << n_ << " integral: " << h->Integral() << endl;
     }
     else {
       for (unsigned inm = 0; inm < MCNames.size(); ++inm) {
         if (MCNames[inm] != n_) continue;
         if (fabs(h_->Integral(0,-1) / MCHists[inm]->Integral(0,-1) - 1.0) > 0.5) {
-          cout << h_->GetName() << " integral = " << h_->Integral(0,-1) << ", " << MCHists[inm]->GetName() << " integral = " << MCHists[inm]->Integral(0,-1) << endl;
         }
       }
     }
@@ -103,13 +119,16 @@ public:
       MCSummed[iv]->SetDirectory(0);
       MCSummed[iv]->SetLineColor(1);
     }
-    else MCSummed[iv]->Add(h_);
+    else {
+      MCSummed[iv]->Add(h_);
+    }
     if (MCSummed[iv]->GetMaximum() > TrueMaximum) TrueMaximum = MCSummed[iv]->GetMaximum();
   }
 
   void AddSig(TString n_, TH1F* h_, int iv, int style) {
     TH1F* h = (TH1F*) h_->Clone();
     h->SetDirectory(0);
+    ReverseXAxis(h);
     if (iv == 0) {
       if (style == -1) h->SetLineStyle(2);
       else h->SetLineStyle(style);
@@ -193,8 +212,13 @@ public:
 
   vector<double> SystError(TH1F* hcentral, TH1F* hvarup, TH1F* hvarlow, vector<double>& errup, vector<double>& errlow) {
     if (hcentral == nullptr) return {};
+    // cout << "Start Sys Error" << endl;
+    // cout << "hcentral: " << hcentral->GetName() << ", hvarup: " << hvarup->GetName() << ", hvarlow: " << hvarlow->GetName() <<endl;
+    // cout << "Integrals: " << hcentral->Integral() << ", " << hvarup->Integral() << ", " << hvarlow->Integral() << endl;
     if (hvarup->Integral() / hcentral->Integral() > 2. || hvarup->Integral() / hcentral->Integral() < 0.5) cout << hvarup->GetName() << " ratio to central " << hcentral->GetName() << " = " <<hvarup->Integral() / hcentral->Integral() << endl;
     if (hvarlow->Integral() / hcentral->Integral() > 2. || hvarlow->Integral() / hcentral->Integral() < 0.5) cout << hvarlow->GetName() << " ratio to central " << hcentral->GetName() << " = " <<hvarlow->Integral() / hcentral->Integral() << endl;
+    // cout << "Sys error 2"<< endl;
+    
     bool doreport = false;
     bool reportedup = false;
     bool reportedlow = false;
@@ -266,8 +290,20 @@ public:
           MCSystUncertIntegral.push_back(errint[1]);
           MCSystUncertIntegral.push_back(errint[2]);
         }
+        // cout <<"Iv = " << iv <<endl;
+        // cout <<"Print Sig Names" <<endl;
         for (unsigned isig = 0; isig < SigNames.size(); ++isig) {
-          // cout << "Syst " << iv << ": " << SigHists[isig][iv*2-1]->GetName()<< ", " << SigHists[isig][iv*2]->GetName() <<endl;
+
+          
+          // cout << "-SigNames: " << SigNames[isig] <<endl;
+        }
+
+        for (unsigned isig = 0; isig < SigNames.size(); ++isig) {
+          // cout << "isig = " << isig <<"var size = " << VarSize <<endl;
+          // cout << "SigErrUp size = " << SigErrUp[isig].size() <<endl;
+          // cout << "SigErrLow size = " << SigErrLow[isig].size() <<endl;
+          
+          // cout << "SigNames: " << SigNames[isig] <<endl;
           SystError(SigHists[isig][0], SigHists[isig][iv-1], SigHists[isig][iv], SigErrUp[isig], SigErrLow[isig]);
         }
       }
@@ -291,14 +327,23 @@ public:
   void CreateErrorGraphs() {
     ErrorCalc();
     double bw = (xup - xlow) / (nbins + 0.0); // Ensure nbins double
+    // cout << "nbins" << nbins <<endl;
     int lp = nbins * 4 - 1;
-    double x[1000]; // A large enough size larger than any nbins
-    double y[1000];
-    for (unsigned i = 0; i < nbins; ++i) {
-      x[2*i] = x[lp-2*i] = xlow + (i + 0.0) * bw;
-      x[2*i+1] = x[lp-2*i-1] = xlow + (i + 1.0) * bw;
-    }
+    // cout << "lp " << lp <<endl;
+    double x[200000]; // A large enough size larger than any nbins
+    double y[200000];
 
+
+    for (unsigned i = 0; i < nbins; ++i) {
+      // x[2*i] = x[lp-2*i] = xlow + (i + 0.0) * bw;
+      // x[2*i+1] = x[lp-2*i-1] = xlow + (i + 1.0) * bw;
+      // cout << "MC Bin Low Edge = " << MCSummed[0]->GetXaxis()->GetBinLowEdge(i+1) <<endl;
+      // cout << "MC Bin Up Edge = " << MCSummed[0]->GetXaxis()->GetBinUpEdge(i+1) <<endl;
+
+      x[2*i] = x[lp-2*i] = MCSummed[0]->GetXaxis()->GetBinLowEdge(i+1);
+      x[2*i+1] = x[lp-2*i-1] = MCSummed[0]->GetXaxis()->GetBinUpEdge(i+1);
+    }
+    cout << "Error Graphs Debug #1" <<endl;
     if (HasMC) {
       for (unsigned i = 0; i < nbins; ++i) {
         y[2*i] = y[2*i+1] = y[lp-2*i] = y[lp-2*i-1] = MinY;
@@ -307,6 +352,7 @@ public:
         y[2*i] = y[2*i+1] = cent + MCErrUp[i];
         y[lp-2*i] = y[lp-2*i-1] = cent - MCErrLow[i];
       }
+      // cout << "Error Graphs Debug #2" <<endl;
       MCErrorGraph = new TGraph(nbins * 4, x, y);
       MCErrorGraph->SetLineWidth(0);
       MCErrorGraph->SetLineColor(0);
@@ -315,6 +361,7 @@ public:
     }
     
     SigErrorGraphs.resize(SigNames.size()); // SigNames size will prevent signal absent case crash the code
+    // cout << "SigNames size = " << SigNames.size() <<endl;
     for (unsigned isig = 0; isig < SigNames.size(); ++isig) {
       for (unsigned i = 0; i < nbins; ++i) {
         y[2*i] = y[2*i+1] = y[lp-2*i] = y[lp-2*i-1] = MinY;
@@ -328,17 +375,25 @@ public:
       SigErrorGraphs[isig]->SetFillColor(SigHists[isig][0]->GetLineColor());
       SigErrorGraphs[isig]->SetFillStyle(ErrorBandFillStyle);
     }
-
     if (HasMC) {
       for (unsigned i = 0; i < nbins; ++i) {
         y[2*i] = y[2*i+1] = y[lp-2*i] = y[lp-2*i-1] = 1.0;
         double cent = MCSummed[0]->GetBinContent(i+1);
+        // cout << "Cent = " << cent <<endl;
+        // cout << "i = " << i <<endl;
+        // cout << "MinY" << MinY <<endl;
         if (cent <= MinY) continue;  // Prevent -nan value in graph
         y[2*i] = y[2*i+1] = (cent + MCErrUp[i]) / cent;
+        // cout << "y[2*i] = " << y[2*i] <<endl;
         y[lp-2*i] = y[lp-2*i-1] = (cent - MCErrLow[i]) / cent;
+        // cout << "y[lp-2*i] = " << y[lp-2*i] <<endl;
       }
+      // cout << "nbins: " << nbins <<endl;
       MCErrorRatioGraph = new TGraph(nbins * 4, x, y);
     }
+    // cout<< "MCSummed Size" << MCSummed.size() <<endl;
+    // cout << "MCErrUp Size" << MCErrUp.size() <<endl;
+    // cout << "MCErrLow Size" << MCErrLow.size() <<endl;
     MCErrorRatioGraph->SetLineWidth(0);
     MCErrorRatioGraph->SetLineColor(0);
     MCErrorRatioGraph->SetFillColor(1);
@@ -351,17 +406,24 @@ public:
     if (HasSig) {
       for (unsigned isig = 0; isig < SigNames.size(); ++isig) {
         ExpOverMC[isig] = (TH1F*)SigHists[isig][0]->Clone();
+        ReverseXAxis(ExpOverMC[isig]);
         ExpOverMC[isig]->SetDirectory(0);
         ExpOverMC[isig]->Add(MCSummed[0]);
         ExpOverMC[isig]->Divide(MCSummed[0]);
         ExpOverMC[isig]->SetFillColor(0);
+        ReverseXAxis(ExpOverMC[isig]);
       }
     }
     if (!IsSR && HasData) {
       DataOverMC = (TH1F*)DataHist->Clone();
+      ReverseXAxis(DataOverMC);
       DataOverMC->SetDirectory(0);
       DataOverMC->SetTitle(LTitle); // Not necessary because ErrorGraph will be drawn first
-      DataOverMC->Divide(MCSummed[0]);
+      TH1F* hmc = (TH1F*)MCSummed[0]->Clone();
+      //ReverseXAxis(hmc);
+      DataOverMC->Divide(hmc);
+      ReverseXAxis(DataOverMC);
+      
     }
   }
 
@@ -399,7 +461,6 @@ public:
   void SetMaximum(double max) {
     CanvasMaximum = max;
   }
-
   TString GetSensitivityLatex(TString SensSig = "M500") {
     TString sens = Form("#sqrt{#Sigma_{ibin} Sig ^ 2 / (Sig + BG)} = %f", GetSensitivity(SensSig));
     return sens;
@@ -446,9 +507,9 @@ public:
     UPad->SetTopMargin(gStyle->GetPadTopMargin()/0.7);
     UPad->SetBottomMargin(0.0);
     UPad->SetLogy(Logy);
-    UPad->Draw();
+    UPad->Draw("");
     LPad = new TPad(lowpadname,lowpadname,0,0,1,0.3);
-    LPad->Draw();
+    LPad->Draw("");
     LPad->SetTopMargin(0.1);
     LPad->SetTopMargin(gStyle->GetPadTopMargin()*0.3);
     LPad->SetBottomMargin(gStyle->GetPadBottomMargin()/0.3);
@@ -456,6 +517,7 @@ public:
   }
 
   bool DrawPlot(int year, double cxmin = -1, double cxmax = -1) { // return false if nothing to draw
+    cout << "Start DrawPlot RatioPlot" <<endl;
     if (!HasData && !HasMC && !SigNames.size()) return false;
     if (cxmin < 0) cxmin = xlow;
     if (cxmax < 0) cxmax = xup;
@@ -463,23 +525,25 @@ public:
     UPad->cd();
     if (CanvasMaximum > 0) MCStack->SetMaximum(CanvasMaximum);
     else MCStack->SetMaximum(TrueMaximum * TrueMaximumScale);
-    MCStack->Draw();
+    MCStack->Draw("");
+    // cout << "DrawPlot Debug 0" <<endl;
     MCStack->GetXaxis()->SetRangeUser(cxmin, cxmax);
     MCStack->Draw("hist");
-
+    // cout << "DrawPlot Debug 1" <<endl;
     if (MCErrorGraph != nullptr && HasMC) {
-      MCErrorGraph->Draw("samef");
+      MCErrorGraph->Draw("samef"); // MKR
       leg->AddEntry(MCErrorGraph,"Bkg. Unc.","f");
     }
-
-    if (!IsSR && HasData) DataHist->Draw("E1same");
-
+    // cout << "DrawPlot Debug 2" <<endl;
+    if (!IsSR && HasData) DataHist->Draw("E1same ");
+    // cout << "DrawPlot Debug 3" <<endl;
     for (unsigned isig = 0; isig < SigNames.size(); ++isig) {
+      // cout << "SigNames: " << SigNames[isig] <<endl;
       if (SigHists[isig][0]->GetEntries() == 0) continue;
-      SigHists[isig][0]->Draw("samehist");
+      SigHists[isig][0]->Draw("samehist ");
       if (SigErrorGraphs.size() == SigNames.size()) SigErrorGraphs[isig]->Draw("f");
     }
-    
+    cout << "DrawPlot Debug 4" <<endl;
     // The coefficients are tried out and tested to be placed at same location on canvas
     MCStack->GetYaxis()->SetTitleSize(gStyle->GetTitleSize());
     MCStack->GetYaxis()->SetTitleOffset(gStyle->GetTitleOffset());
@@ -487,18 +551,20 @@ public:
     MCStack->GetYaxis()->SetLabelOffset(gStyle->GetLabelOffset());
 
     // Pad->cd();
-    leg->Draw();
+    leg->Draw("");
 
     LPad->cd();
     LowerDummy->SetTitle(LTitle);
     LowerDummy->GetXaxis()->SetRangeUser(cxmin, cxmax);
     LowerDummy->GetYaxis()->SetRangeUser(0, 2.4);
     LowerDummy->GetYaxis()->SetNdivisions(505);
-
+    // XBinLabels = {"0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9", "-10"}; // MKR
     if (XBinLabels.size() != 0) {
       int nb_ = nbins;
       if (XBinLabels.size() < nbins) nb_ = XBinLabels.size();
-      for (int ib = 1; ib <= nb_; ++ib) LowerDummy->GetXaxis()->SetBinLabel(ib, XBinLabels[ib - 1]);
+      //for (int ib = 1; ib <=  11  ; ib++) LowerDummy->GetXaxis()->SetBinLabel(ib*nbins/10 , XBinLabels[10-ib]);
+     // for (int ib = 1; ib <= nb_; ib+=nbins/10) LowerDummy->GetXaxis()->ChangeLabel(ib ,-1,-1,-1,-1,-1, XBinLabels[ib - 1]);
+      for(int ib = 0; ib<11; ib++) LowerDummy->GetXaxis()->ChangeLabel(1+ib, -1,-1,-1,-1,-1, XBinLabels[ib]);
     }
     // LowerDummy->GetXaxis()->CenterTitle();
     LowerDummy->GetXaxis()->SetTitleSize(gStyle->GetTitleSize() / 0.3 * 0.7);
@@ -515,10 +581,13 @@ public:
 
 
     if (HasMC) {  
-      MCErrorRatioGraph->Draw("f same");
-      if (!IsSR && HasData) DataOverMC->Draw("same");
+      cout << "MCErrorRatioGraph->Draw" <<endl;
+      MCErrorRatioGraph->Draw("f same "); //MKR
+      cout << "MCErrorRatioGraph->Draw Done" <<endl;
+      if (!IsSR && HasData) DataOverMC->Draw("same ");
+      cout << "MCErrorRatioGraph->Draw Done2" <<endl;
       for (unsigned isig = 0; isig < SigNames.size(); ++isig) {
-        ExpOverMC[isig]->Draw("same hist ][");
+        ExpOverMC[isig]->Draw("same hist ][ ");
       }
     }
     
@@ -570,7 +639,8 @@ public:
   double MinY = 0;
   double CanvasMaximum = 0;
   double TrueMaximum = 0;
-  double TrueMaximumScale = 5.0;
+  // double TrueMaximumScale = 5.0;
+  double TrueMaximumScale = 1.2;
 
   bool HasData = false;
   bool HasMC = false;
@@ -602,6 +672,7 @@ public:
   TGraph* MCErrorRatioGraph = nullptr;
   TH1F* LowerDummy;
   vector<TString> XBinLabels;
+ 
 
 };
 
@@ -615,5 +686,6 @@ struct PlotObservable {
   int LegPos = 0;
   vector<double> LegendPos = {0.65,0.65,0.9,0.9};
 };
+
 
 #endif

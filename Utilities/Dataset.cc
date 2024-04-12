@@ -310,7 +310,7 @@ public:
 
   bool Debug;
   const vector<string> SampleYears{"2016apv","2016","2017","2018"};
-  const vector<double> CMSLumiYears{19.52, 16.81, 41.48, 59.83};
+  const vector<double> CMSLumiYears{36.33, 16.81, 41.48, 59.83};
   vector<string> DatasetNames, GroupNames;
   map<string,DatasetGroup> Groups;
   map<string,Dataset> Datasets;

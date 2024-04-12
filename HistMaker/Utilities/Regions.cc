@@ -137,19 +137,19 @@ public:
 
   void MakeCombineVariations() {
     Variations = {""};
-    AddVariationSource("electronScale"); // 1 2
-    AddVariationSource("electronRes"); // 3 4
-    AddVariationSource("JES"); // 5 6
-    AddVariationSource("JER"); // 7 8
-    AddVariationSource("electron"); // 9 10
-    AddVariationSource("muonTrigger"); // 11 12
-    AddVariationSource("muonId"); // 13 14
-    AddVariationSource("muonIso"); // 15 16
+    AddVariationSource("electronScale2016"); // 1 2
+    AddVariationSource("electronRes2016"); // 3 4
+    AddVariationSource("JES2016"); // 5 6
+    AddVariationSource("JER2016"); // 7 8
+    AddVariationSource("electron2016"); // 9 10
+    AddVariationSource("muonTrigger2016"); // 11 12
+    AddVariationSource("muonId2016"); // 13 14
+    AddVariationSource("muonIso2016"); // 15 16
     AddVariationSource("BjetTagCorr"); // 17 18
-    AddVariationSource("BjetTagUncorr2018"); // 19 20
-    AddVariationSource("PUID"); // 21 22 
-    AddVariationSource("L1PreFiring"); // 23 24
-    AddVariationSource("PUreweight"); // 25 26
+    AddVariationSource("BjetTagUncorr2016"); // 19 20
+    AddVariationSource("PUID2016"); // 21 22 
+    AddVariationSource("L1PreFiring2016"); // 23 24
+    AddVariationSource("PUreweight2016"); // 25 26
     AddVariationSource("PDF"); // 27 28
     AddVariationSource("LHEScale"); // 29 30
     // AddVariationSource("RwStat"); // 31 32

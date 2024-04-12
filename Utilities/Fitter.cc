@@ -96,6 +96,25 @@ public:
 
     if (DebugFitRecords) FitRecords.push_back(ScaledHypo.MakeRecord());  // Debug tool
     // return 1-p. So minimizer will try to get higher p, while the return value is expected to be > 0
+    //delete
+    for (unsigned i=0;i<4;i++){
+        cout<<"scales["<<i<<"]: "<<scales[i]<<" pscales["<<i<<"]: "<<ScaledHypo.PScales[i]<<endl;
+        cout<<"scaledjet["<<i<<"]: "<< ScaledHypo.Jets[i].Pt()<<" "<<ScaledHypo.Jets[i].Eta()<<" "<<ScaledHypo.Jets[i].Phi()<<" "<<ScaledHypo.Jets[i].M()<<endl;
+      }
+      cout<<"Neus[0]: "<<Neus[0].Pt()<<" "<<Neus[0].Eta()<<" "<<Neus[0].Phi()<<" "<<Neus[0].M()<<endl;
+      cout<<"Neus[1]: "<<Neus[1].Pt()<<" "<<Neus[1].Eta()<<" "<<Neus[1].Phi()<<" "<<Neus[1].M()<<endl;
+      cout<<"lepton: "<<ScaledHypo.Lep.Pt()<<" "<<ScaledHypo.Lep.Eta()<<" "<<ScaledHypo.Lep.Phi()<<" "<<ScaledHypo.Lep.M()<<endl;
+      TLorentzVector leptop0 = ScaledHypo.Lep + Neus[0] + ScaledHypo.Jets[3];
+      TLorentzVector leptop1 = ScaledHypo.Lep + Neus[1] + ScaledHypo.Jets[3];
+      cout<<"leptop0: "<<leptop0.Pt()<<" "<<leptop0.Eta()<<" "<<leptop0.Phi()<<" "<<leptop0.M()<<endl;
+      cout<<"leptop1: "<<leptop1.Pt()<<" "<<leptop1.Eta()<<" "<<leptop1.Phi()<<" "<<leptop1.M()<<endl;
+      cout<<"lettopprob: "<<ScaledHypo.PLep<<endl;
+      cout<<"PHadW: "<<ScaledHypo.PHadW<<" Mass: "<< ScaledHypo.HadW().M()<<endl; 
+      cout<<"PHadT: "<<ScaledHypo.PHadT<<" Mass: "<< ScaledHypo.HadT().M()<<endl;
+      cout<<"P: " << p <<endl;
+      // cout<<"leptopprob0: "<<leptopprob0<<" leptopprob1: "<<leptopprob1<<endl;
+
+    //delete
     return (-1.0 * p + 1.);
   }
 
@@ -111,8 +130,8 @@ public:
   void InitMinizer() {
     if (MinimizerInited) return;
     func = ROOT::Math::Functor(&MinimizePFunc,4);
-    mini->SetPrintLevel(0);
-    // mini->SetPrintLevel(3);
+    // mini->SetPrintLevel(0);
+    mini->SetPrintLevel(3);
     mini->SetStrategy(3);
     mini->SetMaxFunctionCalls(100000);
     mini->SetMaxIterations(10000);
@@ -126,15 +145,23 @@ public:
   // Then return likelihood as 1. - minimized functor; or 1. - (1. - likelihood)
   double MinimizeP() {
     // Initializing the minimizer with our funtor MinimizePFunc() defined above
+    	
+    // std::vector<float> testscales = {0.92969776, 1.0322110, 1.0631356, 0.86232425};
     InitMinizer();
     for (unsigned i = 0; i < 4; ++i) {
       // The variating range is limited to +- 2 sigma of the fitted jet response distribution
       pair<double,double> limits = JS->ScaleLimits(BaseHypo.Jets[i].Eta(),BaseHypo.Jets[i].Pt());
       mini->SetLimitedVariable(i,Form("Scale_%i",i),1.0,0.01,limits.first,limits.second);
+      // Print Minuit Status
+
+      // mini->SetLimitedVariable(i,Form("Scale_%i",i),testscales[i],0.01,limits.first,limits.second);
       // mini->SetLimitedVariable(i,Form("Scale_%i",i),1.0,0.01,0.99,1.01);
     }
     SW.Start();
     mini->Minimize();
+    //print minui status
+    cout<<"Minimizer status: "<<mini->Status()<<endl;
+    cout<<"Minuit values: " <<mini->X()[0]<<" "<<mini->X()[1]<<" "<<mini->X()[2]<<" "<<mini->X()[3]<<endl; 
     if (DebugFitter) {
       double ptime = SW.End();
       FitterStatus fs;
@@ -213,6 +240,9 @@ public:
   double Optimize() {
     if (AllJets.size() < 5) return -2;
     MakePermutations();
+    // Perms.clear(); // Delete
+    // std::vector<int> perm = {3, 4, 2, 1, 0}; //Delete
+    // Perms.push_back(perm); //Delete
     BestP = -1;
     BestPFitter = -1;
     BestHypo.ResetJets();
@@ -226,6 +256,11 @@ public:
       FSFail.Reset();
     }
     for (unsigned ip = 0; ip < Perms.size(); ++ip) { // Loop over permutations
+      cout<<"this permutation: ip = "<<ip<<endl;
+        for(unsigned k=0;k<5;k++){
+            cout<<Perms[ip][k]<<" ";
+        }
+        cout<<endl;
       bool OnTruePerm = (conf->WPType > -1 && Perms[ip] == TruePerm);
       if (OnTruePerm) TruePermStatus = 0;
       FitRecords.clear();
@@ -289,6 +324,9 @@ public:
         ScaledHypo.WPType = 1;
       }
       double ThisP = ScaledHypo.GetTotalP();
+      cout<<"PbTag_h: "<<PbTag_h<<" PPtPerm_h: "<<PPtPerm_h<<" PWPrimedR_h: "<<PWPrimedR_h<<endl;
+      cout<<"PbTag_l: "<<PbTag_l<<" PPtPerm_l: "<<PPtPerm_l<<" PWPrimedR_l: "<<PWPrimedR_l<<endl;
+      cout<<"Total P: "<<ThisP<<endl<<endl;
       if (conf->WPType > -1 && Perms[ip].size() != TruePerm.size() && TruePerm.size() != 0) cout << "Perm size = " << Perms[ip].size() << " ,TruePermSize = " << TruePerm.size() << endl;
       if (ThisP <= 0) continue;
       if (ThisP > BestP) {
@@ -361,6 +399,7 @@ public:
 
 JetScale* Fitter::JS;
 ROOT::Math::Minimizer* Fitter::mini = ROOT::Math::Factory::CreateMinimizer("TMinuit");
+
 ROOT::Math::Functor Fitter::func;
 
 Hypothesis Fitter::BaseHypo;

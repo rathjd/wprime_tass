@@ -6,19 +6,18 @@ def GetLocalDataset(names, iy):
   if len(names) == 2:
     inname = names[1]
   # basepath = "/eos/user/d/doverton/skimmed_samples"
-  pbasepath = "/eos/user/p/pflanaga/andrewsdata/skimmed_samples/"
-  ebasepath = "/eos/user/e/eusebi/andrewsdata/skimmed_samples/"
-  b2gbasepath = "/eos/cms/store/group/phys_b2g/wprime/skimmed_samples/"
-  inyears = ["2016_APV","2016","2017","2018"]
+  MyPath = "/eos/user/m/mkizilov/WPrimeAnalysis/ValidationFitted/"
+  SomewherePath = "/afs/cern.ch/user/s/siluo/EOS/WPrimeAnalysis/ValidationFitted/"
+  inyears = ["2016apv","2016","2017","2018"]
   outyears = ["2016apv","2016","2017","2018"]
   if inname == "SingleElectron" and iy == 3: inname = "EGamma/"
   else: inname = inname + "/"
 
-  if iy == 3: basepath = ebasepath
-  elif iy == 2: basepath = b2gbasepath
-  elif iy == 1: basepath = b2gbasepath
-  else: basepath = b2gbasepath
-  infile = basepath + inname + inyears[iy] + "/*"
+  if iy == 3: basepath = SomewherePath
+  elif iy == 2: basepath = MyPath
+  elif iy == 1: basepath = MyPath
+  elif iy == 0: basepath = MyPath
+  infile = basepath + inyears[iy]+"_"+ inname  + "*"
   if not os.path.exists("filenames/"):
     os.makedirs("filenames")
   outfile = "filenames/" + outname + "_" + outyears[iy] + ".txt"
@@ -64,12 +63,14 @@ def GetDatasetNames():
   datasets.append(["WZTo3LNu"]) # 21
 
   for im in ["300","400","500","600","700","800","900","1000","1100"]: # 22 23 24 25 26 27 28 29 30
-    inname = "wprime_" + im + "_former_leptonic"
+    # inname = "wprime_" + im + "_former_leptonic"
+    inname = "FL" + im
     outname = "FL" + im
     datasets.append([outname, inname])
     
   for im in ["300","400","500","600","700","800","900","1000","1100"]: # 31 32 33 34 35 36 37 38 39
-    inname = "wprime_" + im + "_latter_leptonic"
+    # inname = "wprime_" + im + "_latter_leptonic"
+    inname = "LL" + im
     outname = "LL" + im
     datasets.append([outname, inname])
   
@@ -96,6 +97,6 @@ def GetSampleTypes():
 CreateFileNames = True
 if CreateFileNames:
   for iy in range(4):
-    # if iy != 3: continue # currenlty only 2018 available
+    if iy == 3: continue # currenlty only 2018 available
     for ids in GetDatasetNames():
       GetLocalDataset(ids, iy)

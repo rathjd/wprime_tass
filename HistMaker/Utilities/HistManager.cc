@@ -59,9 +59,16 @@ public:
     po = o;
   }
 
+
+
   void Rebin(int r) {
     rebin = r;
   }
+
+  void STRebin(int STr){
+    STrebin = STr;
+  }
+
 
   void SetSampleTypes(vector<string> sts) {
     SampleTypes = sts;
@@ -123,6 +130,13 @@ public:
             continue;
           }
           if (rebin > 1) h->Rebin(rebin);
+            if (STrebin == 1 && std::string(h->GetName()).find("ST") != std::string::npos) // Only works for ST
+          {
+            Double_t rebinning[] = {0, 180., 320., 337., 348., 358., 367., 374., 381., 388., 394., 400., 406., 412., 418., 424., 429., 435., 440., 446., 451., 457., 463., 468., 474., 480., 486., 492., 498., 504., 511., 517.,  524., 531., 538., 545., 553., 561., 570., 578., 588., 597., 607., 618., 630., 643., 656., 671., 688., 705., 724., 747., 773., 805., 843., 896., 972., 1104., 2000};
+            h = (TH1F*)h->Rebin(58, h->GetName(), rebinning);
+            // Scale the histogram to the bin width
+            h->Scale(1.0, "width");
+          }
           // if (po.Observable == "METPt") h->GetXaxis()->SetRangeUser(0,1000); // Very special case, should be changed in MakeHistValidation step instead
           if (PlotGroupHists[ig][iv] == nullptr) { // First hist for the group
             PlotGroupHists[ig][iv] = (TH1F*) h->Clone();
@@ -166,7 +180,7 @@ public:
           gpadded = true;
           // cout << "Adding " << PlotGroupHists[ig][iv]->GetName() << endl;
           if (NormalizePlot) PlotGroupHists[ig][iv]->Scale(1./PlotGroupHists[ig][iv]->Integral());
-          // if (rebin > 1) PlotGroupHists[ig][iv]->Rebin(rebin);
+
           Plots[ir]->AddHist(gn, PlotGroupHists[ig][iv], dlib.Groups[gn].Type,iv);
           if (dohc && gn != "Data") hc->AddHist(gn, PlotGroupHists[ig][iv],iv);
         }
@@ -175,6 +189,7 @@ public:
         }
         // if (gpadded) cout << "Added " << gn << " with type = " << dlib.Groups[gn].Type << endl;
       }
+      
       Plots[ir]->SetLogy(DoLogy);
       Plots[ir]->Legend(LegendPos);
       dlib.AddLegend(Plots[ir]->leg,IsSR);
@@ -233,11 +248,12 @@ public:
   // string XTitle, YTitle;
   PlotObservable po;
   int rebin;
+  int STrebin;
   vector<string> SampleTypes, Variations, Regions;
   vector<RatioPlot*> Plots; // [Region]
   vector<TFile*> InFiles; // [iSampleType]
   bool NormalizePlot = false;
-  bool DoLogy = true;
+  bool DoLogy = false;
   bool DrawSensitivity = false;
   bool DrawPurity = false;
 };

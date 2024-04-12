@@ -55,8 +55,8 @@ public:
     // }
   }
 
-  string UpPost = "Up";
-  string DownPost = "Down";
+  string UpPost = "2016Up";
+  string DownPost = "2016Down";
   void AddVariationSource(string sr) {
     Variations.push_back(sr + UpPost);
     Variations.push_back(sr + DownPost);
@@ -74,12 +74,11 @@ public:
     AddVariationSource("BjetTagCorr"); // 17 18
     AddVariationSource("BjetTagUncorr2018"); // 19 20
     AddVariationSource("PUID"); // 21 22 
-    AddVariationSource("L1PreFiring"); // 23 24
+    AddVariationSource("L1PreFiring"); // 23 24 
     AddVariationSource("PUreweight"); // 25 26
-    AddVariationSource("PDF"); // 27 28
+    AddVariationSource("PDF"); // 27 28 // 
     AddVariationSource("LHEScale"); // 29 30
-    AddVariationSource("RwStat" + Year + Region); // 31 32
-    // AddVariationSource("RwStat"); // 31 32
+    // AddVariationSource("RwStat" + Year + Region); // 31 32 // Comment this line if running on Denises Histograms (MK)
     // Change the card accordingly too
   }
 

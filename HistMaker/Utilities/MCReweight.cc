@@ -216,7 +216,9 @@ public:
       }
       
       TString FuncName = "MCRFunc" + SourceRegion + Variations[iv];
-      SF1DF[iv] = new TF1(FuncName,"[0]/x/x+[1]/x+[2]+[3]*x",SF1D[iv]->GetBinLowEdge(StartBin),SF1D[iv]->GetBinLowEdge(EndBin+1));
+      // SF1DF[iv] = new TF1(FuncName,"[0]/x/x+[1]/x+[2]+[3]*x",SF1D[iv]->GetBinLowEdge(StartBin),SF1D[iv]->GetBinLowEdge(EndBin+1)); // Regular reweighting function
+      // SF1DF[iv] = new TF1(FuncName, "[0]/x/x/x+[1]/x/x+[2]/x+[3]+[4]*x+[5]*x*x", SF1D[iv]->GetBinLowEdge(StartBin), SF1D[iv]->GetBinLowEdge(EndBin+1)); // pol6l reweighting function for St 5j
+      SF1DF[iv] = new TF1(FuncName, "[0]/x+[1]+[2]*x+[3]*x*x", SF1D[iv]->GetBinLowEdge(StartBin), SF1D[iv]->GetBinLowEdge(EndBin+1)); // pol4r reweighting function for 6j
       SF1D[iv]->Fit(SF1DF[iv],"RMQ0");
     }
   }
@@ -291,7 +293,9 @@ public:
     return sf;
   }
   float GetSF1DFError(double v) {
-    vector<double> deriv = {1./v/v, 1./v, 1., v};
+    // vector<double> deriv = {1./v/v/v, 1./v/v, 1./v, 1., v, v*v};
+    vector<double> deriv = {1./v, 1., v, v*v};
+  
     float envelope = 0.;
     for (unsigned x = 0; x < deriv.size(); ++x) {
       for (unsigned y = 0; y < deriv.size(); ++y) {

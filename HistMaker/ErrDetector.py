@@ -12,7 +12,7 @@ sampletypes.extend(["WW", "ZZ", "WZTo1L1Nu2Q", "WZTo1L3Nu", "WZTo2Q2L", "WZTo3LN
 sampletypes.extend(["FL300", "FL400", "FL500", "FL600", "FL700", "FL800", "FL900", "FL1000", "FL1100"])
 sampletypes.extend(["LL300", "LL400", "LL500", "LL600", "LL700", "LL800", "LL900", "LL1000", "LL1100"])
 LogsDir = "Submits/logs/"
-OutFilesDir = "/eos/user/s/siluo/WPrimeAnalysis/ValidationFitted/"
+OutFilesDir = "/eos/user/m/mkizilov/WPrimeAnalysis/ValidationFitted/Hists/"
 SampleYear = sampleyears[int(sys.argv[1])]
 SampleType = sampletypes[int(sys.argv[2])]
 

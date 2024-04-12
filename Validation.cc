@@ -232,6 +232,7 @@ public:
       WPrimeMassSimpleLL->at(i) = vWprimeLL.M();
       
       if (!conf->RunFitter) continue;
+      if (i>0) continue;
       
       Ftr->SetTruePerm(TruePermVector);
       SetEventFitter(i);
@@ -299,14 +300,16 @@ int Validation(int isampleyear = 3, int isampletype = 24, int ifile = 0, double 
   ThisAnalysis *a = new ThisAnalysis(conf);
   if (!(a->SetOutput("ValidationFitted"))) return 0;
   int proceededEvts = 0;
-  for (Long64_t iEvent = 0; iEvent < a->GetEntriesMax(); ++iEvent) {
+
+  for (Long64_t iEvent = 24; iEvent<25; ++iEvent){//0; iEvent < a->GetEntriesMax(); ++iEvent) {
     if (a->ReadEvent(iEvent) < 0) continue;
     if (!a->WithinROI()) continue;
-    // a->r->BranchSizeCheck();
+    a->r->BranchSizeCheck();
     proceededEvts++;
+    if (iEvent==24) std::cout << "Event " << iEvent << " has been processed" << std::endl;
     a->FillBranchContent();
     a->FillTree();
-  }
+ }
   a->SaveOutput();
   a->CloseOutput();
   cout << "Total Events processed: " << proceededEvts << endl;
