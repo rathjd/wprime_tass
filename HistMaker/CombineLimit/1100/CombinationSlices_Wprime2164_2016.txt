@@ -1,0 +1,35 @@
+Combination of ../CombinationAll/FitSlice_Wprime2164_2016.txt  ../CombinationAll/HTslice_Wprime2164_2016.txt
+imax 2 number of bins
+jmax 4 number of processes minus 1
+kmax 19 number of nuisance parameters
+----------------------------------------------------------------------------------------------------------------------------------
+shapes *    ch1  ../CombinationAll/FitSlices_Wprime2164_2016.root Fit_$PROCESS_WprimeFit2164_2016_ Fit_$PROCESS_WprimeFit2164_2016_$SYSTEMATIC
+shapes *    ch2  ../CombinationAll/HTslices_Wprime2164_2016.root HT_$PROCESS_WprimeHT2164_2016_ HT_$PROCESS_WprimeHT2164_2016_$SYSTEMATIC
+----------------------------------------------------------------------------------------------------------------------------------
+bin          ch1    ch2  
+observation  0      0    
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                        ch1         ch1         ch1         ch1         ch1         ch2         ch2         ch2         ch2         ch2       
+process                                    M$MASS      ttbar       wjets       single_top  diboson     M$MASS      ttbar       wjets       single_top  diboson   
+process                                    0           1           2           3           4           0           1           2           3           4         
+rate                                       -1          -1          0           0           0           -1          -1          -1          -1          -1        
+----------------------------------------------------------------------------------------------------------------------------------
+BjetTagCorr             shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+BjetTagUncorr2016       shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+JER2016                 shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+JES2016                 shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+L1PreFiring2016         shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+LHEScale                shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+LumiCorr                shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+LumiStat2016            shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+NLLnonClosure2016_2162   lnN               -           0.96        -           -           -           -           1.0         1.16        1.05        1.07      
+PDF                     shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+PUID2016                shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+PUreweight2016          shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+STfit_2016_2162_STfit   shape              -           1.0         -           -           -           -           1.0         -           -           -         
+electron2016            shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+electronRes2016         shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+electronScale2016       shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+muonId2016              shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+muonIso2016             shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       
+muonTrigger2016         shape              1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0         1.0       

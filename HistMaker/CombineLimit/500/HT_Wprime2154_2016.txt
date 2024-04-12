@@ -1,0 +1,33 @@
+imax 1
+jmax 4
+kmax 19
+----------
+shapes * * HT_SimpleShapes_Wprime2154_2016.root HT_$PROCESS_$CHANNEL_ HT_$PROCESS_$CHANNEL_$SYSTEMATIC
+----------
+bin         Wprime2154_2016
+observation 0.0
+----------
+bin                                Wprime2154_2016     Wprime2154_2016     Wprime2154_2016     Wprime2154_2016     Wprime2154_2016     
+process                            M$MASS              ttbar               wjets               single_top          diboson             
+process                            0                   1                   2                   3                   4                   
+rate                               -1                  -1                  -1                  -1                  0                  
+----------
+LumiCorr                 shape     1                   1                   1                   1                   1                   
+LumiStat2016             shape     1                   1                   1                   1                   1                   
+electron2016             shape     1                   1                   1                   1                   1                   
+muonTrigger2016          shape     1                   1                   1                   1                   1                   
+muonId2016               shape     1                   1                   1                   1                   1                   
+muonIso2016              shape     1                   1                   1                   1                   1                   
+BjetTagCorr              shape     1                   1                   1                   1                   1                   
+BjetTagUncorr2016        shape     1                   1                   1                   1                   1                   
+PUID2016                 shape     1                   1                   1                   1                   1                   
+L1PreFiring2016          shape     1                   1                   1                   1                   1                   
+PUreweight2016           shape     1                   1                   1                   1                   1                   
+PDF                      shape     1                   1                   1                   1                   1                   
+LHEScale                 shape     1                   1                   1                   1                   1                   
+electronScale2016        shape     1                   1                   1                   1                   1                   
+electronRes2016          shape     1                   1                   1                   1                   1                   
+JES2016                  shape     1                   1                   1                   1                   1                   
+JER2016                  shape     1                   1                   1                   1                   1                   
+STfit_2016_2152_STfit    shape     0                   1                   0                   0                   0                   
+NLLnonClosure2016_2152   lnN       0                   0.95                1.10                0.90                0                   
