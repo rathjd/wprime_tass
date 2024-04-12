@@ -135,24 +135,27 @@ public:
     AddVariationSource("LHEScale"); // 29 30
   }
 
-  void MakeCombineVariations() {
+  void MakeCombineVariations(string year="2016", bool IsRew = false) {
     Variations = {""};
-    AddVariationSource("electronScale2016"); // 1 2
-    AddVariationSource("electronRes2016"); // 3 4
-    AddVariationSource("JES2016"); // 5 6
-    AddVariationSource("JER2016"); // 7 8
-    AddVariationSource("electron2016"); // 9 10
-    AddVariationSource("muonTrigger2016"); // 11 12
-    AddVariationSource("muonId2016"); // 13 14
-    AddVariationSource("muonIso2016"); // 15 16
+    AddVariationSource("electronScale"+year); // 1 2
+    AddVariationSource("electronRes"+year); // 3 4
+    AddVariationSource("JES"+year); // 5 6
+    AddVariationSource("JER"+year); // 7 8
+    AddVariationSource("electron"+year); // 9 10
+    AddVariationSource("muonTrigger"+year); // 11 12
+    AddVariationSource("muonId"+year); // 13 14
+    AddVariationSource("muonIso"+year); // 15 16
     AddVariationSource("BjetTagCorr"); // 17 18
-    AddVariationSource("BjetTagUncorr2016"); // 19 20
-    AddVariationSource("PUID2016"); // 21 22 
-    AddVariationSource("L1PreFiring2016"); // 23 24
-    AddVariationSource("PUreweight2016"); // 25 26
+    AddVariationSource("BjetTagUncorr"+year); // 19 20
+    AddVariationSource("PUID"+year); // 21 22 
+    AddVariationSource("L1PreFiring"+year); // 23 24
+    AddVariationSource("PUreweight"+year); // 25 26
     AddVariationSource("PDF"); // 27 28
     AddVariationSource("LHEScale"); // 29 30
     // AddVariationSource("RwStat"); // 31 32
+    AddVariationSource("LumiStat"+year);
+    AddVariationSource("LumiCorr");
+    //if(IsRew) AddVariationSource("STstat"); FIXME: Crashes, since this ONLY exists for ttbar
   }
 
   void AcceptRegions(vector<int> a, vector<int> b, vector<int> c, vector<int> d) {

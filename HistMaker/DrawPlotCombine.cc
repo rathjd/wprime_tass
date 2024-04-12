@@ -2,9 +2,11 @@
 #include "Utilities/RatioPlot.cc"
 #include "Utilities/Regions.cc" 
 
-void DrawPlotCombine(int it = 0, int ir = 0) {
-  vector<string> Regions = {"1153", "1163", "2153", "2163"};
+void DrawPlotCombine(int it = 0, int ir = 0, string nb = "1", int iy = 0) {
+  vector<string> Regions = {"115", "116", "215", "216"};
+  vector<string> years = {"2016","2017","2018"};
   string Region = Regions[ir];
+  Region.append(nb);
   string subfolder = "BinW20/";
 
   string InputPath = "CombinedFiles/" + subfolder;
@@ -12,13 +14,12 @@ void DrawPlotCombine(int it = 0, int ir = 0) {
 
   string OutputPath = "Brazil/" + subfolder;
 
-  string year;
+  string year = years[iy];
   if (it == 1) {
     // InputPath = "../SifuCombine/" + subfolder;
-    InputPath = "/eos/cms/store/group/phys_b2g/wprime/DenisIntermediateHistogramsForCombine/";
-    year = "2016";
-    InputFile = "Combined_Bin1152_2016all.root";
-    Region = "1152";
+    InputPath = "/eos/cms/store/group/phys_b2g/wprime/DenisIntermediateHistogramsForCombine/ttbarRewFixed/";
+    //year = "2016";
+    InputFile = "Combined_Bin" + Region + "_" + year + ".root";
 
   }
   if (it == 2) {
@@ -29,13 +30,14 @@ void DrawPlotCombine(int it = 0, int ir = 0) {
   TString InputFileName = InputPath + InputFile;
   cout << "Reading from file: " << InputFileName << endl;
   TFile *f = new TFile(InputFileName,"READ");
-  //vector<string> Groups = {"ttbar", "wjets", "single_top", "diboson", "M300", "M400", "M500", "M600", "M700", "M800", "M900", "M1000", "M1100"};
-   vector<string> Groups = {"rew_ttbar", "_wjets", "_single_top", "_diboson"};
-  rm.MakeCombineVariations();
+  vector<string> Groups = {"_ttbar", "_wjets", "_single_top", "_diboson", "_M300", "_M400", "_M500", "_M600", "_M700", "_M800", "_M900", "_M1000", "_M1100"};
+  // vector<string> Groups = {"_ttbar", "_wjets", "_single_top", "_diboson"};
+  if(nb == "2") Groups[0] = "rew_ttbar";
+  rm.MakeCombineVariations(year, Region == "1152" || "2152" || "1162" || "2162" ? true : false);
   if (it == 0) rm.AddVariationSource("RwStat2018" + Region);
   vector<double> LegendPos = {0.65,0.65,0.9,0.9};
 
-  RatioPlot *rp = new RatioPlot("wprime", true, "ST", "Number of weighted events / bin width");
+  RatioPlot *rp = new RatioPlot("wprime", false, "S_{T} [GeV/c]", "Number of weighted events / bin width");
   rp->SetVariations(rm.Variations);
   rp->Legend(LegendPos);
   
@@ -76,21 +78,21 @@ void DrawPlotCombine(int it = 0, int ir = 0) {
   
 
   // Add data 
-  vector<string> DataGroups = {"ST_data_obs_Wprime1152"};
+  vector<string> DataGroups = {"ST_data_obs_Wprime"+Region};
   for (unsigned ig = 0; ig < DataGroups.size(); ++ig) {
     int Type = 0; // Data
-    for (unsigned iv = 0; iv < rm.Variations.size(); ++iv) {
-      TString hn = DataGroups[ig] + "_" + year + "_" + rm.Variations[iv];
+    //for (unsigned iv = 0; iv < rm.Variations.size(); ++iv) {
+      TString hn = DataGroups[ig] + "_" + year + "_";// + rm.Variations[iv];
       cout << "Getting " << hn << endl;
       TH1F* h = (TH1F*) f->Get(hn);
       
-      if (h == nullptr) continue;
+      //if (h == nullptr) continue;
       cout << "HistName = " << h->GetName() << " , Integral = " << h->Integral() << endl;
-      Hists.push_back(h);
+      //Hists.push_back(h);
       h->GetXaxis()->SetRangeUser(20,2000);
       h->Scale(1.0, "width");
-      rp->AddHist(DataGroups[ig], h, Type, iv);
-    }
+      rp->AddHist(DataGroups[ig], h, 0, 0);
+    //}
   }
  
 
@@ -105,10 +107,10 @@ void DrawPlotCombine(int it = 0, int ir = 0) {
 
   TCanvas *c1 = new TCanvas("c1","c1", 800,800);
   rp->SetPad(c1);
-  rp->DrawPlot(0); // 0 =  2016, 2 = 2017, 3 = 2018
+  rp->DrawPlot(!iy?0:iy+1); // 0 =  2016, 2 = 2017, 3 = 2018
 
   TString PlotName = OutputPath + "MyPlots" + Region;
-  if (it == 1) PlotName = OutputPath + "DenisPlots" + Region;
+  if (it == 1) PlotName = OutputPath + "DenisPlots" + Region + "_" + year;
   c1->SaveAs(PlotName + ".pdf");
 
   //rp->SaveInfos(PlotName);
