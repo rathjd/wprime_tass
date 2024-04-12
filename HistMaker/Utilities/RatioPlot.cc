@@ -556,7 +556,7 @@ public:
     LPad->cd();
     LowerDummy->SetTitle(LTitle);
     LowerDummy->GetXaxis()->SetRangeUser(cxmin, cxmax);
-    LowerDummy->GetYaxis()->SetRangeUser(0, 2.4);
+    LowerDummy->GetYaxis()->SetRangeUser(0.5, 1.4);
     LowerDummy->GetYaxis()->SetNdivisions(505);
     // XBinLabels = {"0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9", "-10"}; // MKR
     if (XBinLabels.size() != 0) {
