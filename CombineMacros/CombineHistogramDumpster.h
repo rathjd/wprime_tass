@@ -40,6 +40,7 @@ public :
   vector<float>   *JetPt_RD;
   vector<float>   *JetEta;
   vector<float>   *JetPhi;
+  vector<bool>	  *JetbTag;
   Float_t         METPt;
   Float_t         METPt_SU;
   Float_t         METPt_SD;
@@ -78,6 +79,7 @@ public :
   TBranch        *b_JetPt_RD;   //!
   TBranch        *b_JetEta;   //!
   TBranch	 *b_JetPhi;  //!
+  TBranch	 *b_JetbTag; //!
   TBranch        *b_METPt;   //!
   TBranch        *b_METPt_SU;   //!
   TBranch        *b_METPt_SD;   //!
@@ -186,6 +188,7 @@ void CombineHistogramDumpster::Init(TChain *tree)
   JetPt_RD = 0;
   JetEta = 0;
   JetPhi = 0;
+  JetbTag = 0;
   mT = 0;
   WPrimeMassSimpleFL = 0;
   WPrimeMassSimpleLL = 0;
@@ -217,6 +220,7 @@ void CombineHistogramDumpster::Init(TChain *tree)
   fChain->SetBranchAddress("JetPt_RD", &JetPt_RD, &b_JetPt_RD);
   fChain->SetBranchAddress("JetEta", &JetEta, &b_JetEta);
   fChain->SetBranchAddress("JetPhi", &JetPhi, &b_JetPhi);
+  fChain->SetBranchAddress("JetbTag", &JetbTag, &b_JetbTag);
   fChain->SetBranchAddress("METPt", &METPt, &b_METPt);
   fChain->SetBranchAddress("METPt_SU", &METPt_SU, &b_METPt_SU);
   fChain->SetBranchAddress("METPt_SD", &METPt_SD, &b_METPt_SD);

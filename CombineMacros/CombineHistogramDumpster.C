@@ -87,6 +87,8 @@ void CombineHistogramDumpster::Loop()
   TH1F* FitMass_STstatDown;
   TH1F* HT_STstatUp;
   TH1F* HT_STstatDown;
+  TH1F* STrew_STstatUp;
+  TH1F* STrew_STstatDown;
 
   vector<TH1F*> ST;
   vector<TH1F*> STrew;
@@ -206,6 +208,9 @@ void CombineHistogramDumpster::Loop()
   FitMass_2D_STstatDown = (TH2F*) FitMass_2D[0]->Clone("FitMass2D_STstatDown");
   HT_2D_STstatUp = (TH2F*) HT_2D[0]->Clone("HT2D_STstatUp");
   HT_2D_STstatDown = (TH2F*) HT_2D[0]->Clone("HT2D_STstatDown");
+  STrew_STstatUp = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_" + binS + "_" + "STstatUp");
+  STrew_STstatDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_" + binS + "_" + "STstatDown");
+  
 
   //negative log likelihood block
   TString NLLname = "NegLogLnoB_";
@@ -251,9 +256,22 @@ void CombineHistogramDumpster::Loop()
 
     //calculate ST
     float STvals[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+
+    //find the actual jet count per variation
+    int JetCounts[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int bJetMainCount = 0;
+
     //0: default
     float defHT = 0.;
-    for(unsigned i = 0; i < JetPt->size(); ++i) defHT += JetPt->at(i);
+    for(unsigned i = 0; i < JetPt->size(); ++i) if(JetPt->at(i) > 30.){
+      defHT += JetPt->at(i);
+      JetCounts[0]++;
+      JetCounts[1]++;
+      JetCounts[2]++;
+      JetCounts[3]++;
+      JetCounts[4]++;
+      if(JetbTag->at(i)) bJetMainCount++;
+    }
     STvals[0] = LeptonPt + METPt + defHT; Vals[0] = defHT;
     //1: eScaleUp
     STvals[1] = LeptonPt_SU + METPt + defHT; Vals[1] = defHT;
@@ -265,20 +283,65 @@ void CombineHistogramDumpster::Loop()
     STvals[4] = LeptonPt_RD + METPt + defHT; Vals[4] = defHT;
     //5: JESup
     STvals[5] = LeptonPt + METPt_SU;
-    for(unsigned i = 0; i < JetPt_SU->size(); ++i) {STvals[5] += JetPt_SU->at(i); Vals[5] += JetPt_SU->at(i);}
+    for(unsigned i = 0; i < JetPt_SU->size(); ++i){
+      if(JetPt_SU->at(i) > 30.){
+	STvals[5] += JetPt_SU->at(i);
+       	Vals[5] += JetPt_SU->at(i);
+	JetCounts[5]++;
+      }
+    }
     //6: JESdown
     STvals[6] = LeptonPt + METPt_SD;
-    for(unsigned i = 0; i < JetPt_SD->size(); ++i) {STvals[6] += JetPt_SD->at(i); Vals[6] += JetPt_SD->at(i);}
+    for(unsigned i = 0; i < JetPt_SD->size(); ++i){
+      if(JetPt_SD->at(i) > 30.){
+	STvals[6] += JetPt_SD->at(i);
+	Vals[6] += JetPt_SD->at(i);
+	JetCounts[6]++;
+      }
+    }
     //7: JERup
     STvals[7] = LeptonPt + METPt_RU;
-    for(unsigned i = 0; i < JetPt_RU->size(); ++i) {STvals[7] += JetPt_RU->at(i); Vals[7] += JetPt_RU->at(i);}
+    for(unsigned i = 0; i < JetPt_RU->size(); ++i){
+      if(JetPt_RU->at(i) > 30.){
+        STvals[7] += JetPt_RU->at(i);
+	Vals[7] += JetPt_RU->at(i);
+	JetCounts[7]++;
+      }
+    }
     //7: JERdown
     STvals[8] = LeptonPt + METPt_RD;
-    for(unsigned i = 0; i < JetPt_RD->size(); ++i) {STvals[8] += JetPt_RD->at(i); Vals[8] += JetPt_RD->at(i);}
+    for(unsigned i = 0; i < JetPt_RD->size(); ++i){
+      if(JetPt_RD->at(i) > 30.){
+	STvals[8] += JetPt_RD->at(i);
+	Vals[8] += JetPt_RD->at(i);
+	JetCounts[8]++;
+      }
+    }
+
+    //validate actual region
+    
+    int RegionIdents[9];
+    RegionIdents[0] = (RegionIdentifier[0]/1000)*1000 + 100 + JetCounts[0]*10 + bJetMainCount;
+    RegionIdents[1] = (RegionIdentifier[1]/1000)*1000 + 100 + JetCounts[1]*10 + RegionIdentifier[1] % 10;
+    RegionIdents[2] = (RegionIdentifier[2]/1000)*1000 + 100 + JetCounts[2]*10 + RegionIdentifier[2] % 10;
+    RegionIdents[3] = (RegionIdentifier[3]/1000)*1000 + 100 + JetCounts[3]*10 + RegionIdentifier[3] % 10;
+    RegionIdents[4] = (RegionIdentifier[4]/1000)*1000 + 100 + JetCounts[4]*10 + RegionIdentifier[4] % 10;    
+    RegionIdents[5] = (RegionIdentifier[5]/1000)*1000 + 100 + JetCounts[5]*10 + RegionIdentifier[5] % 10;
+    RegionIdents[6] = (RegionIdentifier[6]/1000)*1000 + 100 + JetCounts[6]*10 + RegionIdentifier[6] % 10;    
+    RegionIdents[7] = (RegionIdentifier[7]/1000)*1000 + 100 + JetCounts[7]*10 + RegionIdentifier[7] % 10;
+    RegionIdents[8] = (RegionIdentifier[8]/1000)*1000 + 100 + JetCounts[8]*10 + RegionIdentifier[8] % 10;
 
     //variations of selections
     for(unsigned i = 0; i < 9; ++ i){
-      if(RegionIdentifier[i] != bin) continue;
+      //if(RegionIdentifier[i] != bin) continue;
+      if(RegionIdents[i] != bin) continue;
+
+      //FIXME: Additional Lepton cuts
+      /*if(i != 1 && i != 2 && i != 3 && i != 4 && LeptonPt < 40.) continue;
+      else if(i == 1 && LeptonPt_SU < 40.) continue;
+      else if(i == 2 && LeptonPt_SD < 40.) continue;
+      else if(i == 3 && LeptonPt_RU < 40.) continue;
+      else if(i == 4 && LeptonPt_RD < 40.) continue;*/
 
       //determine fill variable
       float fillVar = Vals[i];
@@ -308,6 +371,9 @@ void CombineHistogramDumpster::Loop()
 	  HT_2D_STstatUp->Fill(fillVar,-log(Best_Likelihood->at(0)),EventWeight[0]*SampleWeight*(SFs[0].Eval(STvals[0])+statSFunc));
 	  HT_2D_STstatDown->Fill(fillVar,-log(Best_Likelihood->at(0)),EventWeight[0]*SampleWeight*(SFs[0].Eval(STvals[0])-statSFunc));
 
+	  STrew_STstatUp->Fill(STvals[0],EventWeight[0]*SampleWeight*(SFs[0].Eval(STvals[0])+statSFunc));
+          STrew_STstatDown->Fill(STvals[0],EventWeight[0]*SampleWeight*(SFs[0].Eval(STvals[0])-statSFunc));
+
 	  NegLogLnoB->Fill(-log(Best_Likelihood->at(i)/Best_PbTag->at(i)),EventWeight[0]*SampleWeight*SFs[i].Eval(STvals[i]));
 	  NegLogLnoBvsNegLogL->Fill(-log(Best_Likelihood->at(0)/Best_PbTag->at(0)),-log(Best_Likelihood->at(0)),EventWeight[0]*SampleWeight*SFs[i].Eval(STvals[i]));
 
@@ -328,9 +394,14 @@ void CombineHistogramDumpster::Loop()
       ST[i]->Fill(STvals[i],EventWeight[0]*SampleWeight);
     }
     //Make sure to match default region for default objects with event weight variations
-    if(RegionIdentifier[0] == bin){
+    //if(RegionIdentifier[0] == bin){
+    if(RegionIdents[0] == bin){
       //EventWeight variations
       for(unsigned i = 9; i < variations.size(); ++i){//last four variations are luminosity
+
+	//FIXME: Additional lepton cut
+	//if(LeptonPt < 40.) break;
+	
         string HistName;
 
 	//determine fill variable
@@ -353,6 +424,8 @@ void CombineHistogramDumpster::Loop()
 
 	  FitMass_2D[i]->Fill(fillBranch,-log(Best_Likelihood->at(0)),EvWeight*SampleWeight*SFs[i].Eval(STvals[0]));
 	  HT_2D[i]->Fill(fillVar,-log(Best_Likelihood->at(0)),EvWeight*SampleWeight*SFs[i].Eval(STvals[0]));
+	  
+	  STrew[i]->Fill(STvals[0],EvWeight*SampleWeight*SFs[i].Eval(STvals[0]));
 	}
         else{
 	  FitMass[i]->Fill(fillBranch,EvWeight*SampleWeight);
@@ -396,6 +469,8 @@ void CombineHistogramDumpster::Loop()
       FitMass[i]->Write(variationsName[i]);
       STrew[i]->Write(STrew[i]->GetName());
       ST[i]->Write(ST[i]->GetName());
+      STrew_STstatUp->Write(STrew_STstatUp->GetName());
+      STrew_STstatDown->Write(STrew_STstatDown->GetName());
     }
     else{
       FitMass[i]->Write(variationsName[i]);
