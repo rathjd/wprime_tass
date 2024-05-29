@@ -1,7 +1,8 @@
 import os,sys
 
-from ROOT import TH1F, TFile, THStack, TRatioPlot, TCanvas, TLegend, TLine
+from ROOT import TH1F, TFile, THStack, TRatioPlot, TCanvas, TLegend, TLine, TF1, TMatrixD, TFitResultPtr, TGraph
 import cmsstyle as CMS
+from array import array
 
 #settings for what to plot
 LeptonFlav = 1
@@ -66,6 +67,7 @@ Data1b = inOrigin.Get("ST_data_obs_Wprime"+binS+"1_"+str(year)+"_")
 Data1b.Scale(1.,"width")
 Data2b = inResult.Get("ST_data_obs_Wprime"+binS+"2_"+str(year)+"_")
 Data2b.Scale(1.,"width")
+Fit1b = inSF.Get("SF_")
 
 #make empty stacks
 Stack1b = THStack("Stack_"+binS+"1_"+str(year),"")
@@ -156,44 +158,37 @@ CMS.cmsDrawLine(ref_line, lcolor=1, lstyle=3)
 
 CMS.SaveCanvas(canv2b, "ST_Wprime"+binS+"2_"+str(year)+".pdf")
 
+#make 1b-tag ST correction fit plot
+SF = inSF.Get("SF_")
+if JetMult == 5:
+  SFfit = TF1("fitFunction","[0]/x/x/x + [1]/x/x + [2]/x + [3] + [4]*x + [5]*x*x", 180., 2000.)
+else:
+    SFfit = TF1("fitFunction","[0]/x + [1] + [2]*x + [3]*x*x", 210., 2000.)
+fr = SF.Fit(SFfit,"SRF")
+cov = fr.GetCovarianceMatrix()
+if JetMult == 5:
+  SFfitUp = TF1("fitFunctionUp", "[0]/x/x/x/x/x/x + [1]/x/x/x/x/x + [2]/x/x/x/x + [3]/x/x/x + [4]/x/x + [5]/x + [6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x", 180., 2000.)
+  SFfitUp.SetParameters(cov(0,0), cov(0,1)+cov(1,0), cov(0,2)+cov(1,1)+cov(2,0), cov(0,3)+cov(1,2)+cov(2,1)+cov(3,0)+SFfit.GetParameter(0), cov(0,4)+cov(1,3)+cov(2,2)+cov(3,1)+cov(4,0)+SFfit.GetParameter(1), cov(0,5)+cov(1,4)+cov(2,3)+cov(3,2)+cov(4,1)+cov(5,0)+SFfit.GetParameter(2), cov(1,5)+cov(2,4)+cov(3,3)+cov(4,2)+cov(5,1)+SFfit.GetParameter(3), cov(2,5)+cov(3,4)+cov(4,3)+cov(5,2)+SFfit.GetParameter(4), cov(3,5)+cov(4,4)+cov(5,3)+SFfit.GetParameter(5), cov(4,5)+cov(5,4), cov(5,5))
+  SFfitDown = TF1("fitFunctionDown", "[0]/x/x/x/x/x/x + [1]/x/x/x/x/x + [2]/x/x/x/x + [3]/x/x/x + [4]/x/x + [5]/x + [6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x", 180., 2000.)
+  SFfitDown.SetParameters(-cov(0,0), -cov(0,1)-cov(1,0), -cov(0,2)-cov(1,1)-cov(2,0), -cov(0,3)-cov(1,2)-cov(2,1)-cov(3,0)+SFfit.GetParameter(0), -cov(0,4)-cov(1,3)-cov(2,2)-cov(3,1)-cov(4,0)+SFfit.GetParameter(1), -cov(0,5)-cov(1,4)-cov(2,3)-cov(3,2)-cov(4,1)-cov(5,0)+SFfit.GetParameter(2), -cov(1,5)-cov(2,4)-cov(3,3)-cov(4,2)-cov(5,1)+SFfit.GetParameter(3), -cov(2,5)-cov(3,4)-cov(4,3)-cov(5,2)+SFfit.GetParameter(4), -cov(3,5)-cov(4,4)-cov(5,3)+SFfit.GetParameter(5), -cov(4,5)-cov(5,4), -cov(5,5))
+else:
+  SFfitDiff = TF1("fitFunctionDiff", "[0]/x/x + [1]/x + [2] + [3]*x + [4]*x*x + [5]*x*x*x + [6]*x*x*x*x", 210., 2000.)
+  SFfitDiff.SetParameters(cov(0,0), cov(0,1)+cov(1,0)+SFfit.GetParamter(0), cov(0,2)+cov(1,1)+cov(2,0)+SFfit.GetParameter(1), cov(0,3)+cov(1,2)+cov(2,1)+cov(3,0)+SFfit.GetParameter(2), cov(1,3)+cov(2,2)+SFfit.GetParameter(3)+cov(3,1), cov(2,3)+cov(3,2), cov(3,3))
 
-#CMS.cmsDrawStack(Stack1b, leg, {"Background": 
+canvSF1b = CMS.cmsCanvas("STSFfit_"+binS+"_"+str(year)+"_1b", STstart, STend, 0.9, 1.6, "S_{T} [GeV/c]", "(data - MC(w/o t#bar{t}))/t#bar{t}", square=CMS.kSquare, extraSpace = 0.01, iPos = 0)
+canvSF1b.cd(1)
+CMS.cmsDraw(SF, "P", mcolor=1)
+SFfitUp.SetLineColor(2)
+SFfitUp.SetLineStyle(2)
+SFfitUp.Draw("L,same")
+SFfitDown.SetLineColor(2)
+SFfitDown.SetLineStyle(2)
+SFfitDown.Draw("L,same")
+stat1bfit = SF.GetListOfFunctions().FindObject("stats")
+stat1bfit.SetX1NDC(0.5)
+stat1bfit.SetX2NDC(0.9)
+stat1bfit.SetY1NDC(0.6)
+stat1bfit.SetY2NDC(0.9)
+canvSF1b.Update()
 
-#Ratio1b = TRatioPlot(Stack1b, Data1b)
-#Ratio1b.Draw();
-#Ratio1b.GetUpperRefXaxis().SetTitle("S_{T} [GeV/c]")
-#Ratio1b.GetUpperRefYaxis().SetTitle("Events/bin width")
-#Ratio1b.GetUpperRefYaxis().SetTitleOffset(1.25)
-#Ratio1b.GetLowerRefYaxis().SetTitle("Data/MC")
-#Ratio1b.GetLowerRefYaxis().SetTitleOffset(1.25)
-#Ratio1b.GetUpperPad()
-#leg1b.Draw("same");
-#Ratio1b.GetLowerRefGraph().SetMinimum(0.5)
-#Ratio1b.GetLowerRefGraph().SetMaximum(1.5)
-
-#make 1 b-tag SF with fit
-#canv.cd(2)
-#SFfit = inSF.Get("SF_")
-#SFfit.SetStats(0)
-#SFfit.SetTitle("")
-#SFfit.Draw();
-#SFfit.GetXaxis().SetTitle("S_{T} [GeV/c]")
-#SFfit.GetYaxis().SetTitle("(data-!ttbar)/ttbar")
-
-#make 2 b-tag region plot
-#canv.cd(3)
-#canv.SetLogy(1)
-
-#Ratio2b = TRatioPlot(Stack2b, Data2b)
-#Ratio2b.Draw();
-#Ratio2b.GetUpperRefXaxis().SetTitle("S_{T} [GeV/c]")
-#Ratio2b.GetUpperRefYaxis().SetTitle("Events/bin width")
-#Ratio2b.GetUpperRefYaxis().SetTitleOffset(1.25)
-#Ratio2b.GetLowerRefYaxis().SetTitle("Data/MC")
-#Ratio2b.GetLowerRefYaxis().SetTitleOffset(1.25)
-#Ratio2b.GetUpperPad()
-#leg2b.Draw("same");
-#Ratio2b.GetLowerRefGraph().SetMinimum(0.5)
-#Ratio2b.GetLowerRefGraph().SetMaximum(1.5)
-
-#canv.SaveAs("STcheck_"+binS+"_"+str(year)+".pdf")
+CMS.SaveCanvas(canvSF1b, "STfit_Wprime"+binS+"1_"+str(year)+".pdf")
