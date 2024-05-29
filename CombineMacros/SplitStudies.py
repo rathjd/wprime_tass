@@ -41,6 +41,9 @@ for mass in range(0,9):
     massString = str((3+mass)*100)
 
     #configure output file for analysis of splits
+    if not os.path.isdir(year+"_"+binNr+"_"+massString+"_combineTmp"):
+        os.system("mkdir "+year+"_"+binNr+"_"+massString+"_combineTmp")
+    os.chdir(year+"_"+binNr+"_"+massString+"_combineTmp")
     savefile = TFile("LimitSplits_M"+massString+"_"+binNr+"_"+year+".root","RECREATE")
 
     #HThist = TH3F("HThist_"+massString,"H_{T} limits;binSplit;binEnd;limit category", 11, 4.5, 15.5, 19, 5.5, 24.5, 6, -0.5, 5.5)
@@ -53,7 +56,7 @@ for mass in range(0,9):
     for binSplit in range(1, maxNLL):
         for binEnd in range(binSplit+1, maxNLL):
             #run the splitter
-            os.system("python3 SliceHTvsFitMass.py "+year+" "+binNr+" "+str(binSplit)+" "+str(binEnd))
+            os.system("python3 ../SliceHTvsFitMass.py "+year+" "+binNr+" "+str(binSplit)+" "+str(binEnd))
 
             #run the limit on HT
             #try:
@@ -92,10 +95,14 @@ for mass in range(0,9):
             #os.system("rm higgsCombineTest.AsymptoticLimits.mH"+massString+".root")
 
             #run the limit on the combination
+            skip = False
             try:
-                os.system("combine -M AsymptoticLimits -m "+massString+" CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
+                os.system("combine -M AsymptoticLimits -m "+massString+" ../CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
             except:
                 print("Combination failed for ",binSplit,":",binEnd)
+                skip = True
+
+            if skip:
                 continue
 
             #extract the information on the fit
@@ -129,7 +136,7 @@ for mass in range(0,9):
     Graph.SetMarkerStyle(47)
     Graph.SetMarkerColor(1)
     Graph.SetLineColor(1)
-    Graph.Draw("A,P,L")
+    Graph.Draw("A,P")
     canvas.Write()
     canvas.SaveAs("LimitGraph_"+year+"_"+ binNr+"_mWp"+massString+".pdf")
 
@@ -138,3 +145,5 @@ for mass in range(0,9):
     CombHistExp.Draw("colz,text")
     canvas2.SaveAs("ExpLimits_"+year+"_"+ binNr+"_mWp"+massString+".pdf")
     savefile.Close()
+
+    os.chdir("/afs/cern.ch/user/r/rathjd/work/private/TakeOverWprime/wprime/CombineMacros")

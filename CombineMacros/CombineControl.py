@@ -1,5 +1,6 @@
 import os, sys
 import ROOT
+import math
 
 #define the input names
 signalNames = ["M$MASS"] #$MASS gets replaced by runing combine with -m option, supports only 1 signal mass at a time
@@ -79,7 +80,7 @@ for binN in bins:
 
   #define all the systematic names, types, and values
   systNames = ["LumiCorr", "LumiStat"+yearName, "electron"+yearName, "muonTrigger"+yearName, "muonId"+yearName, "muonIso"+yearName, "BjetTagCorr", "BjetTagUncorr"+yearName, "PUID"+yearName, "L1PreFiring"+yearName, "PUreweight"+yearName, "PDF",   "LHEScale", "electronScale"+yearName, "electronRes"+yearName, "JES"+yearName, "JER"+yearName, "STfit_"+yearName+"_"+binString[0:3]+"2_STfit", "NLLnonClosure"+yearName+"_"+binString[0:3]+"2"]
-  systTypes = ["shape",    "shape",             "shape",             "shape",                "shape",           "shape",            "shape",       "shape",                  "shape",         "shape",                "shape",               "shape", "shape",    "shape",                  "shape",                "shape",        "shape",        "shape",                                  "lnN"] 
+  systTypes = ["shape",    "shape",             "shape",             "shape",                "shape",           "shape",            "shape",       "shape",                  "shape",         "shape",                "shape",               "shape", "shape",    "lnN",                    "shape",                "shape",        "shape",        "shape",                                  "lnN"] 
   systVals  = ["1",        "1",                 "1",                 "1",                    "1",               "1",                "1",           "1",                      "1",             "1",                    "1",                   "1",     "1",        "1",                      "1",                    "1",            "1",            "0",                                      "0"]
 
   #write the actual combine cards
@@ -102,7 +103,7 @@ for binN in bins:
     h = r.Get(CardName[1]+"data_obs_" + binName + "_")
     print("data_obs_" + binName + "_")
     print(type(h))
-    observed = h.Integral(0,-1)
+    observed = h.Integral()
     f.write("observation " + str(observed) + "\n")
     f.write("----------\n")
 
@@ -157,19 +158,28 @@ for binN in bins:
       rateLine += "-1" #this option makes Combine read the rate from the histogram integrals
 
       currentLength = max(len(binLine), len(processLine1), len(processLine2), len(rateLine))
+
+      #estimate electron scale uncertainty
+      ESF    = ROOT.TFile.Open(binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
+      ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_electronScale2017Up")
+      ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_electronScale2017Down")
+      ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_")
+      ESFvar = str(max(math.fabs(ESFHu.Integral()/ESFHn.Integral()-1.), math.fabs(ESFHd.Integral()/ESFHn.Integral()-1.))+1.)
+      systVals[13] = ESFvar[0:4]
+      ESF.Close()
   
       for j in range(0, len(systLines)): #assemble systematic values
         if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
           systLines[j] += systVals[j].replace("0","1") #activate ST fit uncertainty for ttbar only in the card
         elif allNames[i] != "M$MASS" and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
-          NLLresF = ROOT.TFile.Open(fileName + "/SF_Bin" + binName[6:9] + "2" +binName[10:] + ".root", "read")
+          NLLresF = ROOT.TFile.Open(fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
           NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:])
           NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_")
           NLLresH.Multiply(NLLH)
           if NLLH.Integral() == 0:
             systLines[j] += systVals[j]
             continue
-          ratio = str(NLLresH.Integral()/NLLH.Integral())
+          ratio = str(NLLresH.Integral(0,-1)/NLLH.Integral(0,-1))
           dot = ratio.find(".")
           if dot >= 0:
             systLines[j] += systVals[j].replace("0",ratio[0:dot+3]) #limit precision to keep cards readable

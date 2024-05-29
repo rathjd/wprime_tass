@@ -265,12 +265,12 @@ void CombineHistogramDumpster::Loop()
     float defHT = 0.;
     for(unsigned i = 0; i < JetPt->size(); ++i) if(JetPt->at(i) > 30.){
       defHT += JetPt->at(i);
-      JetCounts[0]++;
+      /*JetCounts[0]++;
       JetCounts[1]++;
       JetCounts[2]++;
       JetCounts[3]++;
       JetCounts[4]++;
-      if(JetbTag->at(i)) bJetMainCount++;
+      if(JetbTag->at(i)) bJetMainCount++;*/
     }
     STvals[0] = LeptonPt + METPt + defHT; Vals[0] = defHT;
     //1: eScaleUp
@@ -320,7 +320,7 @@ void CombineHistogramDumpster::Loop()
 
     //validate actual region
     
-    int RegionIdents[9];
+    /*int RegionIdents[9];
     RegionIdents[0] = (RegionIdentifier[0]/1000)*1000 + 100 + JetCounts[0]*10 + bJetMainCount;
     RegionIdents[1] = (RegionIdentifier[1]/1000)*1000 + 100 + JetCounts[1]*10 + RegionIdentifier[1] % 10;
     RegionIdents[2] = (RegionIdentifier[2]/1000)*1000 + 100 + JetCounts[2]*10 + RegionIdentifier[2] % 10;
@@ -329,12 +329,12 @@ void CombineHistogramDumpster::Loop()
     RegionIdents[5] = (RegionIdentifier[5]/1000)*1000 + 100 + JetCounts[5]*10 + RegionIdentifier[5] % 10;
     RegionIdents[6] = (RegionIdentifier[6]/1000)*1000 + 100 + JetCounts[6]*10 + RegionIdentifier[6] % 10;    
     RegionIdents[7] = (RegionIdentifier[7]/1000)*1000 + 100 + JetCounts[7]*10 + RegionIdentifier[7] % 10;
-    RegionIdents[8] = (RegionIdentifier[8]/1000)*1000 + 100 + JetCounts[8]*10 + RegionIdentifier[8] % 10;
+    RegionIdents[8] = (RegionIdentifier[8]/1000)*1000 + 100 + JetCounts[8]*10 + RegionIdentifier[8] % 10;*/
 
     //variations of selections
     for(unsigned i = 0; i < 9; ++ i){
       //if(RegionIdentifier[i] != bin) continue;
-      if(RegionIdents[i] != bin) continue;
+      if(RegionIdentifier[i] != bin) continue;
 
       //FIXME: Additional Lepton cuts
       /*if(i != 1 && i != 2 && i != 3 && i != 4 && LeptonPt < 40.) continue;
@@ -395,7 +395,7 @@ void CombineHistogramDumpster::Loop()
     }
     //Make sure to match default region for default objects with event weight variations
     //if(RegionIdentifier[0] == bin){
-    if(RegionIdents[0] == bin){
+    if(RegionIdentifier[0] == bin){
       //EventWeight variations
       for(unsigned i = 9; i < variations.size(); ++i){//last four variations are luminosity
 

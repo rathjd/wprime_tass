@@ -42,6 +42,16 @@ if binSplit >= binEnd:
     print(binSplit,">=",binEnd,"! aborting")
     exit
 
+#switch for where to run
+directory = "../"
+try:
+    if sys.argv[5] == "direct":
+        directory = ""
+        print("running from main directory")
+except:
+    print("running from subdirectory")
+
+
 #background name; NLL nonclosure uncertainty for mfit then HT; minimal number of events in any variation for mfit, then HT
 NLLvals = [["ttbar",      0., 0., 1., 1.],
            ["wjets",      0., 0., 1., 1.],
@@ -49,14 +59,14 @@ NLLvals = [["ttbar",      0., 0., 1., 1.],
            ["diboson",    0., 0., 1., 1.]]
 
 #load file with 2D distributions and get filenames
-inFileSF = TFile("../CombinationAll/SF_Bin"+binNr[0:3]+"2_"+year+".root","READ")
-inFile = TFile("../CombinationAll/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+year+".root","READ")
+inFileSF = TFile(directory+"CombinationAll/SF_Bin"+binNr[0:3]+"2_"+year+".root","READ")
+inFile = TFile(directory+"CombinationAll/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+year+".root","READ")
 
 FileContent = [key.GetName() for key in gDirectory.GetListOfKeys()]
 
 #define output files
-outFileHT = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+".root","RECREATE")
-outFileFit = TFile("../CombinationAll/FitSlices_Wprime"+binNr+"_"+year+".root","RECREATE")
+outFileHT = TFile(directory+"CombinationAll/HTslices_Wprime"+binNr+"_"+year+".root","RECREATE")
+outFileFit = TFile(directory+"CombinationAll/FitSlices_Wprime"+binNr+"_"+year+".root","RECREATE")
 
 #run over keys, sort and Project them appropriately
 for content in FileContent:
@@ -119,11 +129,11 @@ inFileSF.Close()
     
 
 #write cards ready to be processed
-FitCardIn = open("../CombinationAll/FitMass_Wprime"+binNr+"_"+year+".txt","r")
-HTcardIn  = open("../CombinationAll/HT_Wprime"+binNr+"_"+year+".txt","r")
+FitCardIn = open(directory+"CombinationAll/FitMass_Wprime"+binNr+"_"+year+".txt","r")
+HTcardIn  = open(directory+"CombinationAll/HT_Wprime"+binNr+"_"+year+".txt","r")
 
-FitCardOut = open("../CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt","w")
-HTcardOut = open("../CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt","w")
+FitCardOut = open(directory+"CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt","w")
+HTcardOut = open(directory+"CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt","w")
 
 #make a sliced fit card
 FitLines = FitCardIn.readlines()
@@ -237,4 +247,4 @@ HTcardOut.close()
 HTcardIn.close()
 
 #define combined card
-os.system("combineCards.py ../CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt ../CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt > ../CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
+os.system("combineCards.py "+directory+"CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt "+directory+"CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt > "+directory+"CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
