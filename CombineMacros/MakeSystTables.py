@@ -6,7 +6,7 @@ binS = "1153"
 year = "2016"
 
 varName = "FitMass"
-varNameOptions = ["FitMass", "HT"]
+varNameOptions = ["FitMass", "HT", "FitSlice", "HTslice"]
 
 #accept shell inputs
 try:

@@ -191,8 +191,8 @@ void CombineHistogramDumpster::Loop()
       SFfile = new TFile(TString::Format("TestHistograms/SF_Bin%d_%d.root",SFreg,year));
       TH1F *SF = (TH1F*)SFfile->Get("SF_"+variations[i]);
       TF1 *SFfit;
-      if(bin % 100 < 60) SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x/x+[1]/x/x+[2]/x+[3]+[4]*x+[5]*x*x", 150., 2000.);
-      else 		 SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 150., 2000.);
+      if(bin % 100 < 60) SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x/x+[1]/x/x+[2]/x+[3]+[4]*x+[5]*x*x", 180., 2000.);
+      else 		 SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 210., 2000.);
       TFitResultPtr fr = SF->Fit(SFfit,"SRF");
       TMatrixD cov = fr->GetCovarianceMatrix();
       SFs.push_back(*SFfit);
@@ -208,8 +208,8 @@ void CombineHistogramDumpster::Loop()
   FitMass_2D_STstatDown = (TH2F*) FitMass_2D[0]->Clone("FitMass2D_STstatDown");
   HT_2D_STstatUp = (TH2F*) HT_2D[0]->Clone("HT2D_STstatUp");
   HT_2D_STstatDown = (TH2F*) HT_2D[0]->Clone("HT2D_STstatDown");
-  STrew_STstatUp = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_" + binS + "_" + "STstatUp");
-  STrew_STstatDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_" + binS + "_" + "STstatDown");
+  STrew_STstatUp = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitUp");
+  STrew_STstatDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitDown");
   
 
   //negative log likelihood block

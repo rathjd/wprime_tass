@@ -1,0 +1,13 @@
+executable   = Submit2153_2018.sh
+max_retries  = 1
+batch_name   = Comb2153_2018
+output       = 2018_2153.out
+error        = 2018_2153.err
+log          = 2018_2153.log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "tomorrow"
+RequestCpus  = 2
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 1

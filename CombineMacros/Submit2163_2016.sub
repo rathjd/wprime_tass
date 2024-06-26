@@ -1,0 +1,13 @@
+executable   = Submit2163_2016.sh
+max_retries  = 1
+batch_name   = Comb2163_2016
+output       = 2016_2163.out
+error        = 2016_2163.err
+log          = 2016_2163.log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "tomorrow"
+RequestCpus  = 2
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 1

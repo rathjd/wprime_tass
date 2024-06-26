@@ -1,0 +1,14 @@
+executable   = SubmitSplit2164_2017.sh
+max_retries  = 1
+batch_name   = SplitScan2164_2017
+output       = SplitScan2017_2164.out
+error        = SplitScan2017_2164.err
+log          = SplitScan2017_2164.log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "testmatch"
+RequestCpus  = 2
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 1
+
