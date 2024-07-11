@@ -58,9 +58,33 @@ public :
   Float_t         nTrueInt;
   Int_t           nPV;
   Int_t           nPVGood;*/
-  vector<double>   *Best_Likelihood;
-  vector<double>   *Best_WPrimeMass;
-  vector<double>   *Best_PbTag;
+  vector<double>   *Best_Likelihood_300;
+  vector<double>   *Best_Likelihood_400;
+  vector<double>   *Best_Likelihood_500;
+  vector<double>   *Best_Likelihood_600;
+  vector<double>   *Best_Likelihood_700;
+  vector<double>   *Best_Likelihood_800;
+  vector<double>   *Best_Likelihood_900;
+  vector<double>   *Best_Likelihood_1000;
+  vector<double>   *Best_Likelihood_1100;
+  vector<double>   *Best_WPrimeMass_300;
+  vector<double>   *Best_WPrimeMass_400;
+  vector<double>   *Best_WPrimeMass_500;
+  vector<double>   *Best_WPrimeMass_600;
+  vector<double>   *Best_WPrimeMass_700;
+  vector<double>   *Best_WPrimeMass_800;
+  vector<double>   *Best_WPrimeMass_900;
+  vector<double>   *Best_WPrimeMass_1000;
+  vector<double>   *Best_WPrimeMass_1100;
+  vector<double>   *Best_PbTag_300;
+  vector<double>   *Best_PbTag_400;
+  vector<double>   *Best_PbTag_500;
+  vector<double>   *Best_PbTag_600;
+  vector<double>   *Best_PbTag_700;
+  vector<double>   *Best_PbTag_800;
+  vector<double>   *Best_PbTag_900;
+  vector<double>   *Best_PbTag_1000;
+  vector<double>   *Best_PbTag_1100;
 
   // List of branches
   TBranch        *b_RegionIdentifier;   //!
@@ -97,9 +121,33 @@ public :
   TBranch        *b_nTrueInt;   //!
   TBranch        *b_nPV;   //!
   TBranch        *b_nPVGood;   //!*/
-  TBranch	 *b_Best_Likelihood; //!
-  TBranch	 *b_Best_WPrimeMass; //!
-  TBranch	 *b_Best_PbTag; //!
+  TBranch	 *b_Best_Likelihood_300; //!
+  TBranch        *b_Best_Likelihood_400; //!
+  TBranch        *b_Best_Likelihood_500; //!
+  TBranch        *b_Best_Likelihood_600; //!
+  TBranch        *b_Best_Likelihood_700; //!
+  TBranch        *b_Best_Likelihood_800; //!
+  TBranch        *b_Best_Likelihood_900; //!
+  TBranch        *b_Best_Likelihood_1000; //!
+  TBranch        *b_Best_Likelihood_1100; //!
+  TBranch	 *b_Best_WPrimeMass_300; //!
+  TBranch        *b_Best_WPrimeMass_400; //!
+  TBranch        *b_Best_WPrimeMass_500; //!
+  TBranch        *b_Best_WPrimeMass_600; //!
+  TBranch        *b_Best_WPrimeMass_700; //!
+  TBranch        *b_Best_WPrimeMass_800; //!
+  TBranch        *b_Best_WPrimeMass_900; //!
+  TBranch        *b_Best_WPrimeMass_1000; //!
+  TBranch        *b_Best_WPrimeMass_1100; //!
+  TBranch	 *b_Best_PbTag_300; //!
+  TBranch        *b_Best_PbTag_400; //!
+  TBranch        *b_Best_PbTag_500; //!
+  TBranch        *b_Best_PbTag_600; //!
+  TBranch        *b_Best_PbTag_700; //!
+  TBranch        *b_Best_PbTag_800; //!
+  TBranch        *b_Best_PbTag_900; //!
+  TBranch        *b_Best_PbTag_1000; //!
+  TBranch        *b_Best_PbTag_1100; //!
 
   CombineHistogramDumpster(TChain *tree = 0, unsigned it_ = 99, int bin_ = 1152, TString year_ = "2018", int SFreg_ = 0);
   virtual ~CombineHistogramDumpster();
@@ -132,9 +180,7 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
     TString FilePath;
-    if(year_=="2018") FilePath = "/afs/cern.ch/user/s/siluo/EOS/WPrimeAnalysis/ValidationFitted/"+ year_ + "_" + dset.Name + "/*.root";
-    else if(year_=="2017") FilePath = "/eos/cms/store/group/phys_b2g/wprime/2017analyzetest/"+ year_ + "_" + dset.Name + "/*.root";
-    else              FilePath = "/eos/cms/store/group/phys_b2g/wprime/SifuFW_Fitted/"+ year_ + "_" + dset.Name + "/*.root";
+    if(year_=="2017") FilePath = "/eos/cms/store/group/phys_b2g/wprime/2017analyzetestmass/"+ year_ + "_" + dset.Name + "/*.root";
     tree = new TChain("t");
     tree->Add(FilePath);
     Iterator = it_;
@@ -195,9 +241,34 @@ void CombineHistogramDumpster::Init(TChain *tree)
   //WPrimeMass = 0;
   //Likelihood = 0;
   //WPType = 0;
-  Best_WPrimeMass = 0;
-  Best_Likelihood = 0;
-  Best_PbTag = 0;
+  Best_WPrimeMass_300 = 0;
+  Best_WPrimeMass_400 = 0;
+  Best_WPrimeMass_500 = 0;
+  Best_WPrimeMass_600 = 0;
+  Best_WPrimeMass_700 = 0;
+  Best_WPrimeMass_800 = 0;
+  Best_WPrimeMass_900 = 0;
+  Best_WPrimeMass_1000 = 0;
+  Best_WPrimeMass_1100 = 0;
+  Best_Likelihood_300 = 0;
+  Best_Likelihood_400 = 0;
+  Best_Likelihood_500 = 0;
+  Best_Likelihood_600 = 0;
+  Best_Likelihood_700 = 0;
+  Best_Likelihood_800 = 0;
+  Best_Likelihood_900 = 0;
+  Best_Likelihood_1000 = 0;
+  Best_Likelihood_1100 = 0;
+  Best_PbTag_300 = 0;
+  Best_PbTag_400 = 0;
+  Best_PbTag_500 = 0;
+  Best_PbTag_600 = 0;
+  Best_PbTag_700 = 0;
+  Best_PbTag_800 = 0;
+  Best_PbTag_900 = 0;
+  Best_PbTag_1000 = 0;
+  Best_PbTag_1100 = 0;
+
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -238,9 +309,33 @@ void CombineHistogramDumpster::Init(TChain *tree)
   fChain->SetBranchAddress("nTrueInt", &nTrueInt, &b_nTrueInt);
   fChain->SetBranchAddress("nPV", &nPV, &b_nPV);
   fChain->SetBranchAddress("nPVGood", &nPVGood, &b_nPVGood);*/
-  fChain->SetBranchAddress("Best_Likelihood", &Best_Likelihood, &b_Best_Likelihood);
-  fChain->SetBranchAddress("Best_WPrimeMass", &Best_WPrimeMass, &b_Best_WPrimeMass);
-  fChain->SetBranchAddress("Best_PbTag", &Best_PbTag, &b_Best_PbTag);
+  fChain->SetBranchAddress("Best_Likelihood_300", &Best_Likelihood_300, &b_Best_Likelihood_300);
+  fChain->SetBranchAddress("Best_Likelihood_400", &Best_Likelihood_400, &b_Best_Likelihood_400);
+  fChain->SetBranchAddress("Best_Likelihood_500", &Best_Likelihood_500, &b_Best_Likelihood_500);
+  fChain->SetBranchAddress("Best_Likelihood_600", &Best_Likelihood_600, &b_Best_Likelihood_600);
+  fChain->SetBranchAddress("Best_Likelihood_700", &Best_Likelihood_700, &b_Best_Likelihood_700);
+  fChain->SetBranchAddress("Best_Likelihood_800", &Best_Likelihood_800, &b_Best_Likelihood_800);
+  fChain->SetBranchAddress("Best_Likelihood_900", &Best_Likelihood_900, &b_Best_Likelihood_900);
+  fChain->SetBranchAddress("Best_Likelihood_1000", &Best_Likelihood_1000, &b_Best_Likelihood_1000);
+  fChain->SetBranchAddress("Best_Likelihood_1100", &Best_Likelihood_1100, &b_Best_Likelihood_1100);
+  fChain->SetBranchAddress("Best_WPrimeMass_300", &Best_WPrimeMass_300, &b_Best_WPrimeMass_300);
+  fChain->SetBranchAddress("Best_WPrimeMass_400", &Best_WPrimeMass_400, &b_Best_WPrimeMass_400);
+  fChain->SetBranchAddress("Best_WPrimeMass_500", &Best_WPrimeMass_500, &b_Best_WPrimeMass_500);
+  fChain->SetBranchAddress("Best_WPrimeMass_600", &Best_WPrimeMass_600, &b_Best_WPrimeMass_600);
+  fChain->SetBranchAddress("Best_WPrimeMass_700", &Best_WPrimeMass_700, &b_Best_WPrimeMass_700);
+  fChain->SetBranchAddress("Best_WPrimeMass_800", &Best_WPrimeMass_800, &b_Best_WPrimeMass_800);
+  fChain->SetBranchAddress("Best_WPrimeMass_900", &Best_WPrimeMass_900, &b_Best_WPrimeMass_900);
+  fChain->SetBranchAddress("Best_WPrimeMass_1000", &Best_WPrimeMass_1000, &b_Best_WPrimeMass_1000);
+  fChain->SetBranchAddress("Best_WPrimeMass_1100", &Best_WPrimeMass_1100, &b_Best_WPrimeMass_1100);
+  fChain->SetBranchAddress("Best_PbTag_300", &Best_PbTag_300, &b_Best_PbTag_300);
+  fChain->SetBranchAddress("Best_PbTag_400", &Best_PbTag_400, &b_Best_PbTag_400);
+  fChain->SetBranchAddress("Best_PbTag_500", &Best_PbTag_500, &b_Best_PbTag_500);
+  fChain->SetBranchAddress("Best_PbTag_600", &Best_PbTag_600, &b_Best_PbTag_600);
+  fChain->SetBranchAddress("Best_PbTag_700", &Best_PbTag_700, &b_Best_PbTag_700);
+  fChain->SetBranchAddress("Best_PbTag_800", &Best_PbTag_800, &b_Best_PbTag_800);
+  fChain->SetBranchAddress("Best_PbTag_900", &Best_PbTag_900, &b_Best_PbTag_900);
+  fChain->SetBranchAddress("Best_PbTag_1000", &Best_PbTag_1000, &b_Best_PbTag_1000);
+  fChain->SetBranchAddress("Best_PbTag_1100", &Best_PbTag_1100, &b_Best_PbTag_1100);
   Notify();
 }
 

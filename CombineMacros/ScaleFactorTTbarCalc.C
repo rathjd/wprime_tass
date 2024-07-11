@@ -26,7 +26,7 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
   vector<TH1F> ttbarHists, NonTtbarHists;
 
   //also derive negative log likelihood residuals
-  TH1F dataHistNLL, ttbarHistNLL, NonTtbarHistNLL;
+  vector<TH1F> dataHistNLL, ttbarHistNLL, NonTtbarHistNLL;
 
   //loop over samples, organizing data, ttbar, and non-ttbar with variations
   for(unsigned i = 0; i < 22; ++i){
@@ -46,22 +46,22 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
     TString gn = dset.GroupName;
     if(i<=1){
       dataHist = *(TH1F*)(infile->Get(TString::Format("ST_data_obs_Wprime%d_%d_",bin,year)))->Clone("dataHist");
-      dataHistNLL = *(TH1F*)(infile->Get(TString::Format("NegLogLnoB_Data_Wprime%d_%d_",bin,year)))->Clone("dataHistNLL");
+      for(unsigned mass = 300; mass < 1200; mass+=100) dataHistNLL.push_back( *(TH1F*)(infile->Get(TString::Format("NegLogLnoB_Data_Wprime%d_%d_M%d_",bin,year,mass)))->Clone(TString::Format("dataHistNLL_M%d",mass)));
     }
     else if(i==2){
       for(unsigned j = 0; j < variations.size(); ++j){
 	      //std::cout<<TString::Format("ST_"+gn+"_Wprime%d_%d_"+variations[j],bin,year)<<std::endl;
 	      ttbarHists.push_back(*(TH1F*)(infile->Get(TString::Format("ST_"+gn+"_Wprime%d_%d_"+variations[j],bin,year)))->Clone(TString::Format("ttbar_%d",j)));
       }
-      ttbarHistNLL = *(TH1F*)(infile->Get(TString::Format("NegLogLnoB_ttbar_Wprime%d_%d_",bin,year)))->Clone("ttbarNLL");
+      for(unsigned mass = 300; mass < 1200; mass+=100) ttbarHistNLL.push_back( *(TH1F*)(infile->Get(TString::Format("NegLogLnoB_ttbar_Wprime%d_%d_M%d_",bin,year,mass)))->Clone(TString::Format("ttbarNLL_M%d",mass)));
     }
    else if (i==3){
      for(unsigned j = 0; j < variations.size(); ++j) NonTtbarHists.push_back(*(TH1F*)(infile->Get(TString::Format("ST_"+gn+"_Wprime%d_%d_"+variations[j],bin,year)))->Clone(TString::Format("nonTtbar_%d",j)));
-     NonTtbarHistNLL = *(TH1F*)(infile->Get(TString::Format("NegLogLnoB_"+gn+"_Wprime%d_%d_",bin,year)))->Clone("nonTtbarNLL");
+     for(unsigned mass = 300; mass < 1200; mass+=100) NonTtbarHistNLL.push_back( *(TH1F*)(infile->Get(TString::Format("NegLogLnoB_"+gn+"_Wprime%d_%d_M%d_",bin,year,mass)))->Clone(TString::Format("nonTtbarNLL_M%d",mass)));
    }
    else{
      for(unsigned j = 0; j < variations.size(); ++j) NonTtbarHists[j].Add((TH1F*)(infile->Get(TString::Format("ST_"+gn+"_Wprime%d_%d_"+variations[j],bin,year))));
-     NonTtbarHistNLL.Add((TH1F*)(infile->Get(TString::Format("NegLogLnoB_"+gn+"_Wprime%d_%d_",bin,year))));
+     for(unsigned mass = 300; mass < 1200; mass+=100) NonTtbarHistNLL[mass/100-3].Add((TH1F*)(infile->Get(TString::Format("NegLogLnoB_"+gn+"_Wprime%d_%d_M%d_",bin,year,mass))));
    }
   }
 
@@ -82,10 +82,15 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
 
   }
 
+  TFile *savefile = new TFile(TString::Format("TestHistograms/SF_Bin%d_%d.root",bin,year),"RECREATE");
+
   //make NLL residual distribution
-  TH1F NLLresidual = *(TH1F*)dataHistNLL.Clone(TString::Format("NLLresidual_%d_%d",bin,year));
-  ttbarHistNLL.Add(&NonTtbarHistNLL);
-  NLLresidual.Divide(&ttbarHistNLL);
+  for(unsigned m = 3; m < 12; ++m){
+    TH1F NLLresidual = *(TH1F*)dataHistNLL[m-3].Clone(TString::Format("NLLresidual_%d_%d_M%d",bin,year,m*100));
+    ttbarHistNLL[m-3].Add(&NonTtbarHistNLL[m-3]);
+    NLLresidual.Divide(&ttbarHistNLL[m-3]);
+    NLLresidual.Write();
+  }
 
   //define fit function
   TF1 *fitFunction;
@@ -120,11 +125,9 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
     }
   }
 
-  TFile *savefile = new TFile(TString::Format("TestHistograms/SF_Bin%d_%d.root",bin,year),"RECREATE");
   for(unsigned i = 0; i < SFhists.size(); ++i){
     SFhists[i].Write();
     SFs[i].Write();
   }
-  NLLresidual.Write();
   savefile->Close();
 } 

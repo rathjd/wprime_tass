@@ -85,136 +85,138 @@ for binN in bins:
 
   #write the actual combine cards
   CardNames = [["FitMass", ""], ["HT", "HT_"]] #by default makes both the fit mass and HT extraction cards, separately
-  for CardName in CardNames:
-    print("Creating Combine card file")
-    f = open(fileName + "/" + CardName[0] + "_" + binName + ".txt","w")
-    f.write("imax " + str(1) + "\n") #number of channels
-    f.write("jmax " + str(len(bgrNames)) + "\n") #number of backgrounds
-    f.write("kmax " + str(len(systNames)) + "\n") #number of nuisance parameters
-    f.write("----------\n")
-    f.write("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root "+ CardName[1] + "$PROCESS_$CHANNEL_ " + CardName[1] + "$PROCESS_$CHANNEL_$SYSTEMATIC\n")
-    f.write("----------\n")
-    f.write("bin         " + binName + "\n")
+  for massBin in range(3,12):
+    signalNames = ["M" + str(massBin*100)]
+    for CardName in CardNames:
+      print("Creating Combine card file")
+      f = open(fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt","w")
+      f.write("imax " + str(1) + "\n") #number of channels
+      f.write("jmax " + str(len(bgrNames)) + "\n") #number of backgrounds
+      f.write("kmax " + str(len(systNames)) + "\n") #number of nuisance parameters
+      f.write("----------\n")
+      f.write("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root "+ CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_ " + CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_$SYSTEMATIC\n")
+      f.write("----------\n")
+      f.write("bin         " + binName + "\n")
 
-    #load ROOT file, find observation number
-    print("Reading observed events numbers")
-    r = ROOT.TFile.Open(fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root", "read")
-    print(fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root")
-    h = r.Get(CardName[1]+"data_obs_" + binName + "_")
-    print("data_obs_" + binName + "_")
-    print(type(h))
-    observed = h.Integral()
-    f.write("observation " + str(observed) + "\n")
-    f.write("----------\n")
+      #load ROOT file, find observation number
+      print("Reading observed events numbers")
+      r = ROOT.TFile.Open(fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root", "read")
+      print(fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root")
+      h = r.Get(CardName[1]+"data_obs_" + binName + "_M" + str(massBin*100) + "_")
+      print("data_obs_" + binName + "_M" + str(massBin*100) + "_")
+      print(type(h))
+      observed = h.Integral()
+      f.write("observation " + str(observed) + "\n")
+      f.write("----------\n")
 
-    ##assemble strings for lines
-    print("Assembling lines for Combine card ",CardName[0])
-    #systematic lines first, as this is an entire column to be processed, later, and they are longest
-    systLines = []
-    maxLength = 0
-    for i in range(0, len(systNames)): #assemble systematic names
-      systLines.append(systNames[i])
-      maxLength = max(maxLength, len(systLines[i]))
+      ##assemble strings for lines
+      print("Assembling lines for Combine card ",CardName[0])
+      #systematic lines first, as this is an entire column to be processed, later, and they are longest
+      systLines = []
+      maxLength = 0
+      for i in range(0, len(systNames)): #assemble systematic names
+        systLines.append(systNames[i])
+        maxLength = max(maxLength, len(systLines[i]))
 
-    maxLength2 = 0
-    for i in range(0, len(systLines)): #align systematic names, then assemble systematic types
-      while len(systLines[i]) < (maxLength + 3):
-        systLines[i] += " "
-      systLines[i] += systTypes[i]
-      maxLength2 = max(maxLength2, len(systLines[i]))
+      maxLength2 = 0
+      for i in range(0, len(systLines)): #align systematic names, then assemble systematic types
+        while len(systLines[i]) < (maxLength + 3):
+          systLines[i] += " "
+        systLines[i] += systTypes[i]
+        maxLength2 = max(maxLength2, len(systLines[i]))
 
-    for i in range(0, len(systLines)): #align syst types
-      while len(systLines[i]) < (maxLength2 + 5):
-        systLines[i] += " "
+      for i in range(0, len(systLines)): #align syst types
+        while len(systLines[i]) < (maxLength2 + 5):
+          systLines[i] += " "
 
-    maxLength2 = len(systLines[0])
+      maxLength2 = len(systLines[0])
 
-    #assemble bin and process block
-    allNames = signalNames + bgrNames
-    allNumbers = []
-    for i in range(-len(signalNames)+1, 1): #negative and zero numbers for signals
-      allNumbers.append(i)
-    for i in range (1, len(bgrNames)+1): #positive nonzero numbers for backgrounds
-      allNumbers.append(i)
-    binLine      = "bin     "
-    processLine1 = "process "
-    processLine2 = "process "
-    rateLine     = "rate    "
+      #assemble bin and process block
+      allNames = signalNames + bgrNames
+      allNumbers = []
+      for i in range(-len(signalNames)+1, 1): #negative and zero numbers for signals
+        allNumbers.append(i)
+      for i in range (1, len(bgrNames)+1): #positive nonzero numbers for backgrounds
+        allNumbers.append(i)
+      binLine      = "bin     "
+      processLine1 = "process "
+      processLine2 = "process "
+      rateLine     = "rate    "
 
-    #align bin, process, and rate lines with systematic line length
-    while len(binLine) < maxLength2:
-      binLine += " "
-    while len(processLine1) < maxLength2:
-      processLine1 += " "
-    while len(processLine2) < maxLength2:
-      processLine2 += " "
-    while len(rateLine) < maxLength2:
-      rateLine += " "
-
-    for i in range(0, len(allNames)): #assemble bin, process, rate, and systematic line entries, then align
-      binLine += binName
-      processLine1 += allNames[i]
-      processLine2 += str(allNumbers[i])
-      rateLine += "-1" #this option makes Combine read the rate from the histogram integrals
-
-      currentLength = max(len(binLine), len(processLine1), len(processLine2), len(rateLine))
-
-      #estimate electron scale uncertainty
-      ESF    = ROOT.TFile.Open(binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
-      ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_electronScale2017Up")
-      ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_electronScale2017Down")
-      ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_")
-      ESFvar = str(max(math.fabs(ESFHu.Integral()/ESFHn.Integral()-1.), math.fabs(ESFHd.Integral()/ESFHn.Integral()-1.))+1.)
-      systVals[13] = ESFvar[0:4]
-      ESF.Close()
-  
-      for j in range(0, len(systLines)): #assemble systematic values
-        if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
-          systLines[j] += systVals[j].replace("0","1") #activate ST fit uncertainty for ttbar only in the card
-        elif allNames[i] != "M$MASS" and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
-          NLLresF = ROOT.TFile.Open(fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
-          NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:])
-          NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_")
-          NLLresH.Multiply(NLLH)
-          if NLLH.Integral() == 0:
-            systLines[j] += systVals[j]
-            continue
-          ratio = str(NLLresH.Integral(0,-1)/NLLH.Integral(0,-1))
-          dot = ratio.find(".")
-          if dot >= 0:
-            systLines[j] += systVals[j].replace("0",ratio[0:dot+3]) #limit precision to keep cards readable
-          else:
-            systLines[j] += systVals[j].replace("0",ratio)
-        else:
-          systLines[j] += systVals[j]
-        currentLength = max(currentLength, len(systLines[j]))
-
-      #align all lines with extra space
-      currentLength += 5
-
-      while len(binLine) < currentLength:
+      #align bin, process, and rate lines with systematic line length
+      while len(binLine) < maxLength2:
         binLine += " "
-
-      while len(processLine1) < currentLength:
+      while len(processLine1) < maxLength2:
         processLine1 += " "
-
-      while len(processLine2) < currentLength:
+      while len(processLine2) < maxLength2:
         processLine2 += " "
-
-      while len(rateLine) < currentLength:
+      while len(rateLine) < maxLength2:
         rateLine += " "
 
-      for j in range(0, len(systLines)):
-        while len(systLines[j]) < currentLength:
-          systLines[j] += " "
+      for i in range(0, len(allNames)): #assemble bin, process, rate, and systematic line entries, then align
+        binLine += binName
+        processLine1 += allNames[i]
+        processLine2 += str(allNumbers[i])
+        rateLine += "-1" #this option makes Combine read the rate from the histogram integrals
 
-    print("Writing Combine Card values")
-    f.write(binLine + "\n")
-    f.write(processLine1 + "\n")
-    f.write(processLine2 + "\n")
-    f.write(rateLine + "\n")
-    f.write("----------\n")
+        currentLength = max(len(binLine), len(processLine1), len(processLine2), len(rateLine))
 
-    for i in range(0, len(systLines)):
-      f.write(systLines[i] + "\n")
+        #estimate electron scale uncertainty
+        ESF    = ROOT.TFile.Open(binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
+        ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_electronScale2017Up")
+        ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_electronScale2017Down")
+        ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_")
+        ESFvar = str(max(math.fabs(ESFHu.Integral()/ESFHn.Integral()-1.), math.fabs(ESFHd.Integral()/ESFHn.Integral()-1.))+1.)
+        systVals[13] = ESFvar[0:4]
+        ESF.Close()
+  
+        for j in range(0, len(systLines)): #assemble systematic values
+          if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
+            systLines[j] += systVals[j].replace("0","1") #activate ST fit uncertainty for ttbar only in the card
+          elif allNames[i] != signalNames[0] and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
+            NLLresF = ROOT.TFile.Open(fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
+            NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100))
+            NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_M" + str(massBin*100) + "_")
+            NLLresH.Multiply(NLLH)
+            if NLLH.Integral() == 0:
+              systLines[j] += systVals[j]
+              continue
+            ratio = str(NLLresH.Integral(0,-1)/NLLH.Integral(0,-1))
+            dot = ratio.find(".")
+            if dot >= 0:
+              systLines[j] += systVals[j].replace("0",ratio[0:dot+3]) #limit precision to keep cards readable
+            else:
+              systLines[j] += systVals[j].replace("0",ratio)
+          else:
+            systLines[j] += systVals[j]
+          currentLength = max(currentLength, len(systLines[j]))
+
+        #align all lines with extra space
+        currentLength += 5
+
+        while len(binLine) < currentLength:
+          binLine += " "
+
+        while len(processLine1) < currentLength:
+          processLine1 += " "
+
+        while len(processLine2) < currentLength:
+          processLine2 += " "
+
+        while len(rateLine) < currentLength:
+          rateLine += " "
+
+        for j in range(0, len(systLines)):
+          while len(systLines[j]) < currentLength:
+            systLines[j] += " "
+
+      print("Writing Combine Card values")
+      f.write(binLine + "\n")
+      f.write(processLine1 + "\n")
+      f.write(processLine2 + "\n")
+      f.write(rateLine + "\n")
+      f.write("----------\n")
+
+      for i in range(0, len(systLines)):
+        f.write(systLines[i] + "\n")
 
