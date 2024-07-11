@@ -220,14 +220,14 @@ void CombineHistogramDumpster::Loop()
     }//end variations loop
 
     //ST stat variations block
-    FitMass_STstatUp.push_back( (TH1F*) FitMass[m-3][0]->Clone(variationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFregST)));
-    FitMass_STstatDown.push_back(  (TH1F*) FitMass[m-3][0]->Clone(variationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFregST)));
-    HT_STstatUp.push_back(  (TH1F*) HT[m-3][0]->Clone(HTvariationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFregST)));
-    HT_STstatDown.push_back(  (TH1F*) HT[m-3][0]->Clone(HTvariationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFregST)));
-    FitMass_2D_STstatUp.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFregST)));
-    FitMass_2D_STstatDown.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFregST)));
-    HT_2D_STstatUp.push_back(  (TH2F*) HT_2D[m-3][0]->Clone(HT2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFregST)));
-    HT_2D_STstatDown.push_back(  (TH2F*) HT_2D[m-3][0]->Clone(HT2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFregST)));
+    FitMass_STstatUp.push_back( (TH1F*) FitMass[m-3][0]->Clone(variationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFreg)));
+    FitMass_STstatDown.push_back(  (TH1F*) FitMass[m-3][0]->Clone(variationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFreg)));
+    HT_STstatUp.push_back(  (TH1F*) HT[m-3][0]->Clone(HTvariationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFreg)));
+    HT_STstatDown.push_back(  (TH1F*) HT[m-3][0]->Clone(HTvariationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFreg)));
+    FitMass_2D_STstatUp.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFreg)));
+    FitMass_2D_STstatDown.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFreg)));
+    HT_2D_STstatUp.push_back(  (TH2F*) HT_2D[m-3][0]->Clone(HT2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFreg)));
+    HT_2D_STstatDown.push_back(  (TH2F*) HT_2D[m-3][0]->Clone(HT2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFreg)));
   
     //negative log likelihood block
     TString NLLname = "NegLogLnoB_";
