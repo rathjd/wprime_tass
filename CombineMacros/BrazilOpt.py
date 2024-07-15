@@ -76,22 +76,22 @@ for mass in range(0,9):
         counterJet+=1
 
     #combine all cards, first into the optimized subsets
-    os.system("combineCards.py HT_Wprime1154_2016.txt HT_Wprime1154_2017.txt HT_Wprime1154_2018.txt HT_Wprime2154_2016.txt HT_Wprime2154_2017.txt HT_Wprime2154_2018.txt > HT_Wprimex154_all.txt")
-    os.system("combineCards.py CombinationSlices_Wprime1153_2016.txt CombinationSlices_Wprime1153_2017.txt CombinationSlices_Wprime1153_2018.txt CombinationSlices_Wprime2153_2016.txt CombinationSlices_Wprime2153_2017.txt CombinationSlices_Wprime2153_2018.txt > CombinationSlices_Wprimex153_all.txt")
-    os.system("combineCards.py CombinationSlices_Wprime1163_2016.txt CombinationSlices_Wprime1163_2017.txt CombinationSlices_Wprime1163_2018.txt CombinationSlices_Wprime2163_2016.txt CombinationSlices_Wprime2163_2017.txt CombinationSlices_Wprime2163_2018.txt > CombinationSlices_Wprimex163_all.txt")
-    os.system("combineCards.py CombinationSlices_Wprime1164_2016.txt CombinationSlices_Wprime1164_2017.txt CombinationSlices_Wprime1164_2018.txt CombinationSlices_Wprime2164_2016.txt CombinationSlices_Wprime2164_2017.txt CombinationSlices_Wprime2164_2018.txt > CombinationSlices_Wprimex164_all.txt")
+    #os.system("combineCards.py HT_Wprime1154_2016.txt HT_Wprime1154_2017.txt HT_Wprime1154_2018.txt HT_Wprime2154_2016.txt HT_Wprime2154_2017.txt HT_Wprime2154_2018.txt > HT_Wprimex154_all.txt")
+    os.system("combineCards.py CombinationSlices_Wprime1153_2016_M"+massString+".txt CombinationSlices_Wprime1153_2017_M"+massString+".txt CombinationSlices_Wprime1153_2018_M"+massString+".txt CombinationSlices_Wprime2153_2016_M"+massString+".txt CombinationSlices_Wprime2153_2017_M"+massString+".txt CombinationSlices_Wprime2153_2018_M"+massString+".txt > CombinationSlices_Wprimex153_all_M"+massString+".txt")
+    os.system("combineCards.py CombinationSlices_Wprime1163_2016_M"+massString+".txt CombinationSlices_Wprime1163_2017_M"+massString+".txt CombinationSlices_Wprime1163_2018_M"+massString+".txt CombinationSlices_Wprime2163_2016_M"+massString+".txt CombinationSlices_Wprime2163_2017_M"+massString+".txt CombinationSlices_Wprime2163_2018_M"+massString+".txt > CombinationSlices_Wprimex163_all_M"+massString+".txt")
+    os.system("combineCards.py CombinationSlices_Wprime1164_2016_M"+massString+".txt CombinationSlices_Wprime1164_2017_M"+massString+".txt CombinationSlices_Wprime1164_2018_M"+massString+".txt CombinationSlices_Wprime2164_2016_M"+massString+".txt CombinationSlices_Wprime2164_2017_M"+massString+".txt CombinationSlices_Wprime2164_2018_M"+massString+".txt > CombinationSlices_Wprimex164_all_M"+massString+".txt")
     #full combination
-    os.system("combineCards.py HT_Wprimex154_all.txt CombinationSlices_Wprimex153_all.txt CombinationSlices_Wprimex163_all.txt CombinationSlices_Wprimex164_all.txt > Optimized_WprimeAll_all.txt")
+    os.system("combineCards.py CombinationSlices_Wprimex153_all_M"+massString+".txt CombinationSlices_Wprimex163_all_M"+massString+".txt CombinationSlices_Wprimex164_all_M"+massString+".txt > Optimized_WprimeAll_all_M"+massString+".txt")
 
     #make a folder to copy this masspoints interpretation files to in totality
-    if not os.path.isdir("/eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString):
-        os.system("mkdir /eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString)
+    if not os.path.isdir("/eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString):
+        os.system("mkdir /eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString)
     else:
-        os.system("rm -rf /eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString)
-        os.system("mkdir /eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString)
+        os.system("rm -rf /eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString)
+        os.system("mkdir /eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString)
 
-    print("card ",os.path.exists("Optimized_WprimeAll_all.txt"))
-    card = open("Optimized_WprimeAll_all.txt","r")
+    print("card ",os.path.exists("Optimized_WprimeAll_all._M"+massString+"txt"))
+    card = open("Optimized_WprimeAll_all._M"+massString+"txt","r")
     lines = card.readlines()
     rootfiles = []
     for line in lines:
@@ -102,16 +102,16 @@ for mass in range(0,9):
 
     for rootfile in rootfiles:
         print(rootfile,os.path.exists(rootfile))
-        print("cp "+rootfile+" /eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString+"/.")
-        os.system("cp "+rootfile+" /eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString+"/.")
-        print(os.path.exists("/eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString+"/"+rootfile))
+        print("cp "+rootfile+" /eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString+"/.")
+        os.system("cp "+rootfile+" /eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString+"/.")
+        print(os.path.exists("/eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString+"/"+rootfile))
 
     #copy current cards and all root files in final card
-    print("cp HT_Wprime1154_2016.txt HT_Wprime1154_2017.txt HT_Wprime1154_2018.txt HT_Wprime2154_2016.txt HT_Wprime2154_2017.txt HT_Wprime2154_2018.txt HT_Wprimex154_all.txt CombinationSlices_Wprime1153_2016.txt CombinationSlices_Wprime1153_2017.txt CombinationSlices_Wprime1153_2018.txt CombinationSlices_Wprime2153_2016.txt CombinationSlices_Wprime2153_2017.txt CombinationSlices_Wprime2153_2018.txt CombinationSlices_Wprimex153_all.txt CombinationSlices_Wprime1163_2016.txt CombinationSlices_Wprime1163_2017.txt CombinationSlices_Wprime1163_2018.txt CombinationSlices_Wprime2163_2016.txt CombinationSlices_Wprime2163_2017.txt CombinationSlices_Wprime2163_2018.txt CombinationSlices_Wprimex163_all.txt CombinationSlices_Wprime1164_2016.txt CombinationSlices_Wprime1164_2017.txt CombinationSlices_Wprime1164_2018.txt CombinationSlices_Wprime2164_2016.txt CombinationSlices_Wprime2164_2017.txt CombinationSlices_Wprime2164_2018.txt CombinationSlices_Wprimex164_all.txt Optimized_WprimeAll_all.txt /eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString+"/.")
-    os.system("cp HT_Wprime1154_2016.txt HT_Wprime1154_2017.txt HT_Wprime1154_2018.txt HT_Wprime2154_2016.txt HT_Wprime2154_2017.txt HT_Wprime2154_2018.txt HT_Wprimex154_all.txt CombinationSlices_Wprime1153_2016.txt CombinationSlices_Wprime1153_2017.txt CombinationSlices_Wprime1153_2018.txt CombinationSlices_Wprime2153_2016.txt CombinationSlices_Wprime2153_2017.txt CombinationSlices_Wprime2153_2018.txt CombinationSlices_Wprimex153_all.txt CombinationSlices_Wprime1163_2016.txt CombinationSlices_Wprime1163_2017.txt CombinationSlices_Wprime1163_2018.txt CombinationSlices_Wprime2163_2016.txt CombinationSlices_Wprime2163_2017.txt CombinationSlices_Wprime2163_2018.txt CombinationSlices_Wprimex163_all.txt CombinationSlices_Wprime1164_2016.txt CombinationSlices_Wprime1164_2017.txt CombinationSlices_Wprime1164_2018.txt CombinationSlices_Wprime2164_2016.txt CombinationSlices_Wprime2164_2017.txt CombinationSlices_Wprime2164_2018.txt CombinationSlices_Wprimex164_all.txt Optimized_WprimeAll_all.txt /eos/cms/store/group/phys_b2g/wprime/SifuCombine/"+folder+"/"+massString+"/.")
+    print("cp CombinationSlices_Wprime1153_2016_M"+massString+".txt CombinationSlices_Wprime1153_2017_M"+massString+".txt CombinationSlices_Wprime1153_2018_M"+massString+".txt CombinationSlices_Wprime2153_2016_M"+massString+".txt CombinationSlices_Wprime2153_2017_M"+massString+".txt CombinationSlices_Wprime2153_2018_M"+massString+".txt CombinationSlices_Wprimex153_all_M"+massString+".txt CombinationSlices_Wprime1163_2016_M"+massString+".txt CombinationSlices_Wprime1163_2017_M"+massString+".txt CombinationSlices_Wprime1163_2018_M"+massString+".txt CombinationSlices_Wprime2163_2016_M"+massString+".txt CombinationSlices_Wprime2163_2017_M"+massString+".txt CombinationSlices_Wprime2163_2018_M"+massString+".txt CombinationSlices_Wprimex163_all_M"+massString+".txt CombinationSlices_Wprime1164_2016_M"+massString+".txt CombinationSlices_Wprime1164_2017_M"+massString+".txt CombinationSlices_Wprime1164_2018_M"+massString+".txt CombinationSlices_Wprime2164_2016_M"+massString+".txt CombinationSlices_Wprime2164_2017_M"+massString+".txt CombinationSlices_Wprime2164_2018_M"+massString+".txt CombinationSlices_Wprimex164_all_M"+massString+".txt Optimized_WprimeAll_all_M"+massString+".txt /eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString+"/.")
+    os.system("cp CombinationSlices_Wprime1153_2016_M"+massString+".txt CombinationSlices_Wprime1153_2017_M"+massString+".txt CombinationSlices_Wprime1153_2018_M"+massString+".txt CombinationSlices_Wprime2153_2016_M"+massString+".txt CombinationSlices_Wprime2153_2017_M"+massString+".txt CombinationSlices_Wprime2153_2018_M"+massString+".txt CombinationSlices_Wprimex153_all_M"+massString+".txt CombinationSlices_Wprime1163_2016_M"+massString+".txt CombinationSlices_Wprime1163_2017_M"+massString+".txt CombinationSlices_Wprime1163_2018_M"+massString+".txt CombinationSlices_Wprime2163_2016_M"+massString+".txt CombinationSlices_Wprime2163_2017_M"+massString+".txt CombinationSlices_Wprime2163_2018_M"+massString+".txt CombinationSlices_Wprimex163_all_M"+massString+".txt CombinationSlices_Wprime1164_2016_M"+massString+".txt CombinationSlices_Wprime1164_2017_M"+massString+".txt CombinationSlices_Wprime1164_2018_M"+massString+".txt CombinationSlices_Wprime2164_2016_M"+massString+".txt CombinationSlices_Wprime2164_2017_M"+massString+".txt CombinationSlices_Wprime2164_2018_M"+massString+".txt CombinationSlices_Wprimex164_all_M"+massString+".txt Optimized_WprimeAll_all_M"+massString+".txt /eos/cms/store/group/phys_b2g/wprime/PatrickCombine/"+folder+"/"+massString+"/.")
 
     #run Combine for this set of cards
-    os.system("combine -M AsymptoticLimits -m "+massString+" Optimized_WprimeAll_all.txt")
+    os.system("combine -M AsymptoticLimits Optimized_WprimeAll_all_M"+massString+".txt")
 
     infile = TFile("higgsCombineTest.AsymptoticLimits.mH"+massString+".root","READ")
 

@@ -1,5 +1,5 @@
 import os,sys
-from ROOT import TGraph, TFile, TTree, TCanvas
+from ROOT import TGraph, TFile, TTree, TCanvas, TColor
 from array import array
 
 binS = "All"
@@ -45,11 +45,11 @@ limitNumbers = []
 
 #macro to extract limits from combined card
 
-for mass in range(0,9):
+for mass in range(0,8):#FIXME: range(0,9):
     masses.append(float((3+mass)*100))
     massString = str((3+mass)*100)
-    print("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+".txt")
-    os.system("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+".txt")
+    print("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
+    os.system("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
 
     infile = TFile("higgsCombineTest.AsymptoticLimits.mH"+massString+".root","READ")
 
@@ -65,35 +65,41 @@ TwoSigmaBand = array( 'd' )
 OneSigmaBand = array( 'd' )
 central = array( 'd' )
 massBand = array( 'd' )
-for x in range(0,9):
+for x in range(0,8):#FIXME: range(0,9):
     central.append(limitNumbers[x][2])
     OneSigmaBand.append(limitNumbers[x][1])
     TwoSigmaBand.append(limitNumbers[x][0])
     massBand.append(float((3+x)*100))
 
-for x in range(0,9):
-    OneSigmaBand.append(limitNumbers[8-x][3])
-    TwoSigmaBand.append(limitNumbers[8-x][4])
-    massBand.append(float((11-x)*100))
+for x in range(0,8):#FIXME: range(0,9):
+    #FIXME OneSigmaBand.append(limitNumbers[8-x][3])
+    #FIXME TwoSigmaBand.append(limitNumbers[8-x][4])
+    #FIXME massBand.append(float((11-x)*100))
+    OneSigmaBand.append(limitNumbers[7-x][3])
+    TwoSigmaBand.append(limitNumbers[7-x][4])
+    massBand.append(float((10-x)*100))
         
 print(central)
 print(OneSigmaBand)
 print(TwoSigmaBand)
 print(massBand)
 
-CentralGraph = TGraph(9, masses, central)
-OneSigmaGraph = TGraph(18, massBand, OneSigmaBand)
-TwoSigmaGraph = TGraph(18, massBand, TwoSigmaBand)
+#FIXME: CentralGraph = TGraph(9, masses, central)
+#FIXME: OneSigmaGraph = TGraph(18, massBand, OneSigmaBand)
+#FIXME: TwoSigmaGraph = TGraph(18, massBand, TwoSigmaBand)
+CentralGraph = TGraph(8, masses, central)
+OneSigmaGraph = TGraph(16, massBand, OneSigmaBand)
+TwoSigmaGraph = TGraph(16, massBand, TwoSigmaBand)
 
 canvas = TCanvas("CombinedLimit","",1000,1000)
 CentralGraph.SetLineColor(1)
 CentralGraph.SetMarkerStyle(47)
 CentralGraph.SetMarkerColor(1)
 
-OneSigmaGraph.SetFillColor(8)
+OneSigmaGraph.SetFillColor(TColor.GetColor("#607641"))
 OneSigmaGraph.SetMarkerStyle(1)
 
-TwoSigmaGraph.SetFillColor(5)
+TwoSigmaGraph.SetFillColor(TColor.GetColor("#F5BB54"))
 TwoSigmaGraph.SetMarkerStyle(1)
 TwoSigmaGraph.GetXaxis().SetTitle("W' mass [GeV/c^{2}]")
 TwoSigmaGraph.GetYaxis().SetTitle("#sigma [fb]")

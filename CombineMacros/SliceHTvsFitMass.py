@@ -64,12 +64,17 @@ inFile = TFile(directory+"CombinationAll/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+
 
 FileContent = [key.GetName() for key in gDirectory.GetListOfKeys()]
 
-#define output files
-outFileHT = TFile(directory+"CombinationAll/HTslices_Wprime"+binNr+"_"+year+".root","RECREATE")
-outFileFit = TFile(directory+"CombinationAll/FitSlices_Wprime"+binNr+"_"+year+".root","RECREATE")
+#loop over mass variations
+for m in range(3,12):
+  
+  #define output files
+  outFileHT = TFile(directory+"CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".root","RECREATE")
+  outFileFit = TFile(directory+"CombinationAll/FitSlices_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".root","RECREATE")
 
-#run over keys, sort and Project them appropriately
-for content in FileContent:
+  #run over keys, sort and Project them appropriately
+  for content in FileContent:
+    if content.find(year+"_M"+str(m*100)) < 0:
+        continue
     if content.find("HT2D_") > -1:
         HT = inFile.Get(content)
         keyname = content.replace("HT2D_", "HT_")
@@ -112,7 +117,7 @@ for content in FileContent:
         NLLHTval = ProjNLLHT.Integral()
         for bgr in NLLvals:
             if content.find(bgr[0]) > -1:
-                NLLres = inFileSF.Get("NLLresidual_"+binNr[0:3]+"2_"+year)
+                NLLres = inFileSF.Get("NLLresidual_"+binNr[0:3]+"2_"+year+"_M"+str(m*100))
                 ProjNLLFit.Multiply(NLLres)
                 if NLLFitVal > 0:
                     bgr[1] = ProjNLLFit.Integral()/NLLFitVal
@@ -121,27 +126,26 @@ for content in FileContent:
                     bgr[2] = ProjNLLHT.Integral()/NLLHTval
 
 
-#close files
-outFileHT.Close()
-outFileFit.Close()
-inFile.Close()
-inFileSF.Close()
+  #close files
+  outFileHT.Close()
+  outFileFit.Close()
     
 
-#write cards ready to be processed
-FitCardIn = open(directory+"CombinationAll/FitMass_Wprime"+binNr+"_"+year+".txt","r")
-HTcardIn  = open(directory+"CombinationAll/HT_Wprime"+binNr+"_"+year+".txt","r")
+  #write cards ready to be processed
+  FitCardIn = open(directory+"CombinationAll/FitMass_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".txt","r")
+  HTcardIn  = open(directory+"CombinationAll/HT_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".txt","r")
 
-FitCardOut = open(directory+"CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt","w")
-HTcardOut = open(directory+"CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt","w")
+  FitCardOut = open(directory+"CombinationAll/FitSlice_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".txt","w")
+  HTcardOut = open(directory+"CombinationAll/HTslice_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".txt","w")
 
-#make a sliced fit card
-FitLines = FitCardIn.readlines()
-newFitLines = []
-for FitLine in FitLines:
+  #make a sliced fit card
+  FitLines = FitCardIn.readlines()
+  newFitLines = []
+  for FitLine in FitLines:
     if FitLine.find("SimpleShapes") > -1: #make it find the right input files and histograms
         FitLine = FitLine.replace("SimpleShapes","FitSlices")
         FitLine = FitLine.replace("$PROCESS","Fit_$PROCESS")
+        FitLine = FitLine.replace(year+".root",year+"_M"+str(m*100)+".root")
     if FitLine.find("bin") > -1: #give it an exclusive bin name
         FitLine = FitLine.replace("Wprime", "WprimeFit")
     if FitLine.find("rate") > -1: #deactivate empty backgrounds
@@ -187,16 +191,17 @@ for FitLine in FitLines:
                 startPos = newStartPos
     newFitLines += FitLine
 
-FitCardOut.writelines(newFitLines)
-FitCardOut.close()
-FitCardIn.close()
+  FitCardOut.writelines(newFitLines)
+  FitCardOut.close()
+  FitCardIn.close()
 
-#make a sliced HT card
-HTlines = HTcardIn.readlines()
-newHTlines = []
-for HTline in HTlines:
+  #make a sliced HT card
+  HTlines = HTcardIn.readlines()
+  newHTlines = []
+  for HTline in HTlines:
     if HTline.find("SimpleShapes") > -1: #make it find the right input files and histograms
         HTline = HTline.replace("HT_SimpleShapes","HTslices")
+        HTline = HTline.replace(year+".root",year+"_M"+str(m*100)+".root")
     if HTline.find("bin") > -1: #give it an exclusive bin name
         HTline = HTline.replace("Wprime", "WprimeHT")
     if HTline.find("rate") > -1: #deactivate empty backgrounds
@@ -242,9 +247,13 @@ for HTline in HTlines:
                 startPos = newStartPos
     newHTlines += HTline
 
-HTcardOut.writelines(newHTlines)
-HTcardOut.close()
-HTcardIn.close()
+  HTcardOut.writelines(newHTlines)
+  HTcardOut.close()
+  HTcardIn.close()
 
-#define combined card
-os.system("combineCards.py "+directory+"CombinationAll/FitSlice_Wprime"+binNr+"_"+year+".txt "+directory+"CombinationAll/HTslice_Wprime"+binNr+"_"+year+".txt > "+directory+"CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
+  #define combined card
+  os.system("combineCards.py "+directory+"CombinationAll/FitSlice_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".txt "+directory+"CombinationAll/HTslice_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".txt > "+directory+"CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+"_M"+str(m*100)+".txt")
+
+#close input files
+inFile.Close()
+inFileSF.Close()
