@@ -88,15 +88,22 @@ for binN in bins:
   for massBin in range(3,12):
     signalNames = ["M" + str(massBin*100)]
     for CardName in CardNames:
-      print("Creating Combine card file")
+      print("Creating Combine card file",fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt")
       f = open(fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt","w")
       f.write("imax " + str(1) + "\n") #number of channels
+      print("imax " + str(1) + "\n")
       f.write("jmax " + str(len(bgrNames)) + "\n") #number of backgrounds
+      print("jmax " + str(len(bgrNames)) + "\n")
       f.write("kmax " + str(len(systNames)) + "\n") #number of nuisance parameters
+      print("kmax " + str(len(systNames)) + "\n")
       f.write("----------\n")
+      print("----------\n")
       f.write("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root "+ CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_ " + CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_$SYSTEMATIC\n")
+      print("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root "+ CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_ " + CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_$SYSTEMATIC\n")
       f.write("----------\n")
+      print("----------\n")
       f.write("bin         " + binName + "\n")
+      print("bin         " + binName + "\n")
 
       #load ROOT file, find observation number
       print("Reading observed events numbers")
@@ -107,7 +114,9 @@ for binN in bins:
       print(type(h))
       observed = h.Integral()
       f.write("observation " + str(observed) + "\n")
+      print("observation " + str(observed) + "\n")
       f.write("----------\n")
+      print("----------\n")
 
       ##assemble strings for lines
       print("Assembling lines for Combine card ",CardName[0])
@@ -212,11 +221,17 @@ for binN in bins:
 
       print("Writing Combine Card values")
       f.write(binLine + "\n")
+      print(binLine + "\n")
       f.write(processLine1 + "\n")
+      print(processLine1 + "\n")
       f.write(processLine2 + "\n")
+      print(processLine2 + "\n")
       f.write(rateLine + "\n")
+      print(rateLine + "\n")
       f.write("----------\n")
+      print("----------\n")
 
       for i in range(0, len(systLines)):
         f.write(systLines[i] + "\n")
+        print(systLines[i] + "\n")
 

@@ -85,6 +85,7 @@ public :
   vector<double>   *Best_PbTag_900;
   vector<double>   *Best_PbTag_1000;
   vector<double>   *Best_PbTag_1100;
+  Float_t	   EventWeightObjectVariations[9];
 
   // List of branches
   TBranch        *b_RegionIdentifier;   //!
@@ -148,6 +149,7 @@ public :
   TBranch        *b_Best_PbTag_900; //!
   TBranch        *b_Best_PbTag_1000; //!
   TBranch        *b_Best_PbTag_1100; //!
+  TBranch	 *b_EventWeightObjectVariations; //!
 
   CombineHistogramDumpster(TChain *tree = 0, unsigned it_ = 99, int bin_ = 1152, TString year_ = "2018", int SFreg_ = 0);
   virtual ~CombineHistogramDumpster();
@@ -180,7 +182,7 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
     TString FilePath;
-    if(year_=="2017") FilePath = "/eos/cms/store/group/phys_b2g/wprime/2017analyzetestmass/"+ year_ + "_" + dset.Name + "/*.root";
+    FilePath = "/eos/cms/store/group/phys_b2g/wprime/2017analyzetestmass/"+ year_ + "_" + dset.Name + "/*.root";
     tree = new TChain("t");
     tree->Add(FilePath);
     Iterator = it_;
@@ -268,6 +270,7 @@ void CombineHistogramDumpster::Init(TChain *tree)
   Best_PbTag_900 = 0;
   Best_PbTag_1000 = 0;
   Best_PbTag_1100 = 0;
+  for(unsigned i = 0; i < 9; ++i) EventWeightObjectVariations[i] = 1.; //be sure to set this to a default value of 1, if empty anywhere but in 2018
 
   // Set branch addresses and branch pointers
   if (!tree) return;
@@ -336,6 +339,7 @@ void CombineHistogramDumpster::Init(TChain *tree)
   fChain->SetBranchAddress("Best_PbTag_900", &Best_PbTag_900, &b_Best_PbTag_900);
   fChain->SetBranchAddress("Best_PbTag_1000", &Best_PbTag_1000, &b_Best_PbTag_1000);
   fChain->SetBranchAddress("Best_PbTag_1100", &Best_PbTag_1100, &b_Best_PbTag_1100);
+  if(YearType=="2018") fChain->SetBranchAddress("EventWeightObjectVariations", &EventWeightObjectVariations, &b_EventWeightObjectVariations);
   Notify();
 }
 

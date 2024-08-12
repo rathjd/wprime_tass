@@ -436,7 +436,7 @@ void CombineHistogramDumpster::Loop()
 
         string HistName;
         if(Iterator == 2 && SFreg != 0){ //take care of all pT variations and their impact also on the ST values
-	  const float STcorrCentralWeight = EventWeight[0]*SampleWeight*SFs[i].Eval(STvals[i]);
+	  const float STcorrCentralWeight = EventWeight[0]*SampleWeight*SFs[i].Eval(STvals[i])*EventWeightObjectVariations[i];
 	  FitMass[m-3][i]->Fill(fillBranch, STcorrCentralWeight);
 	  HT[m-3][i]->Fill(fillVar, STcorrCentralWeight);
 
@@ -469,7 +469,7 @@ void CombineHistogramDumpster::Loop()
           }
         }
         else{
-	  const float CentralWeight = EventWeight[0]*SampleWeight;
+	  const float CentralWeight = EventWeight[0]*SampleWeight*EventWeightObjectVariations[i];
 	  FitMass[m-3][i]->Fill(fillBranch, CentralWeight);
 	  HT[m-3][i]->Fill(fillVar, CentralWeight);
 
@@ -506,9 +506,9 @@ void CombineHistogramDumpster::Loop()
 	    EvWeight *= EventWeight[0];
 	  }
 
-	  const float CentralWeight = EvWeight*SampleWeight;
+	  const float CentralWeight = EvWeight*SampleWeight*EventWeightObjectVariations[0];
           if(Iterator == 2 && SFreg != 0){
-	    const float CentralWeightSTcorr = EvWeight*SampleWeight*SFs[i].Eval(STvals[0]);
+	    const float CentralWeightSTcorr = CentralWeight*SFs[i].Eval(STvals[0]);
 	    FitMass[m-3][i]->Fill(fillBranchZero, CentralWeightSTcorr);
 	    HT[m-3][i]->Fill(fillVar, CentralWeightSTcorr);
 
