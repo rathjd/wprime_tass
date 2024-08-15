@@ -43,6 +43,8 @@ bins = [binString[0:3]+"1", binString[0:3]+"2", binString[0:3]+"3", binString[0:
 print(bins)
 
 for binN in bins:
+  if binN == "1154" or binN == "2154":
+      continue
   fileName = binN + "_" + yearName
   binName = "Wprime" + binN + "_" + yearName
   print(binName," ",fileName)
@@ -63,7 +65,7 @@ for binN in bins:
     os.system("hadd -f " + fileName + "/HT_SimpleShapes_" + binName + ".root TestHistograms/HT_SimpleShapes_Bin" + fileName + "_*.root TestHistograms/HT_SimpleShapes_Bin" + fileNameAlt + "_*.root") #hadd all histograms to a convenient combined file
     os.system("hadd -f " + fileName + "/TwoD_SimpleShapes_" + binName + ".root TestHistograms/TwoD_SimpleShapes_Bin" + fileName + "_*.root TestHistograms/TwoD_SimpleShapes_Bin" + fileNameAlt + "_*.root") #hadd all histograms to a convenient combined file
 
-  #transfer SF files where appropriate
+ #transfer SF files where appropriate
   if int(binN) % 10 == 2:
       os.system("cp TestHistograms/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
       print("cp TestHistograms/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
@@ -91,19 +93,12 @@ for binN in bins:
       print("Creating Combine card file",fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt")
       f = open(fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt","w")
       f.write("imax " + str(1) + "\n") #number of channels
-      print("imax " + str(1) + "\n")
       f.write("jmax " + str(len(bgrNames)) + "\n") #number of backgrounds
-      print("jmax " + str(len(bgrNames)) + "\n")
       f.write("kmax " + str(len(systNames)) + "\n") #number of nuisance parameters
-      print("kmax " + str(len(systNames)) + "\n")
       f.write("----------\n")
-      print("----------\n")
       f.write("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root "+ CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_ " + CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_$SYSTEMATIC\n")
-      print("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root "+ CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_ " + CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_$SYSTEMATIC\n")
       f.write("----------\n")
-      print("----------\n")
       f.write("bin         " + binName + "\n")
-      print("bin         " + binName + "\n")
 
       #load ROOT file, find observation number
       print("Reading observed events numbers")
@@ -114,9 +109,7 @@ for binN in bins:
       print(type(h))
       observed = h.Integral()
       f.write("observation " + str(observed) + "\n")
-      print("observation " + str(observed) + "\n")
       f.write("----------\n")
-      print("----------\n")
 
       ##assemble strings for lines
       print("Assembling lines for Combine card ",CardName[0])
@@ -172,8 +165,8 @@ for binN in bins:
 
         #estimate electron scale uncertainty
         ESF    = ROOT.TFile.Open(binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
-        ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_electronScale2017Up")
-        ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_electronScale2017Down")
+        ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_electronScale" + yearName + "Up")
+        ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_electronScale" + yearName + "Down")
         ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_")
         ESFvar = str(max(math.fabs(ESFHu.Integral()/ESFHn.Integral()-1.), math.fabs(ESFHd.Integral()/ESFHn.Integral()-1.))+1.)
         systVals[13] = ESFvar[0:4]
@@ -221,17 +214,13 @@ for binN in bins:
 
       print("Writing Combine Card values")
       f.write(binLine + "\n")
-      print(binLine + "\n")
       f.write(processLine1 + "\n")
-      print(processLine1 + "\n")
       f.write(processLine2 + "\n")
-      print(processLine2 + "\n")
       f.write(rateLine + "\n")
-      print(rateLine + "\n")
       f.write("----------\n")
-      print("----------\n")
 
       for i in range(0, len(systLines)):
         f.write(systLines[i] + "\n")
-        print(systLines[i] + "\n")
+
+      f.close()
 
