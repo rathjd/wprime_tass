@@ -390,7 +390,7 @@ void CombineHistogramDumpster::Loop()
 	const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]);
 	STrew[i]->Fill(STvals[0], CentralWeightSTcorr);	
       }
-      else ST[i]->Fill(STvals[0], CentralWeight);
+      ST[i]->Fill(STvals[0], CentralWeight);
     }
 
     //mass-interpretation-dependent variables
