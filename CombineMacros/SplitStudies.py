@@ -97,7 +97,7 @@ for mass in range(0,9):
             #run the limit on the combination
             skip = False
             try:
-                os.system("combine -M AsymptoticLimits -m "+massString+" ../CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+".txt")
+                os.system("combine -M AsymptoticLimits -m "+massString+" ../CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+"_M"+massString+".txt")
             except:
                 print("Combination failed for ",binSplit,":",binEnd)
                 skip = True

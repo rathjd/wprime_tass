@@ -162,7 +162,7 @@ public :
   virtual void     Show(Long64_t entry = -1);
 
   unsigned Iterator;
-  string YearType;
+  TString YearType;
   Dataset dset;
   int bin;
   int SFreg;
@@ -181,8 +181,11 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
 // used to generate this class and read the Tree.
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
-    TString FilePath;
-    FilePath = "/eos/cms/store/group/phys_b2g/wprime/2017analyzetestmass/"+ year_ + "_" + dset.Name + "/*.root";
+    TString FilePath = "/eos/cms/store/group/phys_b2g/wprime/2017analyzetestmass/";
+    FilePath.Append(year_);
+    FilePath.Append("_");
+    FilePath.Append(dset.Name);
+    FilePath.Append("/*.root");
     tree = new TChain("t");
     tree->Add(FilePath);
     Iterator = it_;

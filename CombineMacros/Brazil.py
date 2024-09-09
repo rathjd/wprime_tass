@@ -8,7 +8,7 @@ year = "2017"
 
 cardName = "Combination"
 
-cardNameOptions = ["FitMass", "HT", "Combination"]
+cardNameOptions = ["FitMass", "HT", "Combination", "OptNewSlices"]
 
 #accept shell inputs
 try:
@@ -45,11 +45,12 @@ limitNumbers = []
 
 #macro to extract limits from combined card
 
-for mass in range(0,8):#FIXME: range(0,9):
+for mass in range(0,9):
     masses.append(float((3+mass)*100))
     massString = str((3+mass)*100)
     print("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
-    os.system("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
+    #FIXME: os.system("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
+    os.system("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_"+binS+"_"+year+"_M"+massString+".txt")
 
     infile = TFile("higgsCombineTest.AsymptoticLimits.mH"+massString+".root","READ")
 
@@ -65,31 +66,25 @@ TwoSigmaBand = array( 'd' )
 OneSigmaBand = array( 'd' )
 central = array( 'd' )
 massBand = array( 'd' )
-for x in range(0,8):#FIXME: range(0,9):
+for x in range(0,9):
     central.append(limitNumbers[x][2])
     OneSigmaBand.append(limitNumbers[x][1])
     TwoSigmaBand.append(limitNumbers[x][0])
     massBand.append(float((3+x)*100))
 
-for x in range(0,8):#FIXME: range(0,9):
-    #FIXME OneSigmaBand.append(limitNumbers[8-x][3])
-    #FIXME TwoSigmaBand.append(limitNumbers[8-x][4])
-    #FIXME massBand.append(float((11-x)*100))
-    OneSigmaBand.append(limitNumbers[7-x][3])
-    TwoSigmaBand.append(limitNumbers[7-x][4])
-    massBand.append(float((10-x)*100))
+for x in range(0,9):
+    OneSigmaBand.append(limitNumbers[8-x][3])
+    TwoSigmaBand.append(limitNumbers[8-x][4])
+    massBand.append(float((11-x)*100))
         
 print(central)
 print(OneSigmaBand)
 print(TwoSigmaBand)
 print(massBand)
 
-#FIXME: CentralGraph = TGraph(9, masses, central)
-#FIXME: OneSigmaGraph = TGraph(18, massBand, OneSigmaBand)
-#FIXME: TwoSigmaGraph = TGraph(18, massBand, TwoSigmaBand)
-CentralGraph = TGraph(8, masses, central)
-OneSigmaGraph = TGraph(16, massBand, OneSigmaBand)
-TwoSigmaGraph = TGraph(16, massBand, TwoSigmaBand)
+CentralGraph = TGraph(9, masses, central)
+OneSigmaGraph = TGraph(18, massBand, OneSigmaBand)
+TwoSigmaGraph = TGraph(18, massBand, TwoSigmaBand)
 
 canvas = TCanvas("CombinedLimit","",1000,1000)
 CentralGraph.SetLineColor(1)

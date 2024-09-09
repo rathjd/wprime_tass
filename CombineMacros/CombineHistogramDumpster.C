@@ -353,28 +353,69 @@ void CombineHistogramDumpster::Loop()
     RegionIdents[7] = (RegionIdentifier[7]/1000)*1000 + 100 + JetCounts[7]*10 + RegionIdentifier[7] % 10;
     RegionIdents[8] = (RegionIdentifier[8]/1000)*1000 + 100 + JetCounts[8]*10 + RegionIdentifier[8] % 10;*/
 
-    //variations of mass interpreation
+    //mass-interpretation-independent variables
+    //variation of selections
+    for(unsigned i = 0; i < 9; ++ i){
+      if(RegionIdentifier[i] != bin) continue;
+      const float CentralWeight = EventWeight[0]*SampleWeight*EventWeightObjectVariations[i];
+      if(Iterator == 2 && SFreg != 0){ //take care of all pT variations and their impact also on the ST values
+	const float STcorr = SFs[i].Eval(STvals[i]);
+	const float STcorrCentralWeight = CentralWeight * STcorr;
+	STrew[i]->Fill(STvals[i], STcorrCentralWeight);
+	if(i == 0){      
+	  const float statSFunc = CalculateCovError(STvals[0], SFcovs[0], jetMult);
+          const float STcorrStatUp = CentralWeight * (STcorr + statSFunc);
+          const float STcorrStatDown = STcorrCentralWeight * (STcorr - statSFunc);
+          STrew_STstatUp->Fill(STvals[0], STcorrStatUp);
+          STrew_STstatDown->Fill(STvals[0], STcorrStatDown);
+	}
+      }
+      ST[i]->Fill(STvals[i], CentralWeight);
+    }
+
+    //variation of systematic events weights
+    if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < variations.size(); ++i){
+      float EvWeight = 1.;
+      if(i < variations.size()-4) EvWeight = EventWeight[i-8];
+      else{
+        if(i == variations.size()-4)      EvWeight += LumiCorrVal;
+        else if(i == variations.size()-3) EvWeight -= LumiCorrVal;
+        else if(i == variations.size()-2) EvWeight += LumiStatVal;
+        else if(i == variations.size()-1) EvWeight -= LumiStatVal;
+        EvWeight *= EventWeight[0];
+      }
+      const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
+
+      if(Iterator == 2 && SFreg != 0){
+	const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]);
+	STrew[i]->Fill(STvals[0], CentralWeightSTcorr);	
+      }
+      else ST[i]->Fill(STvals[0], CentralWeight);
+    }
+
+    //mass-interpretation-dependent variables
+    //variations of mass interpretation
     for(unsigned m = 3; m < 12; ++m){
 
       float fillBranchZero = 0.;
-      if(m==3) fillBranchZero = Best_WPrimeMass_300->at(0);
-      else if(m==4) fillBranchZero  = Best_WPrimeMass_400->at(0);
-      else if(m==5) fillBranchZero  = Best_WPrimeMass_500->at(0);
-      else if(m==6) fillBranchZero  = Best_WPrimeMass_600->at(0);
-      else if(m==7) fillBranchZero  = Best_WPrimeMass_700->at(0);
-      else if(m==8) fillBranchZero  = Best_WPrimeMass_800->at(0);
-      else if(m==9) fillBranchZero  = Best_WPrimeMass_900->at(0);
+      if(m==3)       fillBranchZero  = Best_WPrimeMass_300->at(0);
+      else if(m==4)  fillBranchZero  = Best_WPrimeMass_400->at(0);
+      else if(m==5)  fillBranchZero  = Best_WPrimeMass_500->at(0);
+      else if(m==6)  fillBranchZero  = Best_WPrimeMass_600->at(0);
+      else if(m==7)  fillBranchZero  = Best_WPrimeMass_700->at(0);
+      else if(m==8)  fillBranchZero  = Best_WPrimeMass_800->at(0);
+      else if(m==9)  fillBranchZero  = Best_WPrimeMass_900->at(0);
       else if(m==10) fillBranchZero  = Best_WPrimeMass_1000->at(0);
       else if(m==11) fillBranchZero  = Best_WPrimeMass_1100->at(0);
 
       float NLLfillZero = 0.;
-      if(m==3) NLLfillZero = Best_Likelihood_300->at(0) >= 0 ? -log(Best_Likelihood_300->at(0)) : -1.;
-      else if(m==4) NLLfillZero = Best_Likelihood_400->at(0) >= 0 ? -log(Best_Likelihood_400->at(0)) : -1.;
-      else if(m==5) NLLfillZero = Best_Likelihood_500->at(0) >= 0 ? -log(Best_Likelihood_500->at(0)) : -1.;
-      else if(m==6) NLLfillZero = Best_Likelihood_600->at(0) >= 0 ? -log(Best_Likelihood_600->at(0)) : -1.;
-      else if(m==7) NLLfillZero = Best_Likelihood_700->at(0) >= 0 ? -log(Best_Likelihood_700->at(0)) : -1.;
-      else if(m==8) NLLfillZero = Best_Likelihood_800->at(0) >= 0 ? -log(Best_Likelihood_800->at(0)) : -1.;
-      else if(m==9) NLLfillZero = Best_Likelihood_900->at(0) >= 0 ? -log(Best_Likelihood_900->at(0)) : -1.;
+      if(m==3)       NLLfillZero = Best_Likelihood_300->at(0)  >= 0 ? -log(Best_Likelihood_300->at(0))  : -1.;
+      else if(m==4)  NLLfillZero = Best_Likelihood_400->at(0)  >= 0 ? -log(Best_Likelihood_400->at(0))  : -1.;
+      else if(m==5)  NLLfillZero = Best_Likelihood_500->at(0)  >= 0 ? -log(Best_Likelihood_500->at(0))  : -1.;
+      else if(m==6)  NLLfillZero = Best_Likelihood_600->at(0)  >= 0 ? -log(Best_Likelihood_600->at(0))  : -1.;
+      else if(m==7)  NLLfillZero = Best_Likelihood_700->at(0)  >= 0 ? -log(Best_Likelihood_700->at(0))  : -1.;
+      else if(m==8)  NLLfillZero = Best_Likelihood_800->at(0)  >= 0 ? -log(Best_Likelihood_800->at(0))  : -1.;
+      else if(m==9)  NLLfillZero = Best_Likelihood_900->at(0)  >= 0 ? -log(Best_Likelihood_900->at(0))  : -1.;
       else if(m==10) NLLfillZero = Best_Likelihood_1000->at(0) >= 0 ? -log(Best_Likelihood_1000->at(0)) : -1.;
       else if(m==11) NLLfillZero = Best_Likelihood_1100->at(0) >= 0 ? -log(Best_Likelihood_1100->at(0)) : -1.;
 
@@ -402,53 +443,55 @@ void CombineHistogramDumpster::Loop()
         //determine fill variable
         float fillVar = Vals[i];
         float fillBranch = 0.;
-	if(m==3) fillBranch = Best_WPrimeMass_300->at(i); 
-	else if(m==4) fillBranch = Best_WPrimeMass_400->at(i);
-	else if(m==5) fillBranch = Best_WPrimeMass_500->at(i);
-	else if(m==6) fillBranch = Best_WPrimeMass_600->at(i);
-	else if(m==7) fillBranch = Best_WPrimeMass_700->at(i);
-	else if(m==8) fillBranch = Best_WPrimeMass_800->at(i);
-	else if(m==9) fillBranch = Best_WPrimeMass_900->at(i);
+	if(m==3)       fillBranch = Best_WPrimeMass_300->at(i); 
+	else if(m==4)  fillBranch = Best_WPrimeMass_400->at(i);
+	else if(m==5)  fillBranch = Best_WPrimeMass_500->at(i);
+	else if(m==6)  fillBranch = Best_WPrimeMass_600->at(i);
+	else if(m==7)  fillBranch = Best_WPrimeMass_700->at(i);
+	else if(m==8)  fillBranch = Best_WPrimeMass_800->at(i);
+	else if(m==9)  fillBranch = Best_WPrimeMass_900->at(i);
 	else if(m==10) fillBranch = Best_WPrimeMass_1000->at(i);
 	else if(m==11) fillBranch = Best_WPrimeMass_1100->at(i);
 
 	float NLLfill = 0.;
-	if(m==3) NLLfill = Best_Likelihood_300->at(i) >= 0 ? -log(Best_Likelihood_300->at(i)) : -1.;
-	else if(m==4) NLLfill = Best_Likelihood_400->at(i) >= 0 ? -log(Best_Likelihood_400->at(i)) : -1.;
-	else if(m==5) NLLfill = Best_Likelihood_500->at(i) >= 0 ? -log(Best_Likelihood_500->at(i)) : -1.;
-	else if(m==6) NLLfill = Best_Likelihood_600->at(i) >= 0 ? -log(Best_Likelihood_600->at(i)) : -1.;
-	else if(m==7) NLLfill = Best_Likelihood_700->at(i) >= 0 ? -log(Best_Likelihood_700->at(i)) : -1.;
-	else if(m==8) NLLfill = Best_Likelihood_800->at(i) >= 0 ? -log(Best_Likelihood_800->at(i)) : -1.;
-	else if(m==9) NLLfill = Best_Likelihood_900->at(i) >= 0 ? -log(Best_Likelihood_900->at(i)) : -1.;
+	if(m==3)       NLLfill = Best_Likelihood_300->at(i)  >= 0 ? -log(Best_Likelihood_300->at(i))  : -1.;
+	else if(m==4)  NLLfill = Best_Likelihood_400->at(i)  >= 0 ? -log(Best_Likelihood_400->at(i))  : -1.;
+	else if(m==5)  NLLfill = Best_Likelihood_500->at(i)  >= 0 ? -log(Best_Likelihood_500->at(i))  : -1.;
+	else if(m==6)  NLLfill = Best_Likelihood_600->at(i)  >= 0 ? -log(Best_Likelihood_600->at(i))  : -1.;
+	else if(m==7)  NLLfill = Best_Likelihood_700->at(i)  >= 0 ? -log(Best_Likelihood_700->at(i))  : -1.;
+	else if(m==8)  NLLfill = Best_Likelihood_800->at(i)  >= 0 ? -log(Best_Likelihood_800->at(i))  : -1.;
+	else if(m==9)  NLLfill = Best_Likelihood_900->at(i)  >= 0 ? -log(Best_Likelihood_900->at(i))  : -1.;
 	else if(m==10) NLLfill = Best_Likelihood_1000->at(i) >= 0 ? -log(Best_Likelihood_1000->at(i)) : -1.;
 	else if(m==11) NLLfill = Best_Likelihood_1100->at(i) >= 0 ? -log(Best_Likelihood_1100->at(i)) : -1.;
 
 	float NLLnoBfill = 0.;
-	if(m==3) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_300->at(i)/Best_PbTag_300->at(i)) : -1.;
-	else if(m==4) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_400->at(i)/Best_PbTag_400->at(i)) : -1.;
-	else if(m==5) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_500->at(i)/Best_PbTag_500->at(i)) : -1.;
-	else if(m==6) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_600->at(i)/Best_PbTag_600->at(i)) : -1.;
-	else if(m==7) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_700->at(i)/Best_PbTag_700->at(i)) : -1.;
-	else if(m==8) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_800->at(i)/Best_PbTag_800->at(i)) : -1.;
-	else if(m==9) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_900->at(i)/Best_PbTag_900->at(i)) : -1.;
+	if(m==3)       NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_300->at(i)/Best_PbTag_300->at(i))   : -1.;
+	else if(m==4)  NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_400->at(i)/Best_PbTag_400->at(i))   : -1.;
+	else if(m==5)  NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_500->at(i)/Best_PbTag_500->at(i))   : -1.;
+	else if(m==6)  NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_600->at(i)/Best_PbTag_600->at(i))   : -1.;
+	else if(m==7)  NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_700->at(i)/Best_PbTag_700->at(i))   : -1.;
+	else if(m==8)  NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_800->at(i)/Best_PbTag_800->at(i))   : -1.;
+	else if(m==9)  NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_900->at(i)/Best_PbTag_900->at(i))   : -1.;
 	else if(m==10) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_1000->at(i)/Best_PbTag_1000->at(i)) : -1.;
 	else if(m==11) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_1100->at(i)/Best_PbTag_1100->at(i)) : -1.;
 
         string HistName;
         if(Iterator == 2 && SFreg != 0){ //take care of all pT variations and their impact also on the ST values
-	  const float STcorrCentralWeight = EventWeight[0]*SampleWeight*SFs[i].Eval(STvals[i])*EventWeightObjectVariations[i];
+          const float CentralWeight = EventWeight[0] * SampleWeight * EventWeightObjectVariations[i];
+	  const float STcorrCentralWeight = CentralWeight * SFs[i].Eval(STvals[i]);
 	  FitMass[m-3][i]->Fill(fillBranch, STcorrCentralWeight);
 	  HT[m-3][i]->Fill(fillVar, STcorrCentralWeight);
 
 	  FitMass_2D[m-3][i]->Fill(fillBranch, NLLfill, STcorrCentralWeight);
 	  HT_2D[m-3][i]->Fill(fillVar, NLLfill, STcorrCentralWeight);
 
-	  if(m==3) STrew[i]->Fill(STvals[i], STcorrCentralWeight);//only do this once for all masses
+	  //if(m==3) STrew[i]->Fill(STvals[i], STcorrCentralWeight);//only do this once for all masses
 
 	  if(i == 0){//make sure to scale ttbar and get stat. unc. of fit propagated
+            const float STcorr = SFs[i].Eval(STvals[i]);
 	    const float statSFunc = CalculateCovError(STvals[0], SFcovs[0], jetMult);
-	    const float STcorrStatUp = STcorrCentralWeight + statSFunc;
-	    const float STcorrStatDown = STcorrCentralWeight - statSFunc;
+	    const float STcorrStatUp = CentralWeight * (STcorr + statSFunc);
+	    const float STcorrStatDown = CentralWeight * (STcorr - statSFunc);
 	    FitMass_STstatUp[m-3]->Fill(fillBranch, STcorrStatUp);
             FitMass_STstatDown[m-3]->Fill(fillBranch, STcorrStatDown);
 	    HT_STstatUp[m-3]->Fill(fillVar, STcorrStatUp);
@@ -459,10 +502,10 @@ void CombineHistogramDumpster::Loop()
 	    HT_2D_STstatUp[m-3]->Fill(fillVar, NLLfillZero, STcorrStatUp);
 	    HT_2D_STstatDown[m-3]->Fill(fillVar, NLLfillZero, STcorrStatDown);
 
-	    if(m==3){//only do this once for all masses
+	    /*if(m==3){//only do this once for all masses
 	      STrew_STstatUp->Fill(STvals[0], STcorrStatUp);
               STrew_STstatDown->Fill(STvals[0], STcorrStatDown);
-	    }
+	    }*/
 
 	    NegLogLnoB[m-3]->Fill(NLLnoBfill, STcorrCentralWeight);
 	    NegLogLnoBvsNegLogL[m-3]->Fill(NLLnoBfillZero, NLLfillZero, STcorrCentralWeight);
@@ -481,7 +524,7 @@ void CombineHistogramDumpster::Loop()
             NegLogLnoBvsNegLogL[m-3]->Fill(NLLnoBfillZero, NLLfillZero, CentralWeight);
 	  }
         }
-        if(m==3) ST[i]->Fill(STvals[i], EventWeight[0]*SampleWeight); //only do this once for all masses
+        //if(m==3) ST[i]->Fill(STvals[i], EventWeight[0]*SampleWeight*EventWeightObjectVariations[i]); //only do this once for all masses
       }
 
       //Make sure to match default region for default objects with event weight variations
@@ -499,22 +542,22 @@ void CombineHistogramDumpster::Loop()
 	  float EvWeight = 1.;
 	  if(i < variations.size()-4) EvWeight = EventWeight[i-8];
 	  else{
-	    if(i == variations.size()-4) EvWeight += LumiCorrVal;
+	    if(i == variations.size()-4)      EvWeight += LumiCorrVal;
 	    else if(i == variations.size()-3) EvWeight -= LumiCorrVal;
 	    else if(i == variations.size()-2) EvWeight += LumiStatVal;
 	    else if(i == variations.size()-1) EvWeight -= LumiStatVal;
 	    EvWeight *= EventWeight[0];
 	  }
 
-	  const float CentralWeight = EvWeight*SampleWeight*EventWeightObjectVariations[0];
+	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
           if(Iterator == 2 && SFreg != 0){
-	    const float CentralWeightSTcorr = CentralWeight*SFs[i].Eval(STvals[0]);
+	    const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]);
 	    FitMass[m-3][i]->Fill(fillBranchZero, CentralWeightSTcorr);
 	    HT[m-3][i]->Fill(fillVar, CentralWeightSTcorr);
 
 	    FitMass_2D[m-3][i]->Fill(fillBranchZero, NLLfillZero, CentralWeightSTcorr);
 	    HT_2D[m-3][i]->Fill(fillVar, NLLfillZero, CentralWeightSTcorr);
-	    if(m==3) STrew[i]->Fill(STvals[0], CentralWeightSTcorr); //do this only once for all masses
+	    //if(m==3) STrew[i]->Fill(STvals[0], CentralWeightSTcorr); //do this only once for all masses
 	  }
           else{
 	    FitMass[m-3][i]->Fill(fillBranchZero, CentralWeight);
@@ -523,7 +566,7 @@ void CombineHistogramDumpster::Loop()
 	    FitMass_2D[m-3][i]->Fill(fillBranchZero, NLLfillZero, CentralWeight);
             HT_2D[m-3][i]->Fill(fillVar, NLLfillZero, CentralWeight);
 	  }
-	  if(m==3) ST[i]->Fill(STvals[0], CentralWeight); //only do this once for all masses
+	  //if(m==3) ST[i]->Fill(STvals[0], CentralWeight); //only do this once for all masses
         }
       }
     }

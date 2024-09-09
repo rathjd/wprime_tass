@@ -32,16 +32,27 @@ folder = "test"
 
 #best optimization so far
 if not compromise:
-    optimization = [[[18, 25],[1, 13], [6, 22]],
-                    [[1, 28], [1, 13], [7, 22]],
-                    [[6, 28], [1, 13], [3, 22]],
-                    [[17, 25],[1, 13], [3, 22]],
-                    [[8, 30], [1, 12], [3, 22]],
-                    [[9, 30], [7, 15], [6, 22]],
-                    [[7, 30], [6, 13], [6, 22]],
-                    [[7, 30], [5, 15], [6, 22]],
-                    [[7, 30], [5, 15], [1, 22]]]
+    #mass-independent all-year optimization result
+    #optimization = [[[18, 25],[1, 13], [6, 22]],
+    #                [[1, 28], [1, 13], [7, 22]],
+    #                [[6, 28], [1, 13], [3, 22]],
+    #                [[17, 25],[1, 13], [3, 22]],
+    #                [[8, 30], [1, 12], [3, 22]],
+    #                [[9, 30], [7, 15], [6, 22]],
+    #                [[7, 30], [6, 13], [6, 22]],
+    #                [[7, 30], [5, 15], [6, 22]],
+    #                [[7, 30], [5, 15], [1, 22]]]
     folder = "allYears_OptimizedSlices"
+    #mass-dependent 2017 only optimization result
+    optimization = [[[5, 19],  [1, 9],  [4, 13]],
+                    [[6, 26],  [9, 13], [6, 13]],
+                    [[12, 27], [5, 16], [4, 13]],
+                    [[5, 30],  [6, 21], [6, 14]],
+                    [[5, 29],  [7, 21], [15, 21]],
+                    [[14, 47], [3, 14], [13, 22]],
+                    [[6, 33],  [7, 17], [13, 22]],
+                    [[4, 28],  [10, 22], [7, 22]],
+                    [[4, 28],  [1, 17], [3, 22]]]
 else:
 #compromise version
     optimization = [[[7, 28], [5, 13], [6, 22]],
@@ -63,7 +74,7 @@ print(folder)
 
 os.chdir("CombinationAll")
 
-for mass in range(0,9):
+for mass in range(0,8):
     masses.append(float((3+mass)*100))
     massString = str((3+mass)*100)
     
@@ -133,13 +144,13 @@ TwoSigmaBand = array( 'd' )
 OneSigmaBand = array( 'd' )
 central = array( 'd' )
 massBand = array( 'd' )
-for x in range(0,9):
+for x in range(0,8):
     central.append(limitNumbers[x][2])
     OneSigmaBand.append(limitNumbers[x][1])
     TwoSigmaBand.append(limitNumbers[x][0])
     massBand.append(float((3+x)*100))
 
-for x in range(0,9):
+for x in range(0,8):
     OneSigmaBand.append(limitNumbers[8-x][3])
     TwoSigmaBand.append(limitNumbers[8-x][4])
     massBand.append(float((11-x)*100))

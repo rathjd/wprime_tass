@@ -146,8 +146,8 @@ for background in backgrounds:
     for bin in range(0,BgrPart1b.GetNbinsX()):
         Bgr1bSystUp[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
         Bgr1bSystDown[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
-        Bgr2bSystUp[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
-        Bgr2bSystDown[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
+        Bgr2bSystUp[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
+        Bgr2bSystDown[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
 
     #determine the uncertainties per bin
     for syst in baseSystematics:

@@ -108,7 +108,7 @@ public:
     AddDataset_NGTCXS("WW"                     ,"diboson"       , 1, 5 , 51650,  {1, 19976139, 39931603, 40272013}); // 16
     AddDataset_NGTCXS("ZZ"                     ,"diboson"       , 1, 5 , 12170,  {1, 1151000, 2706000, 3526000}); // 17
     AddDataset_NGTCXS("WZTo1L1Nu2Q"            ,"diboson"       , 1, 5 , 9119,   {1, 3690271, 7345742, 7395487}); // 18
-    AddDataset_NGTCXS("WZTo1L3Nu"              ,"diboson"       , 1, 5 , 3414,   {1, 2468727, 2481654, 2497292}); // 19
+    AddDataset_NGTCXS("WZTo1L3Nu"              ,"diboson"       , 1, 5 , 3414,   {1, 1229946, 2481654, 2497292}); // 19
     AddDataset_NGTCXS("WZTo2Q2L"               ,"diboson"       , 1, 5 , 6565,   {1, 13526954, 29091996, 28576996}); // 20
     AddDataset_NGTCXS("WZTo3LNu"               ,"diboson"       , 1, 5 , 4430,   {1, 20810003, 10339582, 38624209}); // 21
 
@@ -119,7 +119,7 @@ public:
     // Example command to get the sample size:
     // for i in 3 4 5 6 7 8 9 10 11; do dasgoclient -query="dataset=/btWprimeToBottomTop_LatterLeptonic_M-${i}00_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL16NanoAODAPVv9-106X_mcRun2_asymptotic_preVFP_v11-v1/NANOAODSIM | grep dataset.nevents"; done
     AddDataset_NGTCXS("FL300"                  ,"M300"            , 2, 4 , 683.8,  {542974, 451706, 989541, 973312}); // 22
-    AddDataset_NGTCXS("FL400"                  ,"M400"            , 2, 5 , 321.7,  {542917, 457628, 1009763, 1005777*9/10}); // 23 FIXME: In 2018 10% of jobs are missing
+    AddDataset_NGTCXS("FL400"                  ,"M400"            , 2, 5 , 321.7,  {542917, 457628, 1009763, 1005777}); // 23 
     AddDataset_NGTCXS("FL500"                  ,"M500"            , 2, 6 , 161.1,  {539889, 472634, 990910, 995846}); // 24
     AddDataset_NGTCXS("FL600"                  ,"M600"            , 2, 7 , 85.92,  {538626, 459533, 1002905, 1013268}); // 25
     AddDataset_NGTCXS("FL700"                  ,"M700"            , 2, 8 , 48.84,  {0, 458032, 993657, 1007434}); // 26

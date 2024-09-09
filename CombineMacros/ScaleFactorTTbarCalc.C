@@ -50,7 +50,7 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
     }
     else if(i==2){
       for(unsigned j = 0; j < variations.size(); ++j){
-	      //std::cout<<TString::Format("ST_"+gn+"_Wprime%d_%d_"+variations[j],bin,year)<<std::endl;
+	      std::cout<<TString::Format("ST_"+gn+"_Wprime%d_%d_"+variations[j],bin,year)<<std::endl;
 	      ttbarHists.push_back(*(TH1F*)(infile->Get(TString::Format("ST_"+gn+"_Wprime%d_%d_"+variations[j],bin,year)))->Clone(TString::Format("ttbar_%d",j)));
       }
       for(unsigned mass = 300; mass < 1200; mass+=100) ttbarHistNLL.push_back( *(TH1F*)(infile->Get(TString::Format("NegLogLnoB_ttbar_Wprime%d_%d_M%d_",bin,year,mass)))->Clone(TString::Format("ttbarNLL_M%d",mass)));
@@ -71,6 +71,7 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
     SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variations[i]));
     SFhists[i].Add(&NonTtbarHists[i],-1.);
     SFhists[i].Divide(&ttbarHists[i]);
+    std::cout<<SFhists[i].Integral()<<std::endl;
 
     //cleaning function
     for(unsigned x = 0; x < dataHist.GetNbinsX(); ++x){
@@ -96,7 +97,7 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
   TF1 *fitFunction;
   if(bin % 100 < 60) fitFunction = new TF1("fitFunction","[0]/x/x/x+[1]/x/x+[2]/x+[3]+[4]*x+[5]*x*x", 150., 2000.);
   else 		     fitFunction = new TF1("fitFunction","[0]/x+[1]+[2]*x+[3]*x*x", 150., 2000.);
-
+  std::cout<<"first fit point"<<std::endl;//FIXME
   //fit nominal variant with statistical uncertainties only, get covariance matrix, calculate statistical envelope
   TFitResultPtr fr = SFhists[0].Fit(fitFunction,"SRF");
   TMatrixD cov = fr->GetCovarianceMatrix();
@@ -118,6 +119,7 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
 
   //fit systematic variations
   for(unsigned i = 1; i < SFhists.size(); ++i){
+    std::cout<<"fit variation "<<i<<std::endl;//FIXME
     SFhists[i].Fit(fitFunction,"R");
     for(unsigned j = 0; j < SFhists[i].GetNbinsX(); ++j){
       SFs[i].SetBinContent(j+1, fitFunction->Eval(SFhists[i].GetBinCenter(j+1)));
