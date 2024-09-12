@@ -358,6 +358,7 @@ void CombineHistogramDumpster::Loop()
     for(unsigned i = 0; i < 9; ++ i){
       if(RegionIdentifier[i] != bin) continue;
       const float CentralWeight = EventWeight[0]*SampleWeight*EventWeightObjectVariations[i];
+      //std::cout<<i<<": "<<CentralWeight<<" = "<<EventWeight[0]<<" * "<<SampleWeight<<" * "<<EventWeightObjectVariations[i]<<std::endl;
       if(Iterator == 2 && SFreg != 0){ //take care of all pT variations and their impact also on the ST values
 	const float STcorr = SFs[i].Eval(STvals[i]);
 	const float STcorrCentralWeight = CentralWeight * STcorr;

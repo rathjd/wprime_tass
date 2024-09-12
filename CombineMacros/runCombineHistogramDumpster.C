@@ -12,7 +12,10 @@ void runCombineHistogramDumpster(int bin = 1153, int year = 2018){
   int binMajor = 0;
   binMajor += (bin / 1000) * 1000 + 100 + ((bin % 100) / 10) * 10; //set muon or electron and primary selection region, as well as jet multiplicity
 
-  std::cout<<"binMajor = "<<binMajor<<" in year "<<year<<std::endl;
+  int jetMultiplicity = 0;
+  jetMultiplicity += (bin / 10) % 10;
+
+  std::cout<<"binMajor = "<<binMajor<<" in year "<<year<<" with jet multiplicity "<<jetMultiplicity<<std::endl;
 
   //determine years to be run
   vector<TString> years;
@@ -49,7 +52,9 @@ void runCombineHistogramDumpster(int bin = 1153, int year = 2018){
     else if(bin/2000 == 1 && i == 1) continue;
       CombineHistogramDumpster D(0, i, binMajor+3, years[y], binMajor+2);
       D.Loop();
-      CombineHistogramDumpster E(0, i, binMajor+4, years[y], binMajor+2);
-      E.Loop();
+      if(jetMultiplicity != 5){
+        CombineHistogramDumpster E(0, i, binMajor+4, years[y], binMajor+2);
+        E.Loop();
+      }
   }
 }
