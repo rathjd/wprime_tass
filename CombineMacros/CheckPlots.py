@@ -81,16 +81,22 @@ SRsystematics = ["electronScale"+yearName,
 
 #input files
 binS = str(LeptonFlav)+"1"+str(JetMult)
-
+print("assembling results for",binS,"in year",year)
 inOrigin = TFile(binS+"1_"+str(year)+"/SimpleShapes_Wprime"+binS+"1_"+str(year)+".root","READ")
+print("origin of correction",binS+"1_"+str(year)+"/SimpleShapes_Wprime"+binS+"1_"+str(year)+".root")
 inSF     = TFile(binS+"2_"+str(year)+"/SF_Bin"+binS+"1_"+str(year)+".root","READ")
+print("SF file of origin",binS+"2_"+str(year)+"/SF_Bin"+binS+"1_"+str(year)+".root")
 inSF2    = TFile(binS+"3_"+str(year)+"/SF_Bin"+binS+"2_"+str(year)+".root","READ")
+print("SF file of target region",binS+"3_"+str(year)+"/SF_Bin"+binS+"2_"+str(year)+".root")
 inResult = TFile(binS+"2_"+str(year)+"/SimpleShapes_Wprime"+binS+"2_"+str(year)+".root","READ")
+print("result file of validation region",binS+"2_"+str(year)+"/SimpleShapes_Wprime"+binS+"2_"+str(year)+".root")
 
 #extract data histograms
 Data1b = inOrigin.Get("ST_data_obs_Wprime"+binS+"1_"+str(year)+"_")
+print("1b data","ST_data_obs_Wprime"+binS+"1_"+str(year)+"_")
 Data1b.Scale(1.,"width")
 Data2b = inResult.Get("ST_data_obs_Wprime"+binS+"2_"+str(year)+"_")
+print("2b data","ST_data_obs_Wprime"+binS+"2_"+str(year)+"_")
 Data2b.Scale(1.,"width")
 Fit1b = inSF.Get("SF_")
 
@@ -98,7 +104,6 @@ Fit1b = inSF.Get("SF_")
 Stack1b    = THStack("Stack_"+binS+"1_"+str(year),"")
 Stack2b    = THStack("Stack_"+binS+"2_"+str(year),"")
 Stack2braw = THStack("Stackraw_"+binS+"2_"+str(year),"")
-StackNLLres= THStack("StackNLL_"+binS+"2_"+str(year),"")
 
 #configure legends
 leg1b    = CMS.cmsLeg(0.51,0.89-0.05*6, 0.8, 0.89, textSize=0.05)
@@ -132,6 +137,7 @@ elif LeptonFlav == 2:
 
 #determine number of bins
 BinOrigin = inOrigin.Get("ST_ttbar_Wprime"+binS+"1_"+str(year)+"_")
+print("bin origin","ST_ttbar_Wprime"+binS+"1_"+str(year)+"_")
 
 #fill background dictionaries
 Bgr1b = {}
@@ -147,26 +153,32 @@ NLLresList = []
 
 for background in backgrounds:
     BgrPart1b = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+str(year)+"_")
+    print("Background part for 1b","ST_"+background[0]+"_Wprime"+binS+"1_"+str(year)+"_")
     BgrPart1b.Scale(1.,"width")
     Bgr1b[background[0]] = BgrPart1b
 
     BgrPart2braw = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
+    print("Background part for 2b raw","ST_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
     BgrPart2braw.Scale(1.,"width")
     Bgr2braw[background[0]] = BgrPart2braw
 
     
     if background[1]==2:
         BgrPart2b = inResult.Get("STrew_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
+        print("Background part for 2b reweighted","STrew_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
         BgrPart2b.Scale(1.,"width")
         BgrTotal1b    = BgrPart1b.Clone("BgrTotal1b")
         BgrTotal2b    = BgrPart2b.Clone("BgrTotal2b")
         BgrTotal2braw = BgrPart2braw.Clone("BgrTotal2braw")
     else:
         BgrPart2b = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
+        print("Background part for 2b reweighted","ST_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
         BgrPart2b.Scale(1.,"width")
         BgrTotal1b.Add(BgrPart1b)
         BgrTotal2b.Add(BgrPart2b)
         BgrTotal2braw.Add(BgrPart2braw)
+
+    print(BgrTotal2b.Integral())
 
     Bgr2b[background[0]] = BgrPart2b
 
@@ -347,12 +359,19 @@ grErr2b.Draw("F, same")
 CMS.cmsDraw(Data2b, "P", mcolor=1)
 leg2b.Draw()
 
+print("further checks for reweighted 2b region")
+print("max Stack =",Stack2b.GetMaximum())
+print("max Total =",BgrTotal2b.GetMaximum())
+
 CMS.fixOverlay()
 
 canv2b.cd(2)
 
 Ratio2b = Data2b.Clone("Ratio2b")
 Ratio2b.Divide(BgrTotal2b)
+
+for bins in range(0, BgrTotal2b.GetNbinsX()+1):
+    print(bins,Data2b.GetBinContent(bins+1),BgrTotal2b.GetBinContent(bins+1),Ratio2b.GetBinContent(bins+1))
 
 grErr2bR = TGraph(len(Err2bX), Err2bX, Err2bR)
 grErr2bR.SetFillColor(17)
