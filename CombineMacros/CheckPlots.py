@@ -154,33 +154,30 @@ NLLresList = []
 for background in backgrounds:
     BgrPart1b = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+str(year)+"_")
     print("Background part for 1b","ST_"+background[0]+"_Wprime"+binS+"1_"+str(year)+"_")
-    BgrPart1b.Scale(1.,"width")
-    Bgr1b[background[0]] = BgrPart1b
 
     BgrPart2braw = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
     print("Background part for 2b raw","ST_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
-    BgrPart2braw.Scale(1.,"width")
-    Bgr2braw[background[0]] = BgrPart2braw
-
     
     if background[1]==2:
         BgrPart2b = inResult.Get("STrew_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
         print("Background part for 2b reweighted","STrew_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
-        BgrPart2b.Scale(1.,"width")
         BgrTotal1b    = BgrPart1b.Clone("BgrTotal1b")
         BgrTotal2b    = BgrPart2b.Clone("BgrTotal2b")
         BgrTotal2braw = BgrPart2braw.Clone("BgrTotal2braw")
     else:
         BgrPart2b = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
         print("Background part for 2b reweighted","ST_"+background[0]+"_Wprime"+binS+"2_"+str(year)+"_")
-        BgrPart2b.Scale(1.,"width")
         BgrTotal1b.Add(BgrPart1b)
         BgrTotal2b.Add(BgrPart2b)
         BgrTotal2braw.Add(BgrPart2braw)
 
-    print(BgrTotal2b.Integral())
+    BgrPart1b.Scale(1.,"width")
+    BgrPart2b.Scale(1.,"width")
+    BgrPart2braw.Scale(1.,"width")
 
+    Bgr1b[background[0]] = BgrPart1b
     Bgr2b[background[0]] = BgrPart2b
+    Bgr2braw[background[0]] = BgrPart2braw
 
     #statistical uncertainty of a background per bin
     for bin in range(0,BgrPart1b.GetNbinsX()):
@@ -244,6 +241,11 @@ for background in backgrounds:
 #            Bgr1bSystDown[bin] += pow(min(Up2b.GetBinContent(bin+1) - Nom2b.GetBinContent(bin+1),
 #                                    Down2b.GetBinContent(bin+1) - Nom2b.GetBinContent(bin+1),
 #                                    0.), 2)
+
+#scale all totals
+BgrTotal1b.Scale(1.,"width")
+BgrTotal2b.Scale(1.,"width")
+BgrTotal2braw.Scale(1.,"width")
 
 #fill NLL variations by mass
 for mass in range(3,12):
@@ -346,6 +348,9 @@ CMS.cmsDrawLine(ref_line, lcolor=1, lstyle=3)
 CMS.SaveCanvas(canv1b, "ST_Wprime"+binS+"1_"+str(year)+".pdf")
 
 #make reweighted 2 b-tag region plot
+Ratio2b = Data2b.Clone("Ratio2b")
+Ratio2b.Divide(BgrTotal2b)
+
 STmax2b = max(Data2b.GetMaximum(), BgrTotal2b.GetMaximum())*1.1
 canv2b = CMS.cmsDiCanvas("STSFrew_"+binS+"_"+str(year)+"_2b",STstart,STend,0,STmax2b,0.5,1.5,"S_{T} [GeV/c]", "Events/bin width", "Data/Pred.", square=CMS.kSquare, extraSpace=0.1, iPos=0)
 canv2b.cd(1)
@@ -359,19 +364,17 @@ grErr2b.Draw("F, same")
 CMS.cmsDraw(Data2b, "P", mcolor=1)
 leg2b.Draw()
 
-print("further checks for reweighted 2b region")
-print("max Stack =",Stack2b.GetMaximum())
-print("max Total =",BgrTotal2b.GetMaximum())
+#print("further checks for reweighted 2b region")
+#print("max Stack =",Stack2b.GetMaximum())
+#print("max Total =",BgrTotal2b.GetMaximum())
 
 CMS.fixOverlay()
 
 canv2b.cd(2)
 
-Ratio2b = Data2b.Clone("Ratio2b")
-Ratio2b.Divide(BgrTotal2b)
-
-for bins in range(0, BgrTotal2b.GetNbinsX()+1):
-    print(bins,Data2b.GetBinContent(bins+1),BgrTotal2b.GetBinContent(bins+1),Ratio2b.GetBinContent(bins+1))
+#for bins in range(0, BgrTotal2b.GetNbinsX()+1):
+#    print("content",bins,Data2b.GetBinContent(bins+1),BgrTotal2b.GetBinContent(bins+1),Ratio2b.GetBinContent(bins+1))
+#    print("width",bins,BgrTotal2b.GetBinWidth(bins+1),Data2b.GetBinWidth(bins+1))
 
 grErr2bR = TGraph(len(Err2bX), Err2bX, Err2bR)
 grErr2bR.SetFillColor(17)
