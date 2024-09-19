@@ -270,7 +270,7 @@ void CombineHistogramDumpster::Loop()
     //blind data in SRs
     if(Iterator < 2 && bin % 10 >= 3) continue;
 
-    //float Vals[9] = {LeptonPt, LeptonPt_SU, LeptonPt_SD, LeptonPt_RU, LeptonPt_RD, LeptonPt, LeptonPt, LeptonPt, LeptonPt}; //Lepton pT
+    float LeptonPtVars[9] = {LeptonPt, LeptonPt_SU, LeptonPt_SD, LeptonPt_RU, LeptonPt_RD, LeptonPt, LeptonPt, LeptonPt, LeptonPt}; //Lepton pT
     //int n = 4;
     //float Vals[9] = {JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt_SU->at(n), JetPt_SD->at(n), JetPt_RU->at(n), JetPt_RD->at(n)}; //Jet pT
     //float Vals[9] = {METPt, METPt, METPt, METPt, METPt, METPt_SU, METPt_SD, METPt_RU, METPt_RD};
@@ -357,6 +357,11 @@ void CombineHistogramDumpster::Loop()
     //variation of selections
     for(unsigned i = 0; i < 9; ++ i){
       if(RegionIdentifier[i] != bin) continue;
+      //additional 2017 lepton pT cut
+      if(year == 2017){
+        if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
+	if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
+      }
       const float CentralWeight = EventWeight[0]*SampleWeight*EventWeightObjectVariations[i];
       //std::cout<<i<<": "<<CentralWeight<<" = "<<EventWeight[0]<<" * "<<SampleWeight<<" * "<<EventWeightObjectVariations[i]<<std::endl;
       if(Iterator == 2 && SFreg != 0){ //take care of all pT variations and their impact also on the ST values
@@ -376,6 +381,11 @@ void CombineHistogramDumpster::Loop()
 
     //variation of systematic events weights
     if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < variations.size(); ++i){
+    //additional 2017 lepton pT cut
+      if(year == 2017){
+        if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
+        if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
+      }
       float EvWeight = 1.;
       if(i < variations.size()-4) EvWeight = EventWeight[i-8];
       else{
@@ -434,6 +444,12 @@ void CombineHistogramDumpster::Loop()
       //variations of selections
       for(unsigned i = 0; i < 9; ++ i){
         if(RegionIdentifier[i] != bin) continue;
+	//additional 2017 lepton pT cut
+        if(year == 2017){
+          if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
+          if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
+        }
+
         //FIXME: Additional Lepton cuts
         /*if(i != 1 && i != 2 && i != 3 && i != 4 && LeptonPt < 40.) continue;
         else if(i == 1 && LeptonPt_SU < 40.) continue;
@@ -530,6 +546,12 @@ void CombineHistogramDumpster::Loop()
 
       //Make sure to match default region for default objects with event weight variations
       if(RegionIdentifier[0] == bin){
+	//additional 2017 lepton pT cut
+        if(year == 2017){
+          if(RegionIdentifier[0]/1000 == 1 && LeptonPtVars[0] < 30.) continue;
+          if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 40.) continue;
+        }
+
         //EventWeight variations
         for(unsigned i = 9; i < variations.size(); ++i){//last four variations are luminosity
 	  //FIXME: Additional lepton cut
