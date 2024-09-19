@@ -1,14 +1,15 @@
 executable   = SubmitSplit1164_2018.sh
+arguments    = $(ProcID)
 max_retries  = 1
 batch_name   = SplitScan1164_2018
-output       = SplitScan2018_1164.out
-error        = SplitScan2018_1164.err
-log          = SplitScan2018_1164.log
+output       = SplitScan2018_1164_$(ProcID).out
+error        = SplitScan2018_1164_$(ProcID).err
+log          = SplitScan2018_1164_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
 +JobFlavour  = "testmatch"
 RequestCpus  = 2
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
-queue 1
+queue 9
 
