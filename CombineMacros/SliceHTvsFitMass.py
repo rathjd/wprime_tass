@@ -187,6 +187,8 @@ for FitLine in FitLines:
               newStartPos = FitLine[startPos:].find(val)+len(val)+1+startPos
               currentPos = FitLine[startPos:].find(val)+startPos
               newString = str(NLLvals[bgrIt][1])
+              if float(newString) < 0: #except negative values, defaulting this to no uncertainty
+                  newString = "-"
               if len(newString) > 4:
                   newString = newString[0:4]
               while len(newString) < len(val):
@@ -243,6 +245,8 @@ for HTline in HTlines:
               newStartPos = HTline[startPos:].find(val)+len(val)+1+startPos
               currentPos = HTline[startPos:].find(val)+startPos
               newString = str(NLLvals[bgrIt][2])
+              if float(newString) < 0: #except negative values, defaulting this to no uncertainty
+                  newString = "-"
               if len(newString) > 4:
                   newString = newString[0:4]
               while len(newString) < len(val):
