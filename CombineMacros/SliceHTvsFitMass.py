@@ -1,6 +1,12 @@
 import os,sys
 
-from ROOT import TH2F, TFile, gDirectory
+from ROOT import TH1F, TH2F, TFile, gDirectory
+
+def SuppressNegBins(hist):
+    for x in range(0,hist.GetNbinsX()+2):
+        if hist.GetBinContent(x) < 0.:
+            hist.SetBinContent(x, 0.)
+    return hist
 
 #macro to splice a bin between fitted mass and HT along -log(likelihood) values
 
@@ -86,6 +92,7 @@ for content in FileContent:
       keyname = keyname.replace("Wprime"+binNr,"WprimeHT"+binNr)
       ProjHT = HT.ProjectionX(keyname, binSplit+1, binEnd)
       outFileHT.cd()
+      ProjHT = SuppressNegBins(ProjHT)
       ProjHT.Write()
       for bgr in NLLvals: #check for empty variations
           if content.find(bgr[0]) > -1:
@@ -96,6 +103,7 @@ for content in FileContent:
       keyname = keyname.replace("Wprime"+binNr,"WprimeFit"+binNr)
       ProjFit = Fit.ProjectionX(keyname, 0, binSplit)
       outFileFit.cd()
+      ProjFit = SuppressNegBins(ProjFit)
       ProjFit.Write()
       for bgr in NLLvals: #check for empty variations
           if content.find(bgr[0]) > -1:
@@ -106,6 +114,7 @@ for content in FileContent:
       keyname = keyname.replace("Wprime"+binNr,"WprimeHT"+binNr)
       ProjHT = HT.ProjectionX(keyname, binSplit+1, binEnd)
       outFileHT.cd()
+      ProjHT = SuppressNegBins(ProjHT)
       ProjHT.Write()
   elif content.find("FitMass_data_obs_") > -1:
       Fit = inFile.Get(content)
@@ -113,6 +122,7 @@ for content in FileContent:
       keyname = keyname.replace("Wprime"+binNr,"WprimeFit"+binNr)
       ProjFit = Fit.ProjectionX(keyname, 0, binSplit)
       outFileFit.cd()
+      ProjFit = SuppressNegBins(ProjFit)
       ProjFit.Write()
   elif content.find("NegLogLnoBvsNegLogL_") > -1: #calculate the NLL nonclosure uncertainty by cutting on -log(L), getting the corresponding -log(L)!b values, then multiply with the residuals
       NLL = inFile.Get(content)
