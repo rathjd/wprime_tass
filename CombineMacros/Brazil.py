@@ -176,12 +176,14 @@ OneSigmaGraph.Draw("F,same")
 CentralGraph.Draw("L,same")
 TheoryGraph.Draw("L,same")
 
-legend = CMS.cmsLeg(0.60, 0.89-0.04*5, 0.89, 0.89, textSize=0.04)
+legend = CMS.cmsLeg(0.60, 0.89-0.04*4, 0.89, 0.89, textSize=0.04)
 legend.SetHeader("95% CL upper limits")
 legend.AddEntry(CentralGraph, "Median expected", "l")
 legend.AddEntry(OneSigmaGraph, "68% expected", "f")
 legend.AddEntry(TwoSigmaGraph, "95% expected", "f")
-legend.AddEntry(TheoryGraph, "#Gamma_{W'}=10% theory", "l")
+
+legend2 = CMS.cmsLeg(0.6, 0.89-0.04*6, 0.89, 0.89-0.04*5, textSize=0.04)
+legend2.AddEntry(TheoryGraph, "#Gamma_{W'}=10% theory", "l")
 
 #draw manually channel description
 latex = TLatex()
@@ -190,7 +192,7 @@ latex.SetTextAngle(0)
 latex.SetTextColor(kBlack)
 latex.SetTextFont(42)
 latex.SetTextAlign(11)
-latex.SetTextSize(0.75*0.76*0.05*1.2)
+latex.SetTextSize(0.04)#0.75*0.76*0.05*1.2)
 additionalInfo = [Extract, Lepton+Jets+Bjets, YearS]
 for ind, tt in enumerate(additionalInfo):
     print(tt)
@@ -202,6 +204,7 @@ for ind, tt in enumerate(additionalInfo):
 
 
 legend.Draw()
+legend2.Draw()
 
 canvas.Update()
 
