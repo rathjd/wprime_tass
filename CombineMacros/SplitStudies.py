@@ -101,6 +101,52 @@ for binSplit in range(1, maxNLL):
 
         #run the limit on the combination
         skip = False
+
+        #check for empty bins
+        if binNr[0]=="1":
+            FitRm = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            BgrMfit = FitRm.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
+            SigMfit = FitRm.Get("HT_M"+massString+"_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
+
+            HTRm = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            BgrMHT = HTRm.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
+            SigMHT = HTRm.Get("HT_M"+massString+"_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
+
+            for binN in range(0, BgrMfit.GetNbinsX()):
+                if BgrMfit.GetBinContent(binN+1) <= 0 and SigMfit.GetBinContent(binN+1) > 0:
+                    skip = True
+                    print("fit slice had empty background bin",binN+1)
+            if skip:
+                break #skip this entire row of scans, as the fit slice size doesn't change and will be empty
+
+            for binN in range(0, BgrMHT.GetNbinsX()):
+                if BgrMHT.GetBinContent(binN+1) <= 0 and SigMHT.GetBinContent(binN+1) > 0:
+                    skip = True
+                    print("HT slice had empty background bin",binN+1)
+        elif binNr[0]=="2":
+            FitRe = TFile("../CombinationAll/FitSlices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            BgrEfit = FitRe.Get("Fit_ttbar_WprimeFit"+binNr+"_"+year+"_M"+massString+"_")
+            SigEfit = FitRe.Get("Fit_M"+massString+"_WprimeFit"+binNr+"_"+year+"_M"+massString+"_")
+
+            HTRe = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            BgrEHT = HTRe.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
+            SigEHT = HTRe.Get("HT_M"+massString+"_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
+
+            for binN in range(0, BgrEfit.GetNbinsX()):
+                if BgrEfit.GetBinContent(binN+1) <= 0 and SigEfit.GetBinContent(binN+1) > 0:
+                    skip = True
+                    print("fit slice had empty background bin",binN+1)
+            if skip:
+                break #skip this entire row of scans, as the fit slice size doesn't change and will be empty
+
+            for binN in range(0, BgrEHT.GetNbinsX()):
+                if BgrEHT.GetBinContent(binN+1) <= 0 and SigEHT.GetBinContent(binN+1) > 0:
+                    skip = True
+                    print("HT slice had empty background bin",binN+1)
+
+        if skip:
+            continue
+
         try:
             os.system("combine -M AsymptoticLimits -m "+massString+" ../CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+"_M"+massString+".txt")
         except:
@@ -136,6 +182,7 @@ savefile.cd()
 CombHist.Write()
 
 #make a TGraph that shows the space of uncertainties and limits that is covered
+print(len(expLimits),expLimits,LimitUncAve)
 Graph = TGraph(len(expLimits), expLimits, LimitUncAve)
 canvas = TCanvas("LimitGraph_"+massString,year+" "+ binNr+" m(W')="+massString,1000,1000)
 Graph.SetMarkerStyle(47)

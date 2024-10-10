@@ -317,6 +317,10 @@ for yearName in Years:
                 ErrFitR.append(BgrTotalFit.GetBinContent(binN+1) and BgrFitSystUp[binN] / BgrTotalFit.GetBinContent(binN+1)+1. or 0.)
                 ErrSigFitY.append(SigFitSystUp[binN] + SigFit.GetBinContent(binN+1))
 
+                #test for empty bins in signal region
+                if BgrTotalFit.GetBinContent(binN+1)<=0 and SigFit.GetBinContent(binN+1) > 0:
+                    print("Warning!!! Empty bin", binN, "found for mFit in",identifier)
+
             for binN in range(FitBins-1, -2, -1): #lower band
                 ErrFitX.append(BgrTotalFit.GetBinLowEdge(binN+2))
                 ErrFitY.append(-BgrFitSystDown[binN] + BgrTotalFit.GetBinContent(binN+1))
@@ -338,6 +342,10 @@ for yearName in Years:
                 ErrHTY.append(BgrHTsystUp[binN] + BgrTotalHT.GetBinContent(binN+1))
                 ErrHTR.append(BgrTotalHT.GetBinContent(binN+1) and BgrHTsystUp[binN] / BgrTotalHT.GetBinContent(binN+1)+1. or 0.)
                 ErrSigHTY.append(SigHTsystUp[binN] + SigHT.GetBinContent(binN+1))
+
+                #test for empty bins in signal region
+                if BgrTotalHT.GetBinContent(binN+1)<=0 and SigHT.GetBinContent(binN+1) > 0:
+                    print("Warning!!! Empty bin", binN, "found for HT in",identifier)
 
             for binN in range(HTbins-1, -2, -1): #lower band
                 ErrHTX.append(BgrTotalHT.GetBinLowEdge(binN+2))
