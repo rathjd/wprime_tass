@@ -104,9 +104,9 @@ for binSplit in range(1, maxNLL):
 
         #check for empty bins
         if binNr[0]=="1":
-            FitRm = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
-            BgrMfit = FitRm.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
-            SigMfit = FitRm.Get("HT_M"+massString+"_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
+            FitRm = TFile("../CombinationAll/FitSlices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            BgrMfit = FitRm.Get("Fit_ttbar_WprimeFit"+binNr+"_"+year+"_M"+massString+"_")
+            SigMfit = FitRm.Get("Fit_M"+massString+"_WprimeFit"+binNr+"_"+year+"_M"+massString+"_")
 
             HTRm = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
             BgrMHT = HTRm.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
