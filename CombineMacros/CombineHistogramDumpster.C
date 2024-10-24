@@ -119,21 +119,23 @@ void CombineHistogramDumpster::Loop()
 	  "CMS_res_e_"  		  +YearS+"Up", 	"CMS_res_e_"  			+YearS+"Down", 	//3-4:   electron energy resolution pT variation
 	  "CMS_scale_j_"		  +YearS+"Up", 	"CMS_scale_j_"			+YearS+"Down", 	//5-6:   jet energy scale pT variation 
 	  "CMS_res_j_"  		  +YearS+"Up", 	"CMS_res_j_"  			+YearS+"Down", 	//7-8:   jet energy resolution pT variation
-	  "CMS_eff_e_trigger_"		  +YearS+"Up",  "CMS_eff_e_trigger_"		+YearS+"Down",	//?-?:	 FIXME: electron trigger efficiency variation, including HLT Zvtx for 2017
-	  "CMS_eff_e_reco_"		  +YearS+"Up",	"CMS_eff_e_reco_"		+YearS+"Down",  //?-?:	 FIXME: electron reconstruction efficiency variation
-	  "CMS_eff_e_"  		  +YearS+"Up",	"CMS_eff_e_"  			+YearS+"Down",	//9-10:  electron ID (including ISO) variation
-	  "CMS_eff_m_trigger_"		  +YearS+"Up",	"CMS_eff_m_trigger_"		+YearS+"Down",	//11-12: muon trigger efficiency variation
-	  "CMS_eff_m_id_"		  +YearS+"Up",	"CMS_eff_m_id_"			+YearS+"Down",  //13-14: muon ID efficiency variation
-	  "CMS_eff_m_iso_"		  +YearS+"Up",	"CMS_eff_m_iso_"		+YearS+"Down",	//15-16: muon ISO efficiency variation
-	  "CMS_btag_comb"		        +"Up",	"CMS_btag_comb"			      +"Down",	//17-18: correlated component of b-tagging efficiency combined across all flavours
-	  "CMS_eff_b_"			  +YearS+"Up",	"CMS_eff_b_"			+YearS+"Down",  //19-20: uncorrelated component across years of b-tagging efficiency combined across all flavours
-	  "CMS_eff_j_PUJET_id_" 	  +YearS+"Up",	"CMS_eff_j_PUJET_id_"   	+YearS+"Down",  //21-22: uncertaintiy of PU jet ID efficiency
-	  "CMS_l1_ecal_prefiring_"	  +YearS+"Up",	"CMS_l1_ecal_prefiring_"	+YearS+"Down",  //23-24: L1 ECAL prefiring issue in 2016 and 2017 only
-	  "CMS_pileup"			        +"Up",	"CMS_pileup"		              +"Down",	//25-26: CMS pileup reweighting uncertainty, correlated for Run2
-	  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",	"pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //27-28: Envelope of largest variations of 100 PDF variations
-	  "QCDscale_"+sampleType	        +"Up",	"QCDscale_"+sampleType                +"Down",	//29-30: ISR/FSR uncertainties
-	  "lumi_13TeV_correlated"               +"Up",	"lumi_13TeV_correlated"               +"Down",  //31-32: correlated luminosity variation for 13 TeV
-	  "lumi_"			  +YearS+"Up",	"lumi_"				+YearS+"Down"	//33-34: uncorrelated luminosity variation by year
+	  "CMS_eff_e_trigger_"		  +YearS+"Up",  "CMS_eff_e_trigger_"		+YearS+"Down",	//9-10:	 electron trigger efficiency variation, including HLT Zvtx for 2017
+	  "CMS_eff_e_reco_"		  +YearS+"Up",	"CMS_eff_e_reco_"		+YearS+"Down",  //11-12: electron reconstruction efficiency variation
+	  "CMS_eff_e_"  		  +YearS+"Up",	"CMS_eff_e_"  			+YearS+"Down",	//13-14:  electron ID (including ISO) variation
+	  "CMS_eff_m_trigger_"		  +YearS+"Up",	"CMS_eff_m_trigger_"		+YearS+"Down",	//15-16: muon trigger efficiency variation
+	  "CMS_eff_m_id_"		  +YearS+"Up",	"CMS_eff_m_id_"			+YearS+"Down",  //17-18: muon ID efficiency variation
+	  "CMS_eff_m_iso_"		  +YearS+"Up",	"CMS_eff_m_iso_"		+YearS+"Down",	//19-20: muon ISO efficiency variation
+	  "CMS_btag_light"                      +"Up",  "CMS_btag_light"                      +"Down",  //21-22: correlated component of b-tagging efficiency
+	  "CMS_btag_heavy"		        +"Up",	"CMS_btag_heavy"		      +"Down",	//23-24: correlated component of b-tagging efficiency
+          "CMS_btag_light_"               +YearS+"Up",  "CMS_btag_light_"               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency
+          "CMS_btag_heavy_"               +YearS+"Up",  "CMS_btag_heavy_"               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency
+	  "CMS_eff_j_PUJET_id_" 	  +YearS+"Up",	"CMS_eff_j_PUJET_id_"   	+YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
+	  "CMS_l1_ecal_prefiring_"	  +YearS+"Up",	"CMS_l1_ecal_prefiring_"	+YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
+	  "CMS_pileup"			        +"Up",	"CMS_pileup"		              +"Down",	//33-34: CMS pileup reweighting uncertainty, correlated for Run2
+	  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",	"pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
+	  "QCDscale_"+sampleType	        +"Up",	"QCDscale_"+sampleType                +"Down",	//37-38: ISR/FSR uncertainties
+	  "lumi_13TeV_correlated"               +"Up",	"lumi_13TeV_correlated"               +"Down",  //39-40: correlated luminosity variation for 13 TeV
+	  "lumi_"			  +YearS+"Up",	"lumi_"				+YearS+"Down"	//41-42: uncorrelated luminosity variation by year
   };
 
 

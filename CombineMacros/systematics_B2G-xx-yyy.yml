@@ -6,14 +6,12 @@ CMS_B2Gxxyyy_STfit_(2016|2017|2018)_(mu5j2b|mu6j2b|e5j2b|e6j2b):
   class: custom
   description: fit shape uncertainty of STMET-correction to ttbar shape from 2b-tagged
     regions
-CMS_btag_comb:
+CMS_btag_(heavy|light):
   class: btag
-  description: combined uncertainty on b-tagging scale factors for both light and
-    heavy flavour jets.
-CMS_eff_b_(2016|2017|2018):
+  description: correlated component across years of uncertainty on b-tagging scale factors for light and heavy flavour jets.
+CMS_btag_(heavy|light)_(2016|2017|2018):
   class: btag
-  description: uncorrelated year-by-year uncertainties on b-tagging scale factors
-    for both light and heavy flavour jets.
+  description: uncorrelated component across years of uncertainty on b-tagging scale factors for light and heavy flavour jets.
 CMS_eff_e_trigger_(2016|2017|2018):
   class: electron_efficiency
   description: electron trigger efficiency uncertainty separated by year
