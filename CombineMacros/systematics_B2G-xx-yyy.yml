@@ -1,0 +1,70 @@
+CMS_B2Gxxyyy_NLLnonClosure_(2016|2017|2018)_(mu5j2b|mu6j2b|e5j2b|e6j2b):
+  class: custom
+  description: non-closure normalization uncertainty estimated from ST-fit corrected
+    1b-tagged regions on 2b-tagged regions accounting for cut on NLL in signal regions
+CMS_B2Gxxyyy_STfit_(2016|2017|2018)_(mu5j2b|mu6j2b|e5j2b|e6j2b):
+  class: custom
+  description: fit shape uncertainty of STMET-correction to ttbar shape from 2b-tagged
+    regions
+CMS_btag_comb:
+  class: btag
+  description: combined uncertainty on b-tagging scale factors for both light and
+    heavy flavour jets.
+CMS_eff_b_(2016|2017|2018):
+  class: btag
+  description: uncorrelated year-by-year uncertainties on b-tagging scale factors
+    for both light and heavy flavour jets.
+CMS_eff_e_trigger_(2016|2017|2018):
+  class: electron_efficiency
+  description: electron trigger efficiency uncertainty separated by year
+CMS_eff_e_reco_(2016|2017|2018):
+  class: electron_efficiency
+  description: electron reconstruction efficiency uncertainty separated by year
+CMS_eff_e_(2016|2017|2018):
+  class: electron_efficiency
+  description: electron identification efficiency uncertainty separated by year.
+CMS_eff_j_PUJET_id_(2016|2017|2018):
+  class: jet_efficiency
+  description: Uncertainty on correctly identifying non-pileup jets for pileup jet
+    removal separated by year.
+CMS_eff_m_id_(2016|2017|2018):
+  class: muon_efficiency
+  description: muon identification efficiency uncertainty separated by year.
+CMS_eff_m_iso_(2016|2017|2018):
+  class: muon_efficiency
+  description: overall muon efficiency uncertainty separated by year.
+CMS_eff_m_trigger_(2016|2017|2018):
+  class: muon_efficiency
+  description: muon trigger efficiency uncertainty separated by year
+CMS_l1_ecal_prefiring_(2016|2017):
+  class: other_experimental
+  description: Uncertainty due to level-1 triggering of bunch crossings before intended
+    trigger for 2016 or 2017.
+CMS_pileup:
+  class: pileup
+  description: pileup reweighting uncertainty for 13TeV pp data.
+CMS_res_e_(2016|2017|2018):
+  class: electron_resolution
+  description: energy resolution uncertainty for electrons
+CMS_res_j_(2016|2017|2018):
+  class: jet_energy_resolution
+  description: jet energy resolution uncertainty separated per yer.
+CMS_scale_j_(2016|2017|2018):
+  class: jet_energy_scale
+  description: full jet energy scale uncertainty component per year when only a single
+    JES nuisance parameter is considered per year
+QCDscale_(ttbar|wjets|single_top|diboson|signal):
+  class: qcd_scale
+  description: Uncertainty from simultaneous variation of qcd renormalization and
+    factorization scales in the given process.
+lumi_(2016|2017|2018):
+  class: luminosity
+  description: portion of luminosity uncertainty on 13TeV pp data in a given year
+    which is uncorrelated with other Run 2 years.
+lumi_13TeV_correlated:
+  class: luminosity
+  description: portion of luminosity uncertainty on 13TeV pp data which is correlated
+    between 2016, 2017, and 2018 data taking.
+pdf_B2Gxxyyyy_envelope_(ttbar|wjets|single_top|diboson|signal):
+  class: custom
+  description: pdf uncertainties by taking the envelope of the 100 largest PDF variations for each type of sample considered
