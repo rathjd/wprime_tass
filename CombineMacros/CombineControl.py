@@ -231,6 +231,10 @@ for binN in bins:
               systLines[j] += systMaster[j][2].replace("-",ratio[0:dot+3]) #limit precision to keep cards readable
             else:
               systLines[j] += systMaster[j][2].replace("-",ratio)
+          elif systMaster[j][0].find(allNames[i]) > -1: #activate ISR/FSR and PDF uncertainties only specific background samples
+            systLines[j] += systMaster[j][2].replace("-","1")
+          elif systMaster[j][0].find("signal") > -1 and allNames[i] == signalNames[0]: #activate ISR/FSR and PDF uncertainties for signal
+            systLines[j] += systMaster[j][2].replace("-","1") 
           else:
             systLines[j] += systMaster[j][2]
           currentLength = max(currentLength, len(systLines[j]))
