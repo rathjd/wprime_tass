@@ -13,14 +13,15 @@
 void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
  
   TString sYear = TString::Format("%d",year);
+  TString B2Gn = "xxyyy"; //placeholder, until we get a cadi line number
  
-  vector<TString> variations = {"" // 0
+  /*vector<TString> variations = {"" // 0
     , "electronScale"+sYear+ "Up", "electronScale"+sYear+ "Down", "electronRes"+sYear+ "Up", "electronRes"+sYear+ "Down", "JES"+sYear+ "Up", "JES"+sYear+ "Down", "JER"+sYear+ "Up", "JER"+sYear+ "Down" // 1 - 8
     , "electron"+sYear+ "Up", "electron"+sYear+ "Down", "muonTrigger"+sYear+ "Up", "muonTrigger"+sYear+ "Down", "muonId"+sYear+ "Up", "muonId"+sYear+ "Down", "muonIso"+sYear+ "Up", "muonIso"+sYear+ "Down" // 9 - 16
     , "BjetTagCorrUp", "BjetTagCorrDown", "BjetTagUncorr"+sYear+ "Up", "BjetTagUncorr"+sYear+ "Down", "PUID"+sYear+ "Up", "PUID"+sYear+ "Down", "L1PreFiring"+sYear+ "Up", "L1PreFiring"+sYear+ "Down" // 17 - 24
     , "PUreweight"+sYear+ "Up", "PUreweight"+sYear+ "Down", "PDFUp", "PDFDown", "LHEScaleUp", "LHEScaleDown", // 25 - 30
       "LumiCorrUp", "LumiCorrDown", "LumiStat"+sYear+"Up", "LumiStat"+sYear+"Down" //31-34
-  };
+  };*/
 
   TH1F dataHist;
   vector<TH1F> ttbarHists, NonTtbarHists;
@@ -32,7 +33,33 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
   for(unsigned i = 0; i < 22; ++i){
     if(bin/1000 == 1 && i == 0) continue;
     if(bin/2000 == 1 && i == 1) continue;
-    //if(year == 2017 && i == 17) continue; //FIXME: skip ZZ sample that can't be processed
+
+    //load dataset information
+    Dataset dset = dlib.GetDataset(i);
+    TString gn = dset.GroupName;
+
+    //version with CMS standard names
+    vector<TString> variations = {"", //0: nominal
+          "CMS_scale_e_"                  +sYear+"Up",  "CMS_scale_e"                   +sYear+"Down",  //1-2:   electron energy scale pT variation (on data)
+          "CMS_res_e_"                    +sYear+"Up",  "CMS_res_e_"                    +sYear+"Down",  //3-4:   electron energy resolution pT variation
+          "CMS_scale_j_"                  +sYear+"Up",  "CMS_scale_j_"                  +sYear+"Down",  //5-6:   jet energy scale pT variation
+          "CMS_res_j_"                    +sYear+"Up",  "CMS_res_j_"                    +sYear+"Down",  //7-8:   jet energy resolution pT variation
+          "CMS_eff_e_trigger_"            +sYear+"Up",  "CMS_eff_e_trigger_"            +sYear+"Down",  //?-?:   FIXME: electron trigger efficiency variation, including HLT Zvtx for 2017
+          "CMS_eff_e_reco_"               +sYear+"Up",  "CMS_eff_e_reco_"               +sYear+"Down",  //?-?:   FIXME: electron reconstruction efficiency variation
+          "CMS_eff_e_"                    +sYear+"Up",  "CMS_eff_e_"                    +sYear+"Down",  //9-10:  electron ID (including ISO) variation
+          "CMS_eff_m_trigger_"            +sYear+"Up",  "CMS_eff_m_trigger_"            +sYear+"Down",  //11-12: muon trigger efficiency variation
+          "CMS_eff_m_id_"                 +sYear+"Up",  "CMS_eff_m_id_"                 +sYear+"Down",  //13-14: muon ID efficiency variation
+          "CMS_eff_m_iso_"                +sYear+"Up",  "CMS_eff_m_iso_"                +sYear+"Down",  //15-16: muon ISO efficiency variation
+          "CMS_btag_comb"                       +"Up",  "CMS_btag_comb"                       +"Down",  //17-18: correlated component of b-tagging efficiency combined across all flavours
+          "CMS_eff_b_"                    +sYear+"Up",  "CMS_eff_b_"                    +sYear+"Down",  //19-20: uncorrelated component across years of b-tagging efficiency combined across all flavours
+          "CMS_eff_j_PUJET_id_"           +sYear+"Up",  "CMS_eff_j_PUJET_id_"           +sYear+"Down",  //21-22: uncertaintiy of PU jet ID efficiency
+          "CMS_l1_ecal_prefiring_"        +sYear+"Up",  "CMS_l1_ecal_prefiring_"        +sYear+"Down",  //23-24: L1 ECAL prefiring issue in 2016 and 2017 only
+          "CMS_pileup"                          +"Up",  "CMS_pileup"                          +"Down",  //25-26: CMS pileup reweighting uncertainty, correlated for Run2
+          "pdf_B2G"+B2Gn+"_envelope_"+gn	+"Up",  "pdf_B2G"+B2Gn+"_envelope_"+gn	      +"Down",  //27-28: Envelope of largest variations of 100 PDF variations
+          "QCDscale_"+gn	                +"Up",  "QCDscale_"+gn	                      +"Down",  //29-30: ISR/FSR uncertainties
+          "lumi_13TeV_correlated"               +"Up",  "lumi_13TeV_correlated"               +"Down",  //31-32: correlated luminosity variation for 13 TeV
+          "lumi_"                         +sYear+"Up",  "lumi_"                         +sYear+"Down"   //33-34: uncorrelated luminosity variation by year
+    };
 
     //need to combine 2016 and 2016apv before determining SFs
     if(year == 2016){
@@ -42,8 +69,6 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
     TFile *infile;
     if(year != 2016) infile = new TFile(TString::Format("TestHistograms/SimpleShapes_Bin%d_%d_%d.root",bin,year,i),"READ");
     else	     infile = new TFile(TString::Format("TestHistograms/SimpleShapes_Bin%d_2016all_%d.root",bin,i),"READ");
-    Dataset dset = dlib.GetDataset(i);
-    TString gn = dset.GroupName;
     if(i<=1){
       dataHist = *(TH1F*)(infile->Get(TString::Format("ST_data_obs_Wprime%d_%d_",bin,year)))->Clone("dataHist");
       for(unsigned mass = 300; mass < 1200; mass+=100) dataHistNLL.push_back( *(TH1F*)(infile->Get(TString::Format("NegLogLnoB_Data_Wprime%d_%d_M%d_",bin,year,mass)))->Clone(TString::Format("dataHistNLL_M%d",mass)));
@@ -97,7 +122,6 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
   TF1 *fitFunction;
   if(bin % 100 < 60) fitFunction = new TF1("fitFunction","[0]/x/x/x+[1]/x/x+[2]/x+[3]+[4]*x+[5]*x*x", 150., 2000.);
   else 		     fitFunction = new TF1("fitFunction","[0]/x+[1]+[2]*x+[3]*x*x", 150., 2000.);
-  std::cout<<"first fit point"<<std::endl;//FIXME
   //fit nominal variant with statistical uncertainties only, get covariance matrix, calculate statistical envelope
   TFitResultPtr fr = SFhists[0].Fit(fitFunction,"SRF");
   TMatrixD cov = fr->GetCovarianceMatrix();
@@ -119,7 +143,6 @@ void ScaleFactorTTbarCalc(int bin=1152, int year=2018){
 
   //fit systematic variations
   for(unsigned i = 1; i < SFhists.size(); ++i){
-    std::cout<<"fit variation "<<i<<std::endl;//FIXME
     SFhists[i].Fit(fitFunction,"R");
     for(unsigned j = 0; j < SFhists[i].GetNbinsX(); ++j){
       SFs[i].SetBinContent(j+1, fitFunction->Eval(SFhists[i].GetBinCenter(j+1)));

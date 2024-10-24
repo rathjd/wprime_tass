@@ -40,6 +40,16 @@ os.system("root -l -b -q 'runCombineHistogramDumpster.C+(" + str(binNumber) + ",
 
 bins = [binString[0:3]+"1", binString[0:3]+"2", binString[0:3]+"3", binString[0:3]+"4"]
 
+#assign region name
+if binString[0:3] == "115":
+    regName = "mu5j2b"
+elif binString[0:3] == "215":
+    regName = "e5j2b"
+if binString[0:3] == "116":
+    regName = "mu6j2b"
+elif binString[0:3] == "216":
+    regName = "e6j2b"
+
 print(bins)
 
 for binN in bins:
@@ -81,9 +91,41 @@ for binN in bins:
   #https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun2#Combination_and_correlations is now a shape uncertainty built into histograms in the file
 
   #define all the systematic names, types, and values
-  systNames = ["LumiCorr", "LumiStat"+yearName, "electron"+yearName, "muonTrigger"+yearName, "muonId"+yearName, "muonIso"+yearName, "BjetTagCorr", "BjetTagUncorr"+yearName, "PUID"+yearName, "L1PreFiring"+yearName, "PUreweight"+yearName, "PDF",   "LHEScale", "electronScale"+yearName, "electronRes"+yearName, "JES"+yearName, "JER"+yearName, "STfit_"+yearName+"_"+binString[0:3]+"2_STfit", "NLLnonClosure"+yearName+"_"+binString[0:3]+"2"]
-  systTypes = ["shape",    "shape",             "shape",             "shape",                "shape",           "shape",            "shape",       "shape",                  "shape",         "shape",                "shape",               "shape", "shape",    "lnN",                    "shape",                "shape",        "shape",        "shape",                                  "lnN"] 
-  systVals  = ["1",        "1",                 "1",                 "1",                    "1",               "1",                "1",           "1",                      "1",             "1",                    "1",                   "1",     "1",        "1",                      "1",                    "1",            "1",            "0",                                      "0"]
+  #systNames = ["LumiCorr", "LumiStat"+yearName, "electron"+yearName, "muonTrigger"+yearName, "muonId"+yearName, "muonIso"+yearName, "BjetTagCorr", "BjetTagUncorr"+yearName, "PUID"+yearName, "L1PreFiring"+yearName, "PUreweight"+yearName, "PDF",   "LHEScale", "electronScale"+yearName, "electronRes"+yearName, "JES"+yearName, "JER"+yearName, "STfit_"+yearName+"_"+binString[0:3]+"2_STfit", "NLLnonClosure"+yearName+"_"+binString[0:3]+"2"]
+  #systTypes = ["shape",    "shape",             "shape",             "shape",                "shape",           "shape",            "shape",       "shape",                  "shape",         "shape",                "shape",               "shape", "shape",    "lnN",                    "shape",                "shape",        "shape",        "shape",                                  "lnN"] 
+  #systVals  = ["1",        "1",                 "1",                 "1",                    "1",               "1",                "1",           "1",                      "1",             "1",                    "1",                   "1",     "1",        "1",                      "1",                    "1",            "1",            "0",                                      "0"]
+  B2Gn = "xxyyy" #FIXME: tbd once cadi line number is assigned
+  systMaster = [["lumi_13TeV_correlated",                               "shape", "1"],
+                ["lumi_"+yearName       ,                               "shape", "1"],
+                ["CMS_eff_e_trigger_"+yearName,                         "shape", "1"],
+                ["CMS_eff_e_reco_"+yearName,                            "shape", "1"],
+                ["CMS_eff_e_"+yearName,                                 "shape", "1"],
+                ["CMS_eff_m_trigger_"+yearName,                         "shape", "1"],
+                ["CMS_eff_m_id_"+yearName,                              "shape", "1"],
+                ["CMS_eff_m_iso_"+yearName,                             "shape", "1"],
+                ["CMS_btag_comb",                                       "shape", "1"],
+                ["CMS_eff_b_"+yearName,                                 "shape", "1"],
+                ["CMS_eff_j_PUJET_id_"+yearName,                        "shape", "1"],
+                ["CMS_l1_ecal_prefiring_"+yearName,                     "shape", "1"],
+                ["CMS_pileup",                                          "shape", "1"],
+                ["pdf_B2G"+B2Gn+"_envelope_ttbar",                      "shape", "-"],
+                ["pdf_B2G"+B2Gn+"_envelope_wjets",                      "shape", "-"],
+                ["pdf_B2G"+B2Gn+"_envelope_single_top",                 "shape", "-"],
+                ["pdf_B2G"+B2Gn+"_envelope_diboson",                    "shape", "-"],
+                ["pdf_B2G"+B2Gn+"_envelope_signal",                     "shape", "-"],
+                ["QCDscale_ttbar",                                      "shape", "-"],
+                ["QCDscale_wjets",                                      "shape", "-"],
+                ["QCDscale_single_top",                                 "shape", "-"],
+                ["QCDscale_diboson",                                    "shape", "-"],
+                ["QCDscale_signal",                                     "shape", "-"],
+                ["CMS_scale_e_"+yearName,                               "lnN",   "1"],
+                ["CMS_res_e_"+yearName,                                 "shape", "1"],
+                ["CMS_scale_j_"+yearName,                               "shape", "1"],
+                ["CMS_res_j_"+yearName,                                 "shape", "1"],
+                ["CMS_B2G"+B2Gn+"_STfit_"+yearName+"_"+regName,         "shape", "-"],
+                ["CMS_B2G"+B2Gn+"_NLLnonClosure_"+yearName+"_"+regName, "lnN",   "-"]]
+
+
 
   #write the actual combine cards
   CardNames = [["FitMass", ""], ["HT", "HT_"]] #by default makes both the fit mass and HT extraction cards, separately
@@ -94,7 +136,7 @@ for binN in bins:
       f = open(fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt","w")
       f.write("imax " + str(1) + "\n") #number of channels
       f.write("jmax " + str(len(bgrNames)) + "\n") #number of backgrounds
-      f.write("kmax " + str(len(systNames)) + "\n") #number of nuisance parameters
+      f.write("kmax " + str(len(systMaster)) + "\n") #number of nuisance parameters
       f.write("----------\n")
       f.write("shapes * * " + CardName[1] + "SimpleShapes_" + binName + ".root "+ CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_ " + CardName[1] + "$PROCESS_$CHANNEL_M" + str(massBin*100) + "_$SYSTEMATIC\n")
       f.write("----------\n")
@@ -116,15 +158,15 @@ for binN in bins:
       #systematic lines first, as this is an entire column to be processed, later, and they are longest
       systLines = []
       maxLength = 0
-      for i in range(0, len(systNames)): #assemble systematic names
-        systLines.append(systNames[i])
+      for i in range(0, len(systMaster)): #assemble systematic names
+        systLines.append(systMaster[i][0])
         maxLength = max(maxLength, len(systLines[i]))
 
       maxLength2 = 0
       for i in range(0, len(systLines)): #align systematic names, then assemble systematic types
         while len(systLines[i]) < (maxLength + 3):
           systLines[i] += " "
-        systLines[i] += systTypes[i]
+        systLines[i] += systMaster[i][1]
         maxLength2 = max(maxLength2, len(systLines[i]))
 
       for i in range(0, len(systLines)): #align syst types
@@ -155,6 +197,15 @@ for binN in bins:
       while len(rateLine) < maxLength2:
         rateLine += " "
 
+      #estimate electron scale uncertainty
+      ESF    = ROOT.TFile.Open(binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
+      ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Up")
+      ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Down")
+      ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_")
+      ESFvar = str(max(math.fabs(ESFHu.Integral()/ESFHn.Integral()-1.), math.fabs(ESFHd.Integral()/ESFHn.Integral()-1.))+1.)
+      systMaster[23][2] = ESFvar[0:4]
+      ESF.Close()
+
       for i in range(0, len(allNames)): #assemble bin, process, rate, and systematic line entries, then align
         binLine += binName
         processLine1 += allNames[i]
@@ -163,34 +214,25 @@ for binN in bins:
 
         currentLength = max(len(binLine), len(processLine1), len(processLine2), len(rateLine))
 
-        #estimate electron scale uncertainty
-        ESF    = ROOT.TFile.Open(binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
-        ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_electronScale" + yearName + "Up")
-        ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_electronScale" + yearName + "Down")
-        ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_")
-        ESFvar = str(max(math.fabs(ESFHu.Integral()/ESFHn.Integral()-1.), math.fabs(ESFHd.Integral()/ESFHn.Integral()-1.))+1.)
-        systVals[13] = ESFvar[0:4]
-        ESF.Close()
-  
         for j in range(0, len(systLines)): #assemble systematic values
           if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
-            systLines[j] += systVals[j].replace("0","1") #activate ST fit uncertainty for ttbar only in the card
+            systLines[j] += systMaster[j][2].replace("-","1") #activate ST fit uncertainty for ttbar only in the card
           elif allNames[i] != signalNames[0] and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
             NLLresF = ROOT.TFile.Open(fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
             NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100))
             NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_M" + str(massBin*100) + "_")
             NLLresH.Multiply(NLLH)
             if NLLH.Integral() == 0:
-              systLines[j] += systVals[j]
+              systLines[j] += systMaster[j][2]
               continue
             ratio = str(NLLresH.Integral(0,-1)/NLLH.Integral(0,-1))
             dot = ratio.find(".")
             if dot >= 0:
-              systLines[j] += systVals[j].replace("0",ratio[0:dot+3]) #limit precision to keep cards readable
+              systLines[j] += systMaster[j][2].replace("-",ratio[0:dot+3]) #limit precision to keep cards readable
             else:
-              systLines[j] += systVals[j].replace("0",ratio)
+              systLines[j] += systMaster[j][2].replace("-",ratio)
           else:
-            systLines[j] += systVals[j]
+            systLines[j] += systMaster[j][2]
           currentLength = max(currentLength, len(systLines[j]))
 
         #align all lines with extra space
@@ -221,6 +263,10 @@ for binN in bins:
 
       for i in range(0, len(systLines)):
         f.write(systLines[i] + "\n")
+
+      #add MC statistics evaluation
+      f.write("\n")
+      f.write("* autoMCStats 10")
 
       f.close()
 

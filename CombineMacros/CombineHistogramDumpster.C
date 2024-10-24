@@ -62,13 +62,17 @@ void CombineHistogramDumpster::Loop()
   float LumiCorrVal = 0.0;
   float LumiStatVal = 0.0;
 
+  //define electron HLT inefficiency Zvtx uncertainty
+  float EleHLTzvtx = 1.;
+  float EleHLTzvtxUnc = 0.0;
+
   //set sample weight
   int Year = 0;
   int year = 0;
   float Lumi = 0.;
   if(YearType == "2016apv")  {Year = 0; year = 2016; Lumi = 19.52; LumiCorrVal = 0.006; LumiStatVal = 0.01;}
   else if(YearType == "2016") {Year = 1; year = 2016; Lumi = 16.81; LumiCorrVal = 0.006; LumiStatVal = 0.01;}
-  else if(YearType == "2017") {Year = 2; year = 2017; Lumi = 41.48; LumiCorrVal = 0.009; LumiStatVal = 0.02;}
+  else if(YearType == "2017") {Year = 2; year = 2017; Lumi = 41.48; LumiCorrVal = 0.009; LumiStatVal = 0.02; EleHLTzvtx = 0.991; EleHLTzvtxUnc = 0.001;}
   else if(YearType == "2018") {Year = 3; year = 2018; Lumi = 59.83; LumiCorrVal = 0.02; LumiStatVal = 0.015;}
   float SampleWeight = 1.;
   if(dset.Type != 0) SampleWeight = Lumi * dset.CrossSection / dset.Size[Year];
@@ -97,15 +101,41 @@ void CombineHistogramDumpster::Loop()
   vector<TH2F*> NegLogLnoBvsNegLogL;
 
   TString YearS = TString::Format("%d",year);
+  TString B2Gn = "xxyyy"; //placeholder, until we get a cadi line number
+  TString sampleType = gn;
+  if(Iterator > 21) sampleType = "signal";
 
   //first variations are all weight variations and map 1:1, region variations start at index 21
-  vector<TString> variations = {"" // 0
+  /*vector<TString> variations = {"" // 0
   , "electronScale"+YearS+"Up", "electronScale"+YearS+"Down", "electronRes"+YearS+"Up", "electronRes"+YearS+"Down", "JES"+YearS+"Up", "JES"+YearS+"Down", "JER"+YearS+"Up", "JER"+YearS+"Down" // 1 - 8
   , "electron"+YearS+"Up", "electron"+YearS+"Down", "muonTrigger"+YearS+"Up", "muonTrigger"+YearS+"Down", "muonId"+YearS+"Up", "muonId"+YearS+"Down", "muonIso"+YearS+"Up", "muonIso"+YearS+"Down" // 9 - 16
   , "BjetTagCorrUp", "BjetTagCorrDown", "BjetTagUncorr"+YearS+"Up", "BjetTagUncorr"+YearS+"Down", "PUID"+YearS+"Up", "PUID"+YearS+"Down", "L1PreFiring"+YearS+"Up", "L1PreFiring"+YearS+"Down" // 17 - 24
   , "PUreweight"+YearS+"Up", "PUreweight"+YearS+"Down", "PDFUp", "PDFDown", "LHEScaleUp", "LHEScaleDown", // 25 - 30
   "LumiCorrUp", "LumiCorrDown", "LumiStat"+YearS+"Up", "LumiStat"+YearS+"Down" //31-34
+  };*/
+  //version with CMS standard names
+  vector<TString> variations = {"", //0: nominal
+	  "CMS_scale_e_"		  +YearS+"Up", 	"CMS_scale_e" 			+YearS+"Down", 	//1-2:   electron energy scale pT variation (on data)
+	  "CMS_res_e_"  		  +YearS+"Up", 	"CMS_res_e_"  			+YearS+"Down", 	//3-4:   electron energy resolution pT variation
+	  "CMS_scale_j_"		  +YearS+"Up", 	"CMS_scale_j_"			+YearS+"Down", 	//5-6:   jet energy scale pT variation 
+	  "CMS_res_j_"  		  +YearS+"Up", 	"CMS_res_j_"  			+YearS+"Down", 	//7-8:   jet energy resolution pT variation
+	  "CMS_eff_e_trigger_"		  +YearS+"Up",  "CMS_eff_e_trigger_"		+YearS+"Down",	//?-?:	 FIXME: electron trigger efficiency variation, including HLT Zvtx for 2017
+	  "CMS_eff_e_reco_"		  +YearS+"Up",	"CMS_eff_e_reco_"		+YearS+"Down",  //?-?:	 FIXME: electron reconstruction efficiency variation
+	  "CMS_eff_e_"  		  +YearS+"Up",	"CMS_eff_e_"  			+YearS+"Down",	//9-10:  electron ID (including ISO) variation
+	  "CMS_eff_m_trigger_"		  +YearS+"Up",	"CMS_eff_m_trigger_"		+YearS+"Down",	//11-12: muon trigger efficiency variation
+	  "CMS_eff_m_id_"		  +YearS+"Up",	"CMS_eff_m_id_"			+YearS+"Down",  //13-14: muon ID efficiency variation
+	  "CMS_eff_m_iso_"		  +YearS+"Up",	"CMS_eff_m_iso_"		+YearS+"Down",	//15-16: muon ISO efficiency variation
+	  "CMS_btag_comb"		        +"Up",	"CMS_btag_comb"			      +"Down",	//17-18: correlated component of b-tagging efficiency combined across all flavours
+	  "CMS_eff_b_"			  +YearS+"Up",	"CMS_eff_b_"			+YearS+"Down",  //19-20: uncorrelated component across years of b-tagging efficiency combined across all flavours
+	  "CMS_eff_j_PUJET_id_" 	  +YearS+"Up",	"CMS_eff_j_PUJET_id_"   	+YearS+"Down",  //21-22: uncertaintiy of PU jet ID efficiency
+	  "CMS_l1_ecal_prefiring_"	  +YearS+"Up",	"CMS_l1_ecal_prefiring_"	+YearS+"Down",  //23-24: L1 ECAL prefiring issue in 2016 and 2017 only
+	  "CMS_pileup"			        +"Up",	"CMS_pileup"		              +"Down",	//25-26: CMS pileup reweighting uncertainty, correlated for Run2
+	  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",	"pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //27-28: Envelope of largest variations of 100 PDF variations
+	  "QCDscale_"+sampleType	        +"Up",	"QCDscale_"+sampleType                +"Down",	//29-30: ISR/FSR uncertainties
+	  "lumi_13TeV_correlated"               +"Up",	"lumi_13TeV_correlated"               +"Down",  //31-32: correlated luminosity variation for 13 TeV
+	  "lumi_"			  +YearS+"Up",	"lumi_"				+YearS+"Down"	//33-34: uncorrelated luminosity variation by year
   };
+
 
   vector<vector<TString> > variationsName, HTvariationsName, FitMass2Dnames, HT2Dnames;
   for (unsigned m = 3; m < 12; m++){
