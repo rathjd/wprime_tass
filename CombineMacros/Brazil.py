@@ -197,7 +197,7 @@ additionalInfo = [Extract, Lepton+Jets+Bjets, YearS]
 for ind, tt in enumerate(additionalInfo):
     print(tt)
     latex.DrawLatex(
-            0.25,
+            0.15,
             1 - 0.05 - 0.045 * (1 - 0.05 - 0.13) - 1.2 * 0.75 * 0.05 - 0.004 - (1.2 * 0.75 * 0.76 * 0.05 /2 + 0.02) * ind,
             tt
     )
