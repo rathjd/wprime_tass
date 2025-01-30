@@ -122,11 +122,6 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   vector<TH1F> SFhists, SFs;
   for(unsigned i = 0; i < varSize; ++i){
 
-    //load dataset information
-    Dataset dset = dlib.GetDataset(i);
-    TString gn = dset.GroupName;
-    TString sampleType = gn;
-
     //version with CMS standard names
     vector<TString> variations = {"", //0: nominal
           TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e")                   +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
@@ -146,8 +141,8 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
           TString("CMS_eff_j_PUJET_id_")           +YearS+"Up", TString("CMS_eff_j_PUJET_id_")           +YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
           TString("CMS_l1_ecal_prefiring_")        +YearS+"Up", TString("CMS_l1_ecal_prefiring_")        +YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
           TString("CMS_pileup")                          +"Up", TString("CMS_pileup")                          +"Down",  //33-34: CMS pileup reweighting uncertainty, correlated for Run2
-          TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Up", TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
-          TString("QCDscale_")+sampleType                +"Up", TString("QCDscale_")+sampleType                +"Down",  //37-38: ISR/FSR uncertainties
+          TString("dummy"), TString("dummy"),  //35-36: Envelope of largest variations of 100 PDF variations
+          TString("dummy"), TString("dummy"),  //37-38: ISR/FSR uncertainties
           TString("lumi_13TeV_correlated")               +"Up", TString("lumi_13TeV_correlated")               +"Down",  //39-40: correlated luminosity variation for 13 TeV
           TString("lumi_13TeV_1718")                     +"Up", TString("lumi_13TeV_1718")                     +"Down",  //41-42: correlation luminosity variation for 2017 and 2018
           TString("lumi_")                         +YearS+"Up", TString("lumi_")                         +YearS+"Down",  //43-44: uncorrelated luminosity variation by year
@@ -157,6 +152,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
     //except sample-dependent uncertainties for extra logic
     //at this stage, variation i departs from being concurrent with SF histogram iterator, so we just keep appending each different variation
     if(i >= 35 && i <= 38) for(unsigned j = 0; j < SampleTypes.size(); ++j){ //loop over different samples{
+      TString sampleType = SampleTypes[j];
       vector<TString> variationsSpecial = {
         "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
         "QCDscale_"+sampleType                +"Up",  "QCDscale_"+sampleType                +"Down",  //37-38: ISR/FSR uncertainties
@@ -182,6 +178,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
       SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variationsSpecial[i]));
     }
     else{//standard case
+      if(variations[i]=="dummy") std::cout<<"Fail!!! Dummy variations mistakenly loaded, instead of specially treating them!"<<std::endl;
       SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variations[i]));
       unsigned currentPos = SFhists.size()-1;
       for(unsigned k = 1; k < SimHists.size(); ++k) SFhists[currentPos].Add(&SimHists[k][i],-1);
