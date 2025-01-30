@@ -8,7 +8,7 @@
 #ifndef CombineHistogramDumpster_h
 #define CombineHistogramDumpster_h
 
-#include "../Utilities/Dataset.cc"
+#include "Dataset.cc"
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -25,7 +25,7 @@ public :
 
   // Declaration of leaf types
   Int_t           RegionIdentifier[9];
-  Float_t         EventWeight[23];
+  Float_t         EventWeight[31];
   Float_t         LeptonPt;
   Float_t         LeptonPt_SU;
   Float_t         LeptonPt_SD;
@@ -181,11 +181,12 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
 // used to generate this class and read the Tree.
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
-    TString FilePath = "/eos/cms/store/group/phys_b2g/wprime/2017analyzetestmass/";
+    TString FilePath = "/eos/cms/store/group/phys_b2g/wprime/analyzednewskims/";
     FilePath.Append(year_);
     FilePath.Append("_");
     FilePath.Append(dset.Name);
     FilePath.Append("/*.root");
+    std::cout<<"processing "<<FilePath<<std::endl;
     tree = new TChain("t");
     tree->Add(FilePath);
     Iterator = it_;

@@ -6,7 +6,7 @@ import math
 signalNames = ["M$MASS"] #$MASS gets replaced by runing combine with -m option, supports only 1 signal mass at a time
 bgrNames = ["ttbar", "wjets", "single_top", "diboson"]
 binNumber = 1153 #this needs to be set, valid entries are 1150, 1160, 2150, 2160
-yearNumber = 2018
+yearName = "2018"
 
 try:
     if int(sys.argv[1]) > 0:
@@ -15,17 +15,18 @@ try:
 except:
     print("bin number defaults to "+str(binNumber))
 
+yearOptions = ["2016_APV", "2016", "2017", "2018"]
+
 try:
-    if int(sys.argv[2]) > 0:
-        yearNumber = int(sys.argv[2])
-        print("year number set to "+str(yearNumber))
+    if sys.argv[2] in yearOptions:
+        yearName = sys.argv[2]
+        print("year number set to "+ yearName)
 except:
-    print("year number defautls to "+str(yearNumber))
+    print("year number defautls to "+ yearName)
 
 
 
 binString = str(binNumber)
-yearName = str(yearNumber)
 
 #First, generate the shape variation histograms
 print("Starting processing of intermediate files")
@@ -36,7 +37,7 @@ else:
   os.system("mkdir TestHistograms") #make directory, if it doesn't exist
 
 #run dump from intermediate tree including ST correction cycle, generates 3- and 4-tag regions both
-os.system("root -l -b -q 'runCombineHistogramDumpster.C+(" + str(binNumber) + ", " + yearName + ")'")
+os.system("root -l -b -q 'runCombineHistogramDumpster.C+(" + str(binNumber) + ', "' + yearName + '"' + ")'")
 
 bins = [binString[0:3]+"1", binString[0:3]+"2", binString[0:3]+"3", binString[0:3]+"4"]
 
@@ -49,6 +50,10 @@ if binString[0:3] == "116":
     regName = "mu6j2b"
 elif binString[0:3] == "216":
     regName = "e6j2b"
+
+#change year name string for 2016_APV to the Sifu-scheme-complian 2016apv for further processing
+if yearName == "2016_APV":
+    yearName = "2016apv"
 
 print(bins)
 
@@ -65,15 +70,9 @@ for binN in bins:
   os.system("mkdir " + fileName)
 
   #assemble results
-  if yearNumber != 2016:
-    os.system("hadd -f " + fileName + "/SimpleShapes_" + binName + ".root TestHistograms/SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
-    os.system("hadd -f " + fileName + "/HT_SimpleShapes_" + binName + ".root TestHistograms/HT_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
-    os.system("hadd -f " + fileName + "/TwoD_SimpleShapes_" + binName + ".root TestHistograms/TwoD_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file 
-  else: #2016 has to be merged with 2016apv, which is handled by this exception
-    fileNameAlt = fileName + "apv"
-    os.system("hadd -f " + fileName + "/SimpleShapes_" + binName + ".root TestHistograms/SimpleShapes_Bin" + fileName + "_*.root TestHistograms/SimpleShapes_Bin" + fileNameAlt + "_*.root") #hadd all histograms to a convenient combined file
-    os.system("hadd -f " + fileName + "/HT_SimpleShapes_" + binName + ".root TestHistograms/HT_SimpleShapes_Bin" + fileName + "_*.root TestHistograms/HT_SimpleShapes_Bin" + fileNameAlt + "_*.root") #hadd all histograms to a convenient combined file
-    os.system("hadd -f " + fileName + "/TwoD_SimpleShapes_" + binName + ".root TestHistograms/TwoD_SimpleShapes_Bin" + fileName + "_*.root TestHistograms/TwoD_SimpleShapes_Bin" + fileNameAlt + "_*.root") #hadd all histograms to a convenient combined file
+  os.system("hadd -f " + fileName + "/SimpleShapes_" + binName + ".root TestHistograms/SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
+  os.system("hadd -f " + fileName + "/HT_SimpleShapes_" + binName + ".root TestHistograms/HT_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
+  os.system("hadd -f " + fileName + "/TwoD_SimpleShapes_" + binName + ".root TestHistograms/TwoD_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file 
 
  #transfer SF files where appropriate
   if int(binN) % 10 == 2:
@@ -95,7 +94,8 @@ for binN in bins:
   #systTypes = ["shape",    "shape",             "shape",             "shape",                "shape",           "shape",            "shape",       "shape",                  "shape",         "shape",                "shape",               "shape", "shape",    "lnN",                    "shape",                "shape",        "shape",        "shape",                                  "lnN"] 
   #systVals  = ["1",        "1",                 "1",                 "1",                    "1",               "1",                "1",           "1",                      "1",             "1",                    "1",                   "1",     "1",        "1",                      "1",                    "1",            "1",            "0",                                      "0"]
   B2Gn = "xxyyy" #FIXME: tbd once cadi line number is assigned
-  systMaster = [["lumi_13TeV_correlated",                               "shape", "1"],
+  systMaster = [["lumi_13TeV_correlated",                               "shape", "-"],
+                ["lumi_13TeV_1718",                                     "shape", "1"],
                 ["lumi_"+yearName       ,                               "shape", "1"],
                 ["CMS_eff_e_trigger_"+yearName,                         "shape", "1"],
                 ["CMS_eff_e_reco_"+yearName,                            "shape", "1"],
@@ -125,7 +125,8 @@ for binN in bins:
                 ["CMS_scale_j_"+yearName,                               "shape", "1"],
                 ["CMS_res_j_"+yearName,                                 "shape", "1"],
                 ["CMS_B2G"+B2Gn+"_STfit_"+yearName+"_"+regName,         "shape", "-"],
-                ["CMS_B2G"+B2Gn+"_NLLnonClosure_"+yearName+"_"+regName, "lnN",   "-"]]
+                ["CMS_B2G"+B2Gn+"_NLLnonClosure_"+yearName+"_"+regName, "lnN",   "-"],
+                ["CMS_eff_e_HLTzvtx_17"                                 "shape", "-"]]
 
 
 
@@ -237,6 +238,10 @@ for binN in bins:
             systLines[j] += systMaster[j][2].replace("-","1")
           elif systMaster[j][0].find("signal") > -1 and allNames[i] == signalNames[0]: #activate ISR/FSR and PDF uncertainties for signal
             systLines[j] += systMaster[j][2].replace("-","1") 
+          elif systMaster[j][0].find("HLTzvtx") > -1 and binString[0] == "2" and yearName == "2017": #activate HLT Zvtx unvertainties only for electron channels only in 2017
+            systLines[j] += systMaster[j][2].replace("-","1")
+          elif systMater[j][0].find("_1718") > -1 and (yearName == "2017" or yearName == "2018"): #activate the correlated luminosity uncertainty in 2017/2018 only in the relevant cards
+            systLines[j] += systMaster[j][2].replace("-","1")
           else:
             systLines[j] += systMaster[j][2]
           currentLength = max(currentLength, len(systLines[j]))

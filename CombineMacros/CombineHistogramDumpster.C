@@ -61,6 +61,7 @@ void CombineHistogramDumpster::Loop()
   //define luminosity uncertainties depending on the year
   float LumiCorrVal = 0.0;
   float LumiStatVal = 0.0;
+  float Lumi1718Val = 0.0;
 
   //define electron HLT inefficiency Zvtx uncertainty
   float EleHLTzvtx = 1.;
@@ -70,12 +71,14 @@ void CombineHistogramDumpster::Loop()
   int Year = 0;
   int year = 0;
   float Lumi = 0.;
-  if(YearType == "2016apv")  {Year = 0; year = 2016; Lumi = 19.52; LumiCorrVal = 0.006; LumiStatVal = 0.01;}
+  if(YearType == "2016_APV")  {Year = 0; year = 2016; Lumi = 19.52; LumiCorrVal = 0.006; LumiStatVal = 0.01;}
   else if(YearType == "2016") {Year = 1; year = 2016; Lumi = 16.81; LumiCorrVal = 0.006; LumiStatVal = 0.01;}
-  else if(YearType == "2017") {Year = 2; year = 2017; Lumi = 41.48; LumiCorrVal = 0.009; LumiStatVal = 0.02; EleHLTzvtx = 0.991; EleHLTzvtxUnc = 0.001;}
-  else if(YearType == "2018") {Year = 3; year = 2018; Lumi = 59.83; LumiCorrVal = 0.02; LumiStatVal = 0.015;}
+  else if(YearType == "2017") {Year = 2; year = 2017; Lumi = 41.48; LumiCorrVal = 0.009; LumiStatVal = 0.02;  EleHLTzvtx = 0.991; EleHLTzvtxUnc = 0.001;  Lumi1718Val = 0.006;}
+  else if(YearType == "2018") {Year = 3; year = 2018; Lumi = 59.83; LumiCorrVal = 0.02;  LumiStatVal = 0.015; Lumi1718Val = 0.002;}
   float SampleWeight = 1.;
-  if(dset.Type != 0) SampleWeight = Lumi * dset.CrossSection / dset.Size[Year];
+  if(dset.Type != 0){
+    SampleWeight = Lumi * dset.CrossSection / dset.Size[Year];
+  }
 
   TString binS = TString::Format("Wprime%d_%d", bin, year);
 
@@ -100,10 +103,16 @@ void CombineHistogramDumpster::Loop()
   vector<TH1F*> NegLogLnoB;
   vector<TH2F*> NegLogLnoBvsNegLogL;
 
-  TString YearS = TString::Format("%d",year);
+  TString YearS = YearType;
+  if(YearS=="2016_APV") YearS="2016apv";  //for compatibility reasons, interface Patrick's APV naming with Sifu's APV naming scheme
   TString B2Gn = "xxyyy"; //placeholder, until we get a cadi line number
   TString sampleType = gn;
-  if(Iterator > 21) sampleType = "signal";
+  if(dset.Type == 2) sampleType = "signal";
+
+  TH1::AddDirectory(false);//FIXME:Suppress warnings for histogram declarations
+
+  //Decide if this is ttbar with SF from ST correction
+  bool IsSF_ttbar = Iterator >= 2 && Iterator <= 4 && SFreg != 0;
 
   //first variations are all weight variations and map 1:1, region variations start at index 21
   /*vector<TString> variations = {"" // 0
@@ -115,27 +124,29 @@ void CombineHistogramDumpster::Loop()
   };*/
   //version with CMS standard names
   vector<TString> variations = {"", //0: nominal
-	  "CMS_scale_e_"		  +YearS+"Up", 	"CMS_scale_e" 			+YearS+"Down", 	//1-2:   electron energy scale pT variation (on data)
-	  "CMS_res_e_"  		  +YearS+"Up", 	"CMS_res_e_"  			+YearS+"Down", 	//3-4:   electron energy resolution pT variation
-	  "CMS_scale_j_"		  +YearS+"Up", 	"CMS_scale_j_"			+YearS+"Down", 	//5-6:   jet energy scale pT variation 
-	  "CMS_res_j_"  		  +YearS+"Up", 	"CMS_res_j_"  			+YearS+"Down", 	//7-8:   jet energy resolution pT variation
-	  "CMS_eff_e_trigger_"		  +YearS+"Up",  "CMS_eff_e_trigger_"		+YearS+"Down",	//9-10:	 electron trigger efficiency variation, including HLT Zvtx for 2017
-	  "CMS_eff_e_reco_"		  +YearS+"Up",	"CMS_eff_e_reco_"		+YearS+"Down",  //11-12: electron reconstruction efficiency variation
-	  "CMS_eff_e_"  		  +YearS+"Up",	"CMS_eff_e_"  			+YearS+"Down",	//13-14:  electron ID (including ISO) variation
-	  "CMS_eff_m_trigger_"		  +YearS+"Up",	"CMS_eff_m_trigger_"		+YearS+"Down",	//15-16: muon trigger efficiency variation
-	  "CMS_eff_m_id_"		  +YearS+"Up",	"CMS_eff_m_id_"			+YearS+"Down",  //17-18: muon ID efficiency variation
-	  "CMS_eff_m_iso_"		  +YearS+"Up",	"CMS_eff_m_iso_"		+YearS+"Down",	//19-20: muon ISO efficiency variation
-	  "CMS_btag_light"                      +"Up",  "CMS_btag_light"                      +"Down",  //21-22: correlated component of b-tagging efficiency
-	  "CMS_btag_heavy"		        +"Up",	"CMS_btag_heavy"		      +"Down",	//23-24: correlated component of b-tagging efficiency
-          "CMS_btag_light_"               +YearS+"Up",  "CMS_btag_light_"               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency
-          "CMS_btag_heavy_"               +YearS+"Up",  "CMS_btag_heavy_"               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency
-	  "CMS_eff_j_PUJET_id_" 	  +YearS+"Up",	"CMS_eff_j_PUJET_id_"   	+YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
-	  "CMS_l1_ecal_prefiring_"	  +YearS+"Up",	"CMS_l1_ecal_prefiring_"	+YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
-	  "CMS_pileup"			        +"Up",	"CMS_pileup"		              +"Down",	//33-34: CMS pileup reweighting uncertainty, correlated for Run2
-	  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",	"pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
-	  "QCDscale_"+sampleType	        +"Up",	"QCDscale_"+sampleType                +"Down",	//37-38: ISR/FSR uncertainties
-	  "lumi_13TeV_correlated"               +"Up",	"lumi_13TeV_correlated"               +"Down",  //39-40: correlated luminosity variation for 13 TeV
-	  "lumi_"			  +YearS+"Up",	"lumi_"				+YearS+"Down"	//41-42: uncorrelated luminosity variation by year
+	  TString("CMS_scale_e_")		   +YearS+"Up", TString("CMS_scale_e") 		         +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
+	  TString("CMS_res_e_")  		   +YearS+"Up", TString("CMS_res_e_")  		         +YearS+"Down",  //3-4:   electron energy resolution pT variation
+	  TString("CMS_scale_j_")		   +YearS+"Up", TString("CMS_scale_j_")		         +YearS+"Down",  //5-6:   jet energy scale pT variation 
+	  TString("CMS_res_j_")  		   +YearS+"Up", TString("CMS_res_j_")  		         +YearS+"Down",  //7-8:   jet energy resolution pT variation
+	  TString("CMS_eff_e_trigger_")	           +YearS+"Up", TString("CMS_eff_e_trigger_")		 +YearS+"Down",  //9-10:	 electron trigger efficiency variation, including HLT Zvtx for 2017
+	  TString("CMS_eff_e_reco_")	           +YearS+"Up", TString("CMS_eff_e_reco_")		 +YearS+"Down",  //11-12: electron reconstruction efficiency variation
+	  TString("CMS_eff_e_")  		   +YearS+"Up", TString("CMS_eff_e_")  		         +YearS+"Down",  //13-14:  electron ID (including ISO) variation
+	  TString("CMS_eff_m_trigger_")	           +YearS+"Up", TString("CMS_eff_m_trigger_")		 +YearS+"Down",  //15-16: muon trigger efficiency variation
+	  TString("CMS_eff_m_id_")		   +YearS+"Up", TString("CMS_eff_m_id_")		 +YearS+"Down",  //17-18: muon ID efficiency variation
+	  TString("CMS_eff_m_iso_")		   +YearS+"Up", TString("CMS_eff_m_iso_")		 +YearS+"Down",  //19-20: muon ISO efficiency variation
+	  TString("CMS_btag_light")                      +"Up", TString("CMS_btag_light")                      +"Down",  //21-22: correlated component of b-tagging efficiency
+	  TString("CMS_btag_heavy")		         +"Up", TString("CMS_btag_heavy")		       +"Down",  //23-24: correlated component of b-tagging efficiency
+          TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency
+          TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency
+	  TString("CMS_eff_j_PUJET_id_") 	   +YearS+"Up", TString("CMS_eff_j_PUJET_id_")   	 +YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
+	  TString("CMS_l1_ecal_prefiring_")	   +YearS+"Up", TString("CMS_l1_ecal_prefiring_")	 +YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
+	  TString("CMS_pileup")			         +"Up", TString("CMS_pileup")		               +"Down",  //33-34: CMS pileup reweighting uncertainty, correlated for Run2
+	  TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Up", TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
+	  TString("QCDscale_")+sampleType	         +"Up", TString("QCDscale_")+sampleType                +"Down",  //37-38: ISR/FSR uncertainties
+	  TString("lumi_13TeV_correlated")               +"Up", TString("lumi_13TeV_correlated")               +"Down",  //39-40: correlated luminosity variation for 13 TeV
+	  TString("lumi_13TeV_1718")		         +"Up", TString("lumi_13TeV_1718")		       +"Down",  //41-42: correlation luminosity variation for 2017 and 2018
+	  TString("lumi_")			   +YearS+"Up", TString("lumi_")			 +YearS+"Down",  //43-44: uncorrelated luminosity variation by year
+          TString("CMS_eff_e_HLTzvtx_17")		 +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //45-46: 2017 only electron Z vtx window of HLT inefficiency uncertainty
   };
 
 
@@ -238,8 +249,9 @@ void CombineHistogramDumpster::Loop()
 
 
       //only activate for SR runs with ttbar sample
-      if(SFreg != 0 && Iterator == 2){
-        SFfile = new TFile(TString::Format("TestHistograms/SF_Bin%d_%d.root",SFreg,year));
+      if(SFreg != 0 && Iterator >= 2 && Iterator <= 4){
+	TString SFloc = TString::Format("TestHistograms/SF_Bin%d_",SFreg)+YearS+".root";
+        SFfile = new TFile(SFloc);
         TH1F *SF = (TH1F*)SFfile->Get("SF_"+variations[i]);
         TF1 *SFfit;
         if(bin % 100 < 60) SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x/x+[1]/x/x+[2]/x+[3]+[4]*x+[5]*x*x", 180., 2000.);
@@ -299,6 +311,7 @@ void CombineHistogramDumpster::Loop()
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
+
     //blind data in SRs
     if(Iterator < 2 && bin % 10 >= 3) continue;
 
@@ -396,7 +409,7 @@ void CombineHistogramDumpster::Loop()
       }
       const float CentralWeight = EventWeight[0]*SampleWeight*EventWeightObjectVariations[i];
       //std::cout<<i<<": "<<CentralWeight<<" = "<<EventWeight[0]<<" * "<<SampleWeight<<" * "<<EventWeightObjectVariations[i]<<std::endl;
-      if(Iterator == 2 && SFreg != 0){ //take care of all pT variations and their impact also on the ST values
+      if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
 	const float STcorr = SFs[i].Eval(STvals[i]);
 	const float STcorrCentralWeight = CentralWeight * STcorr;
 	STrew[i]->Fill(STvals[i], STcorrCentralWeight);
@@ -419,17 +432,31 @@ void CombineHistogramDumpster::Loop()
         if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
       }
       float EvWeight = 1.;
-      if(i < variations.size()-4) EvWeight = EventWeight[i-8];
+      if(i < variations.size()-8){
+         EvWeight = EventWeight[i-8];
+	 if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx; //account for HLT z vtx inefficiency in 2017 only for electron channel only
+      }
       else{
-        if(i == variations.size()-4)      EvWeight += LumiCorrVal;
-        else if(i == variations.size()-3) EvWeight -= LumiCorrVal;
-        else if(i == variations.size()-2) EvWeight += LumiStatVal;
-        else if(i == variations.size()-1) EvWeight -= LumiStatVal;
+        if(i == variations.size()-8)       EvWeight += LumiCorrVal;
+        else if(i == variations.size()-7)  EvWeight -= LumiCorrVal;
+	else if(i == variations.size()-6)  EvWeight += Lumi1718Val;
+	else if(i == variations.size()-5)  EvWeight -= Lumi1718Val;
+        else if(i == variations.size()-4)  EvWeight += LumiStatVal;
+        else if(i == variations.size()-3)  EvWeight -= LumiStatVal;
+	else if(i == variations.size()-4)  EvWeight += LumiStatVal;
+        else if(i == variations.size()-3)  EvWeight -= LumiStatVal;
+
+	//block for HLT z vtx inefficiency correction and variation in 2017 only for electron channel only
+	if(YearS == "2017" && bin/1000 == 2){
+	  EvWeight *= EleHLTzvtx;
+	  if(i == variations.size()-2)       EvWeight += EleHLTzvtxUnc;
+          else if(i == variations.size()-1)  EvWeight -= EleHLTzvtxUnc;
+	}
         EvWeight *= EventWeight[0];
       }
       const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
 
-      if(Iterator == 2 && SFreg != 0){
+      if(IsSF_ttbar){
 	const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]);
 	STrew[i]->Fill(STvals[0], CentralWeightSTcorr);	
       }
@@ -525,7 +552,7 @@ void CombineHistogramDumpster::Loop()
 	else if(m==11) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_1100->at(i)/Best_PbTag_1100->at(i)) : -1.;
 
         string HistName;
-        if(Iterator == 2 && SFreg != 0){ //take care of all pT variations and their impact also on the ST values
+        if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
           const float CentralWeight = EventWeight[0] * SampleWeight * EventWeightObjectVariations[i];
 	  const float STcorrCentralWeight = CentralWeight * SFs[i].Eval(STvals[i]);
 	  FitMass[m-3][i]->Fill(fillBranch, STcorrCentralWeight);
@@ -605,7 +632,7 @@ void CombineHistogramDumpster::Loop()
 	  }
 
 	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
-          if(Iterator == 2 && SFreg != 0){
+          if(IsSF_ttbar){
 	    const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]);
 	    FitMass[m-3][i]->Fill(fillBranchZero, CentralWeightSTcorr);
 	    HT[m-3][i]->Fill(fillVar, CentralWeightSTcorr);
@@ -629,7 +656,7 @@ void CombineHistogramDumpster::Loop()
   //save all the W' variation histograms into files
   //fit mass file
   TFile *savefile;
-  savefile = new TFile(TString::Format("TestHistograms/SimpleShapes_Bin%d_",bin)+YearType+TString::Format("_%d.root",Iterator),"RECREATE");
+  savefile = new TFile(TString::Format("TestHistograms/SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
   TString STvarName = gn + "_" + binS + "_" + "STfit_" + YearS + "_";
   STvarName.Append(TString::Format("%d",SFreg));
   savefile->cd();
@@ -643,7 +670,7 @@ void CombineHistogramDumpster::Loop()
         } 
         else continue;
       }
-      else if(Iterator == 2 && SFreg != 0){ //case of applying SF to ttbar
+      else if(IsSF_ttbar){ //case of applying SF to ttbar
         if(j == 0) { //function to propagate ST-fit SF uncertainty to bin error
 	  FitMass_STstatUp[i]->Write();
 	  FitMass_STstatDown[i]->Write();
@@ -670,7 +697,7 @@ void CombineHistogramDumpster::Loop()
 
   //HT file
   TFile *savefileHT;
-  savefileHT = new TFile(TString::Format("TestHistograms/HT_SimpleShapes_Bin%d_",bin)+YearType+TString::Format("_%d.root",Iterator),"RECREATE");
+  savefileHT = new TFile(TString::Format("TestHistograms/HT_SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
   savefileHT->cd();
   for(unsigned i = 0; i < HT.size(); ++i){
     for(unsigned j = 0; j < HT[i].size(); ++j){
@@ -682,7 +709,7 @@ void CombineHistogramDumpster::Loop()
         }
         else continue;
       }
-      else if(Iterator == 2 && SFreg != 0){ //case of applying SF to ttbar
+      else if(IsSF_ttbar){ //case of applying SF to ttbar
         if(j == 0) { //function to propagate ST-fit SF uncertainty to bin error
 	  HT_STstatUp[i]->Write();
 	  HT_STstatDown[i]->Write();
@@ -702,7 +729,7 @@ void CombineHistogramDumpster::Loop()
 
   //2D histograms file for cutting on NLL and splitting between fit mass and HT
   TFile* savefile2D;
-  savefile2D = new TFile(TString::Format("TestHistograms/TwoD_SimpleShapes_Bin%d_",bin)+YearType+TString::Format("_%d.root",Iterator),"RECREATE");
+  savefile2D = new TFile(TString::Format("TestHistograms/TwoD_SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
   savefile2D->cd();
   for(unsigned i = 0; i < HT.size(); ++i){
     for(unsigned j = 0; j < HT[i].size(); ++j){
@@ -714,7 +741,7 @@ void CombineHistogramDumpster::Loop()
         }
         else continue;
       }
-      else if(Iterator == 2 && SFreg != 0){ //case of applying SF to ttbar
+      else if(IsSF_ttbar){ //case of applying SF to ttbar
         if(j == 0){
 	  FitMass_2D_STstatUp[i]->Write();
 	  FitMass_2D_STstatDown[i]->Write();
