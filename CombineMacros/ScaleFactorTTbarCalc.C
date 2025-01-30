@@ -157,7 +157,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
         "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
         "QCDscale_"+sampleType                +"Up",  "QCDscale_"+sampleType                +"Down",  //37-38: ISR/FSR uncertainties
       };
-      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variationsSpecial[i]));
+      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variationsSpecial[i-35]));
       unsigned currentPos = SFhists.size()-1;
       for(unsigned k = 1; k < SimHists.size(); ++k){
 	if(j == k) SFhists[currentPos].Add(&SimHists[k][i],-1); //if this is the variation sample, add variation
@@ -173,9 +173,9 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 	  SFhists[currentPos].SetBinError(x+1,0.);
 	}
       }
-      std::cout<<variationsSpecial[i]<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl;
+      std::cout<<variationsSpecial[i-35]<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl;
 
-      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variationsSpecial[i]));
+      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variationsSpecial[i-35]));
     }
     else{//standard case
       if(variations[i]=="dummy") std::cout<<"Fail!!! Dummy variations mistakenly loaded, instead of specially treating them!"<<std::endl;
