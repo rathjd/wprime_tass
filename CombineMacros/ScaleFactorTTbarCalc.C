@@ -88,6 +88,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
     //sort the samples into histograms with all variations
     if(i<=1){//data
       TString dataName = TString::Format("ST_data_obs_Wprime%d_",bin)+ YearS + "_";
+      std::cout<<"loading "<<dataName<<" from "<<FileLoc<<std::endl;
       dataHist = *(TH1F*)(infile->Get(dataName))->Clone("dataHist");
       for(unsigned mass = 300; mass < 1200; mass+=100){
 	TString MassDataName = TString::Format("NegLogLnoB_Data_Wprime%d_",bin) + YearS + TString::Format("_M%d_",mass);

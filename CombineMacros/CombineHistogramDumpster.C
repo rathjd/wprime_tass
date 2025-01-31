@@ -80,7 +80,10 @@ void CombineHistogramDumpster::Loop()
     SampleWeight = Lumi * dset.CrossSection / dset.Size[Year];
   }
 
-  TString binS = TString::Format("Wprime%d_%d", bin, year);
+  TString YearS = YearType;
+  if(YearS=="2016_APV") YearS="2016apv";  //for compatibility reasons, interface Patrick's APV naming with Sifu's APV naming scheme
+
+  TString binS = TString::Format("Wprime%d_", bin) + YearS;
 
   //define variations
   vector<vector<TH1F*> > FitMass;
@@ -103,8 +106,6 @@ void CombineHistogramDumpster::Loop()
   vector<TH1F*> NegLogLnoB;
   vector<TH2F*> NegLogLnoBvsNegLogL;
 
-  TString YearS = YearType;
-  if(YearS=="2016_APV") YearS="2016apv";  //for compatibility reasons, interface Patrick's APV naming with Sifu's APV naming scheme
   TString B2Gn = "xxyyy"; //placeholder, until we get a cadi line number
   TString sampleType = gn;
   if(dset.Type == 2) sampleType = "signal";
