@@ -137,8 +137,8 @@ void CombineHistogramDumpster::Loop()
 	  TString("CMS_eff_m_iso_")		   +YearS+"Up", TString("CMS_eff_m_iso_")		 +YearS+"Down",  //19-20: muon ISO efficiency variation
 	  TString("CMS_btag_light")                      +"Up", TString("CMS_btag_light")                      +"Down",  //21-22: correlated component of b-tagging efficiency
 	  TString("CMS_btag_heavy")		         +"Up", TString("CMS_btag_heavy")		       +"Down",  //23-24: correlated component of b-tagging efficiency
-          TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency
-          TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency
+          //TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency //FIXME
+          //TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency //FIXME
 	  TString("CMS_eff_j_PUJET_id_") 	   +YearS+"Up", TString("CMS_eff_j_PUJET_id_")   	 +YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
 	  TString("CMS_l1_ecal_prefiring_")	   +YearS+"Up", TString("CMS_l1_ecal_prefiring_")	 +YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
 	  TString("CMS_pileup")			         +"Up", TString("CMS_pileup")		               +"Down",  //33-34: CMS pileup reweighting uncertainty, correlated for Run2

@@ -40,15 +40,15 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   }
 
   //set variation size
-  unsigned varSize = 47;
+  unsigned varSize = 47-4; //FIXME
 
   //loop over samples, organizing data, ttbar, and non-ttbar with variations
-  for(unsigned i = 0; i < 24; ++i){
-    if(bin/1000 == 1 && i == 0) continue;
-    if(bin/2000 == 1 && i == 1) continue;
+  for(unsigned sam = 0; sam < 24; ++sam){
+    if(bin/1000 == 1 && sam == 0) continue;
+    if(bin/2000 == 1 && sam == 1) continue;
 
     //load dataset information
-    Dataset dset = dlib.GetDataset(i);
+    Dataset dset = dlib.GetDataset(sam);
     TString gn = dset.GroupName;
     TString sampleType = gn;
 
@@ -66,8 +66,8 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
           TString("CMS_eff_m_iso_")                +YearS+"Up", TString("CMS_eff_m_iso_")                +YearS+"Down",  //19-20: muon ISO efficiency variation
           TString("CMS_btag_light")                      +"Up", TString("CMS_btag_light")                      +"Down",  //21-22: correlated component of b-tagging efficiency
           TString("CMS_btag_heavy")                      +"Up", TString("CMS_btag_heavy")                      +"Down",  //23-24: correlated component of b-tagging efficiency
-          TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency
-          TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency
+          //TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency //FIXME
+          //TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency //FIXME
           TString("CMS_eff_j_PUJET_id_")           +YearS+"Up", TString("CMS_eff_j_PUJET_id_")           +YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
           TString("CMS_l1_ecal_prefiring_")        +YearS+"Up", TString("CMS_l1_ecal_prefiring_")        +YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
           TString("CMS_pileup")                          +"Up", TString("CMS_pileup")                          +"Down",  //33-34: CMS pileup reweighting uncertainty, correlated for Run2
@@ -82,24 +82,24 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
     //load infile per sample
     TFile *infile;
-    TString FileLoc = TString::Format("TestHistograms/SimpleShapes_Bin%d_",bin) + YearS + TString::Format("_%d.root",i);
+    TString FileLoc = TString::Format("TestHistograms/SimpleShapes_Bin%d_",bin) + YearS + TString::Format("_%d.root",sam);
     infile = new TFile(FileLoc, "READ");
 
     //sort the samples into histograms with all variations
-    if(i<=1){//data
+    if(sam<=1){//data
       TString dataName = TString::Format("ST_data_obs_Wprime%d_",bin)+ YearS + "_";
-      std::cout<<"loading "<<dataName<<" from "<<FileLoc<<std::endl;
+      //std::cout<<"loading "<<dataName<<" from "<<FileLoc<<std::endl;
       dataHist = *(TH1F*)(infile->Get(dataName))->Clone("dataHist");
       for(unsigned mass = 300; mass < 1200; mass+=100){
 	TString MassDataName = TString::Format("NegLogLnoB_Data_Wprime%d_",bin) + YearS + TString::Format("_M%d_",mass);
 	dataHistNLL.push_back( *(TH1F*)(infile->Get(MassDataName))->Clone(TString::Format("dataHistNLL_M%d",mass)));
       }
     }
-    else if(i==2 || i==5 || i==13 || i==18){//first sample in each sample set
-      for(unsigned j = 0; j < variations.size(); ++j){
-        TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variations[j];
-        std::cout<<"creating "<<TmpName<<std::endl;
-        SimHists[dset.Color-2].push_back(*(TH1F*)(infile->Get(TmpName)->Clone(gn + TString::Format("_%d",j))));
+    else if(sam==2 || sam==5 || sam==13 || sam==18){//first sample in each sample set
+      for(unsigned var = 0; var < variations.size(); ++var){
+        TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variations[var];
+        //std::cout<<"creating "<<TmpName<<std::endl;
+        SimHists[dset.Color-2].push_back(*(TH1F*)(infile->Get(TmpName)->Clone(gn + TString::Format("_%d",var))));
       }
       for(unsigned mass = 300; mass < 1200; mass+=100){
         TString TmpName = TString("NegLogLnoB_") + gn + TString::Format("_Wprime%d_",bin) + YearS + TString::Format("_M%d_",mass);
@@ -107,10 +107,10 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
       }
     }
     else{//additional samples in each sample set
-      for(unsigned j = 0; j < variations.size(); ++j){
-        TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variations[j];
-        std::cout<<"adding "<<TmpName<<std::endl;
-        SimHists[dset.Color-2][i].Add((TH1F*)(infile->Get(TmpName)));
+      for(unsigned var = 0; var < variations.size(); ++var){
+        TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variations[var];
+        //std::cout<<"adding "<<TmpName<<std::endl;
+        SimHists[dset.Color-2][var].Add((TH1F*)(infile->Get(TmpName)));
       }
       for(unsigned mass = 300; mass < 1200; mass+=100){
         TString TmpName = TString("NegLogLnoB_") + gn + TString::Format("_Wprime%d_",bin) + YearS + TString::Format("_M%d_",mass);
@@ -121,7 +121,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
   //use variations gathered to calculate central SF histogram and variation SF histograms
   vector<TH1F> SFhists, SFs;
-  for(unsigned i = 0; i < varSize; ++i){
+  for(unsigned var = 0; var < varSize; ++var){
 
     //version with CMS standard names
     vector<TString> variations = {"", //0: nominal
@@ -137,13 +137,13 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
           TString("CMS_eff_m_iso_")                +YearS+"Up", TString("CMS_eff_m_iso_")                +YearS+"Down",  //19-20: muon ISO efficiency variation
           TString("CMS_btag_light")                      +"Up", TString("CMS_btag_light")                      +"Down",  //21-22: correlated component of b-tagging efficiency
           TString("CMS_btag_heavy")                      +"Up", TString("CMS_btag_heavy")                      +"Down",  //23-24: correlated component of b-tagging efficiency
-          TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency
-          TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency
+//          TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency //FIXME
+//          TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency //FIXME
           TString("CMS_eff_j_PUJET_id_")           +YearS+"Up", TString("CMS_eff_j_PUJET_id_")           +YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
           TString("CMS_l1_ecal_prefiring_")        +YearS+"Up", TString("CMS_l1_ecal_prefiring_")        +YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
           TString("CMS_pileup")                          +"Up", TString("CMS_pileup")                          +"Down",  //33-34: CMS pileup reweighting uncertainty, correlated for Run2
-          TString("dummy"), TString("dummy"),  //35-36: Envelope of largest variations of 100 PDF variations
-          TString("dummy"), TString("dummy"),  //37-38: ISR/FSR uncertainties
+          TString("dummy")				      , TString("dummy")				      ,  //35-36: Envelope of largest variations of 100 PDF variations
+          TString("dummy")				      , TString("dummy")				      ,  //37-38: ISR/FSR uncertainties
           TString("lumi_13TeV_correlated")               +"Up", TString("lumi_13TeV_correlated")               +"Down",  //39-40: correlated luminosity variation for 13 TeV
           TString("lumi_13TeV_1718")                     +"Up", TString("lumi_13TeV_1718")                     +"Down",  //41-42: correlation luminosity variation for 2017 and 2018
           TString("lumi_")                         +YearS+"Up", TString("lumi_")                         +YearS+"Down",  //43-44: uncorrelated luminosity variation by year
@@ -152,20 +152,20 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
     //except sample-dependent uncertainties for extra logic
     //at this stage, variation i departs from being concurrent with SF histogram iterator, so we just keep appending each different variation
-    if(i >= 35 && i <= 38) for(unsigned j = 0; j < SampleTypes.size(); ++j){ //loop over different samples{
-      TString sampleType = SampleTypes[j];
+    if(var >= 35-4 && var <= 38-4) for(unsigned sam = 0; sam < SampleTypes.size(); ++sam){ //loop over different samples{ //FIXME
+      TString sampleType = SampleTypes[sam];
       vector<TString> variationsSpecial = {
         "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
         "QCDscale_"+sampleType                +"Up",  "QCDscale_"+sampleType                +"Down",  //37-38: ISR/FSR uncertainties
       };
-      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variationsSpecial[i-35]));
+      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variationsSpecial[var-35+4]));//FIXME
       unsigned currentPos = SFhists.size()-1;
-      for(unsigned k = 1; k < SimHists.size(); ++k){
-	if(j == k) SFhists[currentPos].Add(&SimHists[k][i],-1); //if this is the variation sample, add variation
-	else       SFhists[currentPos].Add(&SimHists[k][0],-1); //else use nominal variation
+      for(unsigned sh = 1; sh < SimHists.size(); ++sh){
+	if(sam == sh) SFhists[currentPos].Add(&SimHists[sh][var],-1); //if this is the variation sample, add variation
+	else          SFhists[currentPos].Add(&SimHists[sh][0]  ,-1); //else use nominal variation
       }
-      if(j == 0) SFhists[currentPos].Divide(&SimHists[0][i]);   //if this is the ttbar variation, divide by variation
-      else       SFhists[currentPos].Divide(&SimHists[0][0]);   //else divide by nominal ttbar
+      if(sam == 0) SFhists[currentPos].Divide(&SimHists[0][var]);   //if this is the ttbar variation, divide by variation
+      else         SFhists[currentPos].Divide(&SimHists[0][0]);     //else divide by nominal ttbar
 
       //cleaning function for bins with no data or negative values
       for(unsigned x = 0; x < dataHist.GetNbinsX(); ++x){
@@ -174,16 +174,16 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 	  SFhists[currentPos].SetBinError(x+1,0.);
 	}
       }
-      std::cout<<variationsSpecial[i-35]<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl;
+      //std::cout<<variationsSpecial[var-35+4]<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl; //FIXME
 
-      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variationsSpecial[i-35]));
+      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variationsSpecial[var-35+4])); //FIXME
     }
     else{//standard case
-      if(variations[i]=="dummy") std::cout<<"Fail!!! Dummy variations mistakenly loaded, instead of specially treating them!"<<std::endl;
-      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variations[i]));
+      if(variations[var]=="dummy") std::cout<<"Fail!!! Dummy variations mistakenly loaded, instead of specially treating them!"<<std::endl;
+      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variations[var]));
       unsigned currentPos = SFhists.size()-1;
-      for(unsigned k = 1; k < SimHists.size(); ++k) SFhists[currentPos].Add(&SimHists[k][i],-1);
-      SFhists[currentPos].Divide(&SimHists[0][i]);
+      for(unsigned sh = 1; sh < SimHists.size(); ++sh) SFhists[currentPos].Add(&SimHists[sh][var],-1); //substract non-ttbar simulation
+      SFhists[currentPos].Divide(&SimHists[0][var]); //divide by ttbar simulation
 
       //cleaning function for bins with no data or negative values
       for(unsigned x = 0; x < dataHist.GetNbinsX(); ++x){
@@ -192,9 +192,9 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
           SFhists[currentPos].SetBinError(x+1,0.);
         }
       }
-      std::cout<<variations[i]<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl;
+      //std::cout<<variations[var]<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl;
 
-      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variations[i]));
+      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variations[var]));
     }
   }
 
@@ -207,7 +207,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   for(unsigned m = 3; m < 12; ++m){
     TString TmpName = TString::Format("NLLresidual_%d_",bin) + YearS + TString::Format("_M%d",m*100);
     TH1F NLLresidual = *(TH1F*)dataHistNLL[m-3].Clone(TmpName);
-    for(unsigned i = 1; i < SimHistsNLL.size(); ++i) SimHistsNLL[0][m-3].Add(&SimHistsNLL[i][m-3]);
+    for(unsigned shn = 1; shn < SimHistsNLL.size(); ++shn) SimHistsNLL[0][m-3].Add(&SimHistsNLL[shn][m-3]);
     NLLresidual.Divide(&SimHistsNLL[0][m-3]);
     NLLresidual.Write();
   }
