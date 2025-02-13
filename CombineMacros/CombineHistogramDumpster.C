@@ -9,6 +9,7 @@
 #include <TMath.h>
 #include <TF1.h>
 #include <cmath>
+#include "Systematics.C"
 
 //small function to calculate covariance matrix envelope of fit function
 float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
@@ -115,17 +116,12 @@ void CombineHistogramDumpster::Loop()
   //Decide if this is ttbar with SF from ST correction
   bool IsSF_ttbar = Iterator >= 2 && Iterator <= 4 && SFreg != 0;
 
-  //first variations are all weight variations and map 1:1, region variations start at index 21
-  /*vector<TString> variations = {"" // 0
-  , "electronScale"+YearS+"Up", "electronScale"+YearS+"Down", "electronRes"+YearS+"Up", "electronRes"+YearS+"Down", "JES"+YearS+"Up", "JES"+YearS+"Down", "JER"+YearS+"Up", "JER"+YearS+"Down" // 1 - 8
-  , "electron"+YearS+"Up", "electron"+YearS+"Down", "muonTrigger"+YearS+"Up", "muonTrigger"+YearS+"Down", "muonId"+YearS+"Up", "muonId"+YearS+"Down", "muonIso"+YearS+"Up", "muonIso"+YearS+"Down" // 9 - 16
-  , "BjetTagCorrUp", "BjetTagCorrDown", "BjetTagUncorr"+YearS+"Up", "BjetTagUncorr"+YearS+"Down", "PUID"+YearS+"Up", "PUID"+YearS+"Down", "L1PreFiring"+YearS+"Up", "L1PreFiring"+YearS+"Down" // 17 - 24
-  , "PUreweight"+YearS+"Up", "PUreweight"+YearS+"Down", "PDFUp", "PDFDown", "LHEScaleUp", "LHEScaleDown", // 25 - 30
-  "LumiCorrUp", "LumiCorrDown", "LumiStat"+YearS+"Up", "LumiStat"+YearS+"Down" //31-34
-  };*/
+  //Declare hardcoded what the size of the systematics variations is:
+  unsigned varSize = 53;
+
   //version with CMS standard names
-  vector<TString> variations = {"", //0: nominal
-	  TString("CMS_scale_e_")		   +YearS+"Up", TString("CMS_scale_e") 		         +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
+  /*vector<TString> variations = {"", //0: nominal
+	  TString("CMS_scale_e_")		   +YearS+"Up", TString("CMS_scale_e_")		         +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
 	  TString("CMS_res_e_")  		   +YearS+"Up", TString("CMS_res_e_")  		         +YearS+"Down",  //3-4:   electron energy resolution pT variation
 	  TString("CMS_scale_j_")		   +YearS+"Up", TString("CMS_scale_j_")		         +YearS+"Down",  //5-6:   jet energy scale pT variation 
 	  TString("CMS_res_j_")  		   +YearS+"Up", TString("CMS_res_j_")  		         +YearS+"Down",  //7-8:   jet energy resolution pT variation
@@ -148,9 +144,9 @@ void CombineHistogramDumpster::Loop()
 	  TString("lumi_13TeV_1718")		         +"Up", TString("lumi_13TeV_1718")		       +"Down",  //41-42: correlation luminosity variation for 2017 and 2018
 	  TString("lumi_")			   +YearS+"Up", TString("lumi_")			 +YearS+"Down",  //43-44: uncorrelated luminosity variation by year
           TString("CMS_eff_e_HLTzvtx_17")		 +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //45-46: 2017 only electron Z vtx window of HLT inefficiency uncertainty
-  };
+  };*/
 
-
+  //assemble histograms with variations for Fit mass, HT, 2D Fit mass vs NLL, 2D HT vs NLL, looping over the mass interpretations from 300 GeV to 1.1 TeV
   vector<vector<TString> > variationsName, HTvariationsName, FitMass2Dnames, HT2Dnames;
   for (unsigned m = 3; m < 12; m++){
     vector<TString> dummy;
@@ -158,8 +154,9 @@ void CombineHistogramDumpster::Loop()
     HTvariationsName.push_back(dummy);
     FitMass2Dnames.push_back(dummy);
     HT2Dnames.push_back(dummy);
-    for (unsigned i = 0; i < variations.size(); ++i) {
-      variationsName[m-3].push_back(gn + "_" + binS + TString::Format("_M%d_",m*100) + variations[i]);
+    for (unsigned i = 0; i < varSize; ++i) {
+      TString variation = Systematics(i, YearS, sampleType, B2Gn);
+      variationsName[m-3].push_back(gn + "_" + binS + TString::Format("_M%d_",m*100) + variation);
       HTvariationsName[m-3].push_back("HT_" + variationsName[m-3][i]);
       FitMass2Dnames[m-3].push_back("FitMass2D_" + variationsName[m-3][i]);
       HT2Dnames[m-3].push_back("HT2D_" + variationsName[m-3][i]);
@@ -167,7 +164,10 @@ void CombineHistogramDumpster::Loop()
   }
 
   vector<TString> variationsNamePlain;
-  for(unsigned i = 0; i < variations.size(); ++i) variationsNamePlain.push_back(gn + "_" + binS + "_" + variations[i]);
+  for(unsigned i = 0; i < varSize; ++i){
+    TString variation = Systematics(i, YearS, sampleType, B2Gn);
+    variationsNamePlain.push_back(gn + "_" + binS + "_" + variation);
+  }
 
   for(unsigned m = 3; m < 12; ++m){
     vector<TH1F*> dummy1D;
@@ -177,7 +177,8 @@ void CombineHistogramDumpster::Loop()
     FitMass_2D.push_back(dummy2D);
     HT_2D.push_back(dummy2D);
 
-    for(unsigned i = 0; i < variations.size(); ++i){
+    for(unsigned i = 0; i < varSize; ++i){
+      TString variation = Systematics(i, YearS, sampleType, B2Gn);
 
       //Extraction variable block
       if(bin % 100 < 60){
@@ -253,7 +254,7 @@ void CombineHistogramDumpster::Loop()
       if(SFreg != 0 && Iterator >= 2 && Iterator <= 4){
 	TString SFloc = TString::Format("TestHistograms/SF_Bin%d_",SFreg)+YearS+".root";
         SFfile = new TFile(SFloc);
-        TH1F *SF = (TH1F*)SFfile->Get("SF_"+variations[i]);
+        TH1F *SF = (TH1F*)SFfile->Get("SF_"+variation);
         TF1 *SFfit;
         if(bin % 100 < 60) SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x/x+[1]/x/x+[2]/x+[3]+[4]*x+[5]*x*x", 180., 2000.);
         else 		 SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 210., 2000.);
@@ -408,7 +409,11 @@ void CombineHistogramDumpster::Loop()
         if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
 	if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
       }
-      const float CentralWeight = EventWeight[0]*SampleWeight*EventWeightObjectVariations[i];
+
+      float EvWeight = EventWeight[0];
+      if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
+      
+      const float CentralWeight = EvWeight*SampleWeight*EventWeightObjectVariations[i];
       //std::cout<<i<<": "<<CentralWeight<<" = "<<EventWeight[0]<<" * "<<SampleWeight<<" * "<<EventWeightObjectVariations[i]<<std::endl;
       if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
 	const float STcorr = SFs[i].Eval(STvals[i]);
@@ -426,35 +431,33 @@ void CombineHistogramDumpster::Loop()
     }
 
     //variation of systematic events weights
-    if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < variations.size(); ++i){
-    //additional 2017 lepton pT cut
+    if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < varSize; ++i){
+      //additional 2017 lepton pT cut
       if(year == 2017){
         if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
         if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
       }
       float EvWeight = 1.;
-      if(i < variations.size()-8){
-         EvWeight = EventWeight[i-8];
-	 if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx; //account for HLT z vtx inefficiency in 2017 only for electron channel only
-      }
-      else{
-        if(i == variations.size()-8)       EvWeight += LumiCorrVal;
-        else if(i == variations.size()-7)  EvWeight -= LumiCorrVal;
-	else if(i == variations.size()-6)  EvWeight += Lumi1718Val;
-	else if(i == variations.size()-5)  EvWeight -= Lumi1718Val;
-        else if(i == variations.size()-4)  EvWeight += LumiStatVal;
-        else if(i == variations.size()-3)  EvWeight -= LumiStatVal;
-	else if(i == variations.size()-4)  EvWeight += LumiStatVal;
-        else if(i == variations.size()-3)  EvWeight -= LumiStatVal;
+      if     (i == varSize-8)    EvWeight += LumiCorrVal;
+      else if(i == varSize-7)    EvWeight -= LumiCorrVal;
+      else if(i == varSize-6)    EvWeight += Lumi1718Val;
+      else if(i == varSize-5)    EvWeight -= Lumi1718Val;
+      else if(i == varSize-4)    EvWeight += LumiStatVal;
+      else if(i == varSize-3)    EvWeight -= LumiStatVal;
+      else if(i == varSize-4)    EvWeight += LumiStatVal;
+      else if(i == varSize-3)    EvWeight -= LumiStatVal;
 
-	//block for HLT z vtx inefficiency correction and variation in 2017 only for electron channel only
-	if(YearS == "2017" && bin/1000 == 2){
-	  EvWeight *= EleHLTzvtx;
-	  if(i == variations.size()-2)       EvWeight += EleHLTzvtxUnc;
-          else if(i == variations.size()-1)  EvWeight -= EleHLTzvtxUnc;
-	}
-        EvWeight *= EventWeight[0];
+
+      //block for HLT z vtx inefficiency correction and variation in 2017 only for electron channel only
+      if(YearS == "2017" && bin/1000 == 2){
+	if     (i == varSize-2)  EvWeight *= EleHLTzvtx+EleHLTzvtxUnc;
+        else if(i == varSize-1)  EvWeight *= EleHLTzvtx-EleHLTzvtxUnc;
+	else                     EvWeight *= EleHLTzvtx;
       }
+
+      //make sure to get the correct event weight, either a variation or the central
+      EvWeight *= i < varSize-8 ? EventWeight[i-8] : EventWeight[0];
+      
       const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
 
       if(IsSF_ttbar){
@@ -491,13 +494,13 @@ void CombineHistogramDumpster::Loop()
       else if(m==11) NLLfillZero = Best_Likelihood_1100->at(0) >= 0 ? -log(Best_Likelihood_1100->at(0)) : -1.;
 
       float NLLnoBfillZero = 0.;
-      if(m==3) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_300->at(0)/Best_PbTag_300->at(0)) : -1.;
-      else if(m==4) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_400->at(0)/Best_PbTag_400->at(0)) : -1.;
-      else if(m==5) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_500->at(0)/Best_PbTag_500->at(0)) : -1.;
-      else if(m==6) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_600->at(0)/Best_PbTag_600->at(0)) : -1.;
-      else if(m==7) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_700->at(0)/Best_PbTag_700->at(0)) : -1.;
-      else if(m==8) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_800->at(0)/Best_PbTag_800->at(0)) : -1.;
-      else if(m==9) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_900->at(0)/Best_PbTag_900->at(0)) : -1.;
+      if(m==3)       NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_300->at(0) /Best_PbTag_300->at(0))  : -1.;
+      else if(m==4)  NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_400->at(0) /Best_PbTag_400->at(0))  : -1.;
+      else if(m==5)  NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_500->at(0) /Best_PbTag_500->at(0))  : -1.;
+      else if(m==6)  NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_600->at(0) /Best_PbTag_600->at(0))  : -1.;
+      else if(m==7)  NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_700->at(0) /Best_PbTag_700->at(0))  : -1.;
+      else if(m==8)  NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_800->at(0) /Best_PbTag_800->at(0))  : -1.;
+      else if(m==9)  NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_900->at(0) /Best_PbTag_900->at(0))  : -1.;
       else if(m==10) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_1000->at(0)/Best_PbTag_1000->at(0)) : -1.;
       else if(m==11) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_1100->at(0)/Best_PbTag_1100->at(0)) : -1.;
 
@@ -552,9 +555,12 @@ void CombineHistogramDumpster::Loop()
 	else if(m==10) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_1000->at(i)/Best_PbTag_1000->at(i)) : -1.;
 	else if(m==11) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_1100->at(i)/Best_PbTag_1100->at(i)) : -1.;
 
+	float EvWeight = EventWeight[0];
+        if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
+
         string HistName;
         if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
-          const float CentralWeight = EventWeight[0] * SampleWeight * EventWeightObjectVariations[i];
+          const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[i];
 	  const float STcorrCentralWeight = CentralWeight * SFs[i].Eval(STvals[i]);
 	  FitMass[m-3][i]->Fill(fillBranch, STcorrCentralWeight);
 	  HT[m-3][i]->Fill(fillVar, STcorrCentralWeight);
@@ -589,7 +595,7 @@ void CombineHistogramDumpster::Loop()
           }
         }
         else{
-	  const float CentralWeight = EventWeight[0]*SampleWeight*EventWeightObjectVariations[i];
+	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[i];
 	  FitMass[m-3][i]->Fill(fillBranch, CentralWeight);
 	  HT[m-3][i]->Fill(fillVar, CentralWeight);
 
@@ -613,7 +619,7 @@ void CombineHistogramDumpster::Loop()
         }
 
         //EventWeight variations
-        for(unsigned i = 9; i < variations.size(); ++i){//last four variations are luminosity
+        for(unsigned i = 9; i < varSize; ++i){//last four variations are luminosity
 	  //FIXME: Additional lepton cut
 	  //if(LeptonPt < 40.) break;
 	
@@ -623,14 +629,24 @@ void CombineHistogramDumpster::Loop()
 	  float fillVar = Vals[0];
 
 	  float EvWeight = 1.;
-	  if(i < variations.size()-4) EvWeight = EventWeight[i-8];
-	  else{
-	    if(i == variations.size()-4)      EvWeight += LumiCorrVal;
-	    else if(i == variations.size()-3) EvWeight -= LumiCorrVal;
-	    else if(i == variations.size()-2) EvWeight += LumiStatVal;
-	    else if(i == variations.size()-1) EvWeight -= LumiStatVal;
-	    EvWeight *= EventWeight[0];
-	  }
+      	  if     (i == varSize-8)    EvWeight += LumiCorrVal;
+      	  else if(i == varSize-7)    EvWeight -= LumiCorrVal;
+      	  else if(i == varSize-6)    EvWeight += Lumi1718Val;
+      	  else if(i == varSize-5)    EvWeight -= Lumi1718Val;
+      	  else if(i == varSize-4)    EvWeight += LumiStatVal;
+      	  else if(i == varSize-3)    EvWeight -= LumiStatVal;
+      	  else if(i == varSize-4)    EvWeight += LumiStatVal;
+      	  else if(i == varSize-3)    EvWeight -= LumiStatVal;
+
+      	  //block for HLT z vtx inefficiency correction and variation in 2017 only for electron channel only
+	  if(YearS == "2017" && bin/1000 == 2){
+            if     (i == varSize-2)  EvWeight *= EleHLTzvtx+EleHLTzvtxUnc;
+            else if(i == varSize-1)  EvWeight *= EleHLTzvtx-EleHLTzvtxUnc;
+	    else		     EvWeight *= EleHLTzvtx;
+          }
+
+          //make sure to get the correct event weight, either a variation or the central
+          EvWeight *= i < varSize-8 ? EventWeight[i-8] : EventWeight[0];
 
 	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
           if(IsSF_ttbar){
@@ -663,11 +679,12 @@ void CombineHistogramDumpster::Loop()
   savefile->cd();
   for(unsigned i = 0; i < FitMass.size(); ++i){
     for(unsigned j = 0; j < FitMass[i].size(); ++j){
+      TString variation = Systematics(j, YearS, sampleType, B2Gn);
       if(dset.Type == 0){
         if(j>2) continue;
         if(Iterator <= 1){
-	  FitMass[i][j]->Write("data_obs_" + binS + TString::Format("_M%d_",(i+3)*100)  + variations[j]);
-	  if(i==0) ST[j]->Write("ST_data_obs_" + binS + "_" + variations[j]);
+	  FitMass[i][j]->Write("data_obs_" + binS + TString::Format("_M%d_",(i+3)*100)  + variation);
+	  if(i==0) ST[j]->Write("ST_data_obs_" + binS + "_" + variation);
         } 
         else continue;
       }
@@ -702,11 +719,12 @@ void CombineHistogramDumpster::Loop()
   savefileHT->cd();
   for(unsigned i = 0; i < HT.size(); ++i){
     for(unsigned j = 0; j < HT[i].size(); ++j){
+      TString variation = Systematics(j, YearS, sampleType, B2Gn);
       if(dset.Type == 0){
         if(j>2) continue;
         if(Iterator <= 1){
-          HT[i][j]->Write("HT_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variations[j]);
-          if(i==0) ST[i]->Write("ST_data_obs_" + binS + "_" + variations[j]);
+          HT[i][j]->Write("HT_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variation);
+          if(i==0) ST[i]->Write("ST_data_obs_" + binS + "_" + variation);
         }
         else continue;
       }
@@ -734,11 +752,12 @@ void CombineHistogramDumpster::Loop()
   savefile2D->cd();
   for(unsigned i = 0; i < HT.size(); ++i){
     for(unsigned j = 0; j < HT[i].size(); ++j){
+      TString variation = Systematics(j, YearS, sampleType, B2Gn);
       if(dset.Type == 0){
         if(j>2) continue;
         if(Iterator <= 1){
-          HT_2D[i][j]->Write("HT_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variations[j]);
-	  FitMass_2D[i][j]->Write("FitMass_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variations[j]);
+          HT_2D[i][j]->Write("HT_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variation);
+	  FitMass_2D[i][j]->Write("FitMass_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variation);
         }
         else continue;
       }

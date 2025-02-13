@@ -8,6 +8,7 @@
 #include <TFitResult.h> 
 #include <TMatrixD.h>
 #include <TMath.h>
+//#include "Systematics.C"
 
 //derive ttbar SF from 2-tag regions of same multiplicity and lepton flavour, then propagate stat uncertainty envelope bin-by-bin and do syst variation histograms
 void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
@@ -40,7 +41,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   }
 
   //set variation size
-  unsigned varSize = 47-4; //FIXME
+  unsigned varSize = 53; //note that this is hardcoded as a crosscheck
 
   //loop over samples, organizing data, ttbar, and non-ttbar with variations
   for(unsigned sam = 0; sam < 24; ++sam){
@@ -53,8 +54,8 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
     TString sampleType = gn;
 
     //version with CMS standard names
-    vector<TString> variations = {"", //0: nominal
-          TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e")                   +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
+    /*vector<TString> variations = {"", //0: nominal
+          TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e_")                  +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
           TString("CMS_res_e_")                    +YearS+"Up", TString("CMS_res_e_")                    +YearS+"Down",  //3-4:   electron energy resolution pT variation
           TString("CMS_scale_j_")                  +YearS+"Up", TString("CMS_scale_j_")                  +YearS+"Down",  //5-6:   jet energy scale pT variation
           TString("CMS_res_j_")                    +YearS+"Up", TString("CMS_res_j_")                    +YearS+"Down",  //7-8:   jet energy resolution pT variation
@@ -78,7 +79,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
           TString("lumi_")                         +YearS+"Up", TString("lumi_")                         +YearS+"Down",  //43-44: uncorrelated luminosity variation by year
           TString("CMS_eff_e_HLTzvtx_17")                +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //45-46: 2017 only electron Z vtx window of HLT inefficiency uncertainty
     };
-    if(variations.size() != varSize) std::cout<<"!!!WARNING: Variations differ in size: "<<variations.size()<<" in vector vs "<<varSize<<" set."<<std::endl;
+    if(variations.size() != varSize) std::cout<<"!!!WARNING: Variations differ in size: "<<variations.size()<<" in vector vs "<<varSize<<" set."<<std::endl;*/
 
     //load infile per sample
     TFile *infile;
@@ -96,8 +97,9 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
       }
     }
     else if(sam==2 || sam==5 || sam==13 || sam==18){//first sample in each sample set
-      for(unsigned var = 0; var < variations.size(); ++var){
-        TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variations[var];
+      for(unsigned var = 0; var < varSize; ++var){
+	TString variation = Systematics(var, YearS, sampleType, B2Gn);
+        TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variation;
         //std::cout<<"creating "<<TmpName<<std::endl;
         SimHists[dset.Color-2].push_back(*(TH1F*)(infile->Get(TmpName)->Clone(gn + TString::Format("_%d",var))));
       }
@@ -107,8 +109,9 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
       }
     }
     else{//additional samples in each sample set
-      for(unsigned var = 0; var < variations.size(); ++var){
-        TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variations[var];
+      for(unsigned var = 0; var < varSize; ++var){
+	TString variation = Systematics(var, YearS, sampleType, B2Gn);
+        TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variation;
         //std::cout<<"adding "<<TmpName<<std::endl;
         SimHists[dset.Color-2][var].Add((TH1F*)(infile->Get(TmpName)));
       }
@@ -124,8 +127,8 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   for(unsigned var = 0; var < varSize; ++var){
 
     //version with CMS standard names
-    vector<TString> variations = {"", //0: nominal
-          TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e")                   +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
+    /*vector<TString> variations = {"", //0: nominal
+          TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e_")                  +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
           TString("CMS_res_e_")                    +YearS+"Up", TString("CMS_res_e_")                    +YearS+"Down",  //3-4:   electron energy resolution pT variation
           TString("CMS_scale_j_")                  +YearS+"Up", TString("CMS_scale_j_")                  +YearS+"Down",  //5-6:   jet energy scale pT variation
           TString("CMS_res_j_")                    +YearS+"Up", TString("CMS_res_j_")                    +YearS+"Down",  //7-8:   jet energy resolution pT variation
@@ -148,17 +151,17 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
           TString("lumi_13TeV_1718")                     +"Up", TString("lumi_13TeV_1718")                     +"Down",  //41-42: correlation luminosity variation for 2017 and 2018
           TString("lumi_")                         +YearS+"Up", TString("lumi_")                         +YearS+"Down",  //43-44: uncorrelated luminosity variation by year
           TString("CMS_eff_e_HLTzvtx_17")                +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //45-46: 2017 only electron Z vtx window of HLT inefficiency uncertainty
-    };
+    };*/
 
     //except sample-dependent uncertainties for extra logic
     //at this stage, variation i departs from being concurrent with SF histogram iterator, so we just keep appending each different variation
-    if(var >= 35-4 && var <= 38-4) for(unsigned sam = 0; sam < SampleTypes.size(); ++sam){ //loop over different samples{ //FIXME
-      TString sampleType = SampleTypes[sam];
-      vector<TString> variationsSpecial = {
+    if(var >= 35 && var <= 40) for(unsigned sam = 0; sam < SampleTypes.size(); ++sam){ //loop over different samples{ 
+      TString variation = Systematics(var, YearS, SampleTypes[sam], B2Gn);
+      /*vector<TString> variationsSpecial = {
         "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
         "QCDscale_"+sampleType                +"Up",  "QCDscale_"+sampleType                +"Down",  //37-38: ISR/FSR uncertainties
-      };
-      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variationsSpecial[var-35+4]));//FIXME
+      };*/
+      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variation));
       unsigned currentPos = SFhists.size()-1;
       for(unsigned sh = 1; sh < SimHists.size(); ++sh){
 	if(sam == sh) SFhists[currentPos].Add(&SimHists[sh][var],-1); //if this is the variation sample, add variation
@@ -174,13 +177,13 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 	  SFhists[currentPos].SetBinError(x+1,0.);
 	}
       }
-      //std::cout<<variationsSpecial[var-35+4]<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl; //FIXME
+      //std::cout<<variation<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl;
 
-      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variationsSpecial[var-35+4])); //FIXME
+      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variation));
     }
     else{//standard case
-      if(variations[var]=="dummy") std::cout<<"Fail!!! Dummy variations mistakenly loaded, instead of specially treating them!"<<std::endl;
-      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variations[var]));
+      TString variation = Systematics(var, YearS, "", B2Gn);//sampleType is empty, because no sample-dependent uncertainties are covered here
+      SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variation));
       unsigned currentPos = SFhists.size()-1;
       for(unsigned sh = 1; sh < SimHists.size(); ++sh) SFhists[currentPos].Add(&SimHists[sh][var],-1); //substract non-ttbar simulation
       SFhists[currentPos].Divide(&SimHists[0][var]); //divide by ttbar simulation
@@ -192,9 +195,9 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
           SFhists[currentPos].SetBinError(x+1,0.);
         }
       }
-      //std::cout<<variations[var]<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl;
+      //std::cout<<variation<<" integrated SF yields per bin "<<SFhists[currentPos].Integral()/SFhists[currentPos].GetNbinsX()<<std::endl;
 
-      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variations[var]));
+      SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variation));
     }
   }
 
