@@ -265,15 +265,26 @@ void CombineHistogramDumpster::Loop()
       }
     }//end variations loop
 
+    //translate SF region identifier to region names for Combine cards
+    TString region = "";
+    if      (SFreg == 1151) region = "mu5j1b";
+    else if (SFreg == 1152) region = "mu5j2b";
+    else if (SFreg == 1161) region = "mu6j1b";
+    else if (SFreg == 1162) region = "mu6j2b";
+    else if (SFreg == 2151) region = "e5j1b";
+    else if (SFreg == 2152) region = "e5j2b";
+    else if (SFreg == 2161) region = "e6j1b";
+    else if (SFreg == 2162) region = "e6j2b";
+
     //ST stat variations block
-    FitMass_STstatUp.push_back( (TH1F*) FitMass[m-3][0]->Clone(variationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFreg)));
-    FitMass_STstatDown.push_back(  (TH1F*) FitMass[m-3][0]->Clone(variationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFreg)));
-    HT_STstatUp.push_back(  (TH1F*) HT[m-3][0]->Clone(HTvariationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFreg)));
-    HT_STstatDown.push_back(  (TH1F*) HT[m-3][0]->Clone(HTvariationsName[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFreg)));
-    FitMass_2D_STstatUp.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFreg)));
-    FitMass_2D_STstatDown.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFreg)));
-    HT_2D_STstatUp.push_back(  (TH2F*) HT_2D[m-3][0]->Clone(HT2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitUp",SFreg)));
-    HT_2D_STstatDown.push_back(  (TH2F*) HT_2D[m-3][0]->Clone(HT2Dnames[m-3][0]+"STfit_"+YearS+TString::Format("_%d_STfitDown",SFreg)));
+    FitMass_STstatUp.push_back(     (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Up"  ));
+    FitMass_STstatDown.push_back(   (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Down"));
+    HT_STstatUp.push_back(          (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Up"  ));
+    HT_STstatDown.push_back(        (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Down"));
+    FitMass_2D_STstatUp.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Up"  ));
+    FitMass_2D_STstatDown.push_back((TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Down"));
+    HT_2D_STstatUp.push_back(       (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Up"  ));
+    HT_2D_STstatDown.push_back(     (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Down"));
   
     //negative log likelihood block
     TString NLLname = "NegLogLnoB_";

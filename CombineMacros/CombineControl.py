@@ -89,10 +89,6 @@ for binN in bins:
   #define correlated entities for usage in card
   #https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun2#Combination_and_correlations is now a shape uncertainty built into histograms in the file
 
-  #define all the systematic names, types, and values
-  #systNames = ["LumiCorr", "LumiStat"+yearName, "electron"+yearName, "muonTrigger"+yearName, "muonId"+yearName, "muonIso"+yearName, "BjetTagCorr", "BjetTagUncorr"+yearName, "PUID"+yearName, "L1PreFiring"+yearName, "PUreweight"+yearName, "PDF",   "LHEScale", "electronScale"+yearName, "electronRes"+yearName, "JES"+yearName, "JER"+yearName, "STfit_"+yearName+"_"+binString[0:3]+"2_STfit", "NLLnonClosure"+yearName+"_"+binString[0:3]+"2"]
-  #systTypes = ["shape",    "shape",             "shape",             "shape",                "shape",           "shape",            "shape",       "shape",                  "shape",         "shape",                "shape",               "shape", "shape",    "lnN",                    "shape",                "shape",        "shape",        "shape",                                  "lnN"] 
-  #systVals  = ["1",        "1",                 "1",                 "1",                    "1",               "1",                "1",           "1",                      "1",             "1",                    "1",                   "1",     "1",        "1",                      "1",                    "1",            "1",            "0",                                      "0"]
   B2Gn = "xxyyy" #FIXME: tbd once cadi line number is assigned
   systMaster = [#lumi and generic normalization uncertainties
                 ["lumi_13TeV_correlated",                               "shape", "1"],
@@ -127,14 +123,8 @@ for binN in bins:
                 ["QCDscale_fac_wjets",                                  "shape", "-"],
                 ["QCDscale_fac_single_top",                             "shape", "-"],
                 ["QCDscale_fac_diboson",                                "shape", "-"],
-                ["ps_isr_ttbar",                                        "shape", "-"],
-                ["ps_isr_wjets",                                        "shape", "-"],
-                ["ps_isr_single_top",                                   "shape", "-"],
-                ["ps_isr_diboson",                                      "shape", "-"],
-                ["ps_fsr_ttbar",                                        "shape", "-"],
-                ["ps_fsr_wjets",                                        "shape", "-"],
-                ["ps_fsr_single_top",                                   "shape", "-"],
-                ["ps_fsr_diboson",                                      "shape", "-"],
+                ["ps_isr",                                              "shape", "1"],
+                ["ps_fsr",                                              "shape", "1"],
                 #["QCDscale_signal",                                     "shape", "-"],
                 
                 #object pT variation uncertainties
@@ -222,11 +212,15 @@ for binN in bins:
       ESF    = ROOT.TFile.Open(binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
       print("open file", binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", ESF)
       ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Up")
-      ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e" + yearName + "Down")#FIXME
+      ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Down")
       ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_")
       print("estimate e scale uncertainty with","data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Up",ESFHu)
       ESFvar = str(max(math.fabs(ESFHu.Integral()/ESFHn.Integral()-1.), math.fabs(ESFHd.Integral()/ESFHn.Integral()-1.))+1.)
-      systMaster[23][2] = ESFvar[0:4]
+      #find the electron scale uncertainty and replace the value with the corresponding estimate
+      for i in range(0, len(systMaster)):
+          if systMaster[i][0].find("CMS_scale_e_") > -1:
+              systMaster[i][2] = ESFvar[0:4]
+              break
       ESF.Close()
 
       for i in range(0, len(allNames)): #assemble bin, process, rate, and systematic line entries, then align
@@ -237,9 +231,9 @@ for binN in bins:
 
         currentLength = max(len(binLine), len(processLine1), len(processLine2), len(rateLine))
 
-        print(systLines)
+        #print(systLines)
         for j in range(0, len(systLines)): #assemble systematic values
-          print(j, systMaster[j])
+          #print(j, systMaster[j])
           if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
             systLines[j] += systMaster[j][2].replace("-","1") #activate ST fit uncertainty for ttbar only in the card
           elif allNames[i] != signalNames[0] and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
@@ -258,8 +252,8 @@ for binN in bins:
               systLines[j] += systMaster[j][2].replace("-",ratio)
           elif systMaster[j][0].find(allNames[i]) > -1: #activate ISR/FSR and PDF uncertainties only specific background samples
             systLines[j] += systMaster[j][2].replace("-","1")
-          elif systMaster[j][0].find("signal") > -1 and allNames[i] == signalNames[0]: #activate ISR/FSR and PDF uncertainties for signal
-            systLines[j] += systMaster[j][2].replace("-","1") 
+          #elif systMaster[j][0].find("signal") > -1 and allNames[i] == signalNames[0]: #activate ISR/FSR and PDF uncertainties for signal
+          #  systLines[j] += systMaster[j][2].replace("-","1") 
           elif systMaster[j][0].find("HLTzvtx") > -1 and binString[0] == "2" and yearName == "2017": #activate HLT Zvtx unvertainties only for electron channels only in 2017
             systLines[j] += systMaster[j][2].replace("-","1")
           elif systMaster[j][0].find("_1718") > -1 and (yearName == "2017" or yearName == "2018"): #activate the correlated luminosity uncertainty in 2017/2018 only in the relevant cards
