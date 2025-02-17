@@ -8,7 +8,7 @@ import math
 #settings for what to plot
 LeptonFlav = 1
 JetMult = 5
-year = "2016"
+year = "2017"
 
 #accept shell inputs
 try:
@@ -26,8 +26,8 @@ except:
     print("jet multiplicity defaults to "+str(JetMult))
 
 try:
-    if int(sys.argv[3]) > 0:
-        year = int(sys.argv[3])
+    if (sys.argv[3]).find("20") > -1:
+        year = sys.argv[3]
         print("year set to "+year)
 except:
     print("year defaults to "+year)
@@ -61,9 +61,13 @@ signals = [["M300", 6],
            ["M900", 8]]
 
 B2Gn = "xxyyy" #FIXME: This is a placeholder
-baseSystematics = ["CMS_res_e_"             +year,
+baseSystematics = [
+                   #uncertainties on object variations other than electron scale
+                   "CMS_res_e_"             +year,
                    "CMS_scale_j_"           +year,
                    "CMS_res_j_"             +year,
+
+                   #event weight variations
                    "CMS_eff_e_trigger_"     +year,
                    "CMS_eff_e_reco_"        +year,
                    "CMS_eff_e_"             +year,
@@ -72,18 +76,27 @@ baseSystematics = ["CMS_res_e_"             +year,
                    "CMS_eff_m_iso_"         +year,
                    "CMS_btag_light"              ,
                    "CMS_btag_heavy"              ,
+                   "CMS_btag_light_"        +year,
+                   "CMS_btag_heavy_"        +year,
                    "CMS_eff_j_PUJET_id_"    +year,
                    "CMS_l1_ecal_prefiring_" +year,
                    "CMS_pileup"                  ,
+                   "ps_isr"                      ,
+                   "ps_fsr"                      ,
+
+                   #uncertainties on normalization
                    "lumi_13TeV_correlated"       ,
                    "lumi_13TeV_1718"             ,
                    "lumi_"                  +year,
                    "CMS_eff_e_HLTzvtx_17"]
+
 #make list of sample-dependent systematics
 extendSystematics = []
 for bgr in backgrounds:
-    extendSystematics.append("pdf_B2G"+B2Gn+"_envelope_"+bgr[0])
-    extendSystematics.append("QCDscale_"+bgr[0])
+    if not bgr[0].find("single_top") > -1:
+        extendSystematics.append("pdf_B2G"+B2Gn+"_envelope_"+bgr[0])
+    extendSystematics.append("QCDscale_ren_"+bgr[0])
+    extendSystematics.append("QCDscale_fac_"+bgr[0])
 baseSystematics.extend(extendSystematics)
 
 SRsystematics = [  "CMS_scale_e"            +year,
@@ -165,13 +178,17 @@ Bgr2brawSystUp = [0] * BinOrigin.GetNbinsX()
 Bgr2brawSystDown = [0] * BinOrigin.GetNbinsX()
 NLLresList = []
 
+testHistIn = inResult.Get("ST_ttbar_Wprime"+binS+"2_"+year+"_")
+testHist = testHistIn.Clone("testHist")
+testHist.Scale(0.)
+
 for background in backgrounds:
     BgrPart1b = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_")
     print("Background part for 1b","ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_")
 
     BgrPart2braw = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
     print("Background part for 2b raw","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
-    
+
     if background[1]==2:
         BgrPart2b = inResult.Get("STrew_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
         print("Background part for 2b reweighted","STrew_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
@@ -180,14 +197,15 @@ for background in backgrounds:
         BgrTotal2braw = BgrPart2braw.Clone("BgrTotal2braw")
     else:
         BgrPart2b = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
-        print("Background part for 2b reweighted","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
+        print("Background part for 2b","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
         BgrTotal1b.Add(BgrPart1b)
         BgrTotal2b.Add(BgrPart2b)
         BgrTotal2braw.Add(BgrPart2braw)
 
     BgrPart1b.Scale(1.,"width")
     BgrPart2b.Scale(1.,"width")
-    BgrPart2braw.Scale(1.,"width")
+    if not BgrPart2b.GetName() == BgrPart2braw.GetName():
+        BgrPart2braw.Scale(1.,"width")
 
     Bgr1b[background[0]] = BgrPart1b
     Bgr2b[background[0]] = BgrPart2b
@@ -199,8 +217,8 @@ for background in backgrounds:
         Bgr1bSystDown[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
         Bgr2bSystUp[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
         Bgr2bSystDown[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
-        Bgr2brawSystUp[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
-        Bgr2brawSystDown[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
+        Bgr2brawSystUp[bin] += pow(BgrPart2braw.GetBinError(bin+1),2)
+        Bgr2brawSystDown[bin] += pow(BgrPart2braw.GetBinError(bin+1),2)
 
     #determine the uncertainties per bin
     for syst in baseSystematics:
@@ -225,8 +243,9 @@ for background in backgrounds:
         Down1b.Scale(1.,"width")
         Up2b.Scale(1.,"width")
         Down2b.Scale(1.,"width")
-        Up2braw.Scale(1.,"width")
-        Down2braw.Scale(1.,"width")
+        if not Up2b.GetName() == Up2braw.GetName():
+            Up2braw.Scale(1.,"width")
+            Down2braw.Scale(1.,"width")
 
         for bin in range(0,BgrPart1b.GetNbinsX()):
             Bgr1bSystUp[bin] += pow(max(Up1b.GetBinContent(bin+1) - BgrPart1b.GetBinContent(bin+1),
@@ -386,9 +405,9 @@ grErr2b.Draw("F, same")
 CMS.cmsDraw(Data2b, "P", mcolor=1)
 leg2b.Draw()
 
-#print("further checks for reweighted 2b region")
-#print("max Stack =",Stack2b.GetMaximum())
-#print("max Total =",BgrTotal2b.GetMaximum())
+print("further checks for reweighted 2b region")
+print("max Stack =",Stack2b.GetMaximum())
+print("max Total =",BgrTotal2b.GetMaximum())
 
 CMS.fixOverlay()
 
