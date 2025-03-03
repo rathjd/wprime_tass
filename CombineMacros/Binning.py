@@ -147,7 +147,7 @@ for entry in range(0, chainData.GetEntries()):
                 SThist.Fill(JetPt[0]+JetPt[1]+JetPt[2]+JetPt[3]+JetPt[4]+JetPt[5]+getattr(chainData,"LeptonPt")+getattr(chainData,"METPt"))
 
 #Get the quantiles and print
-print("Monte Carlo ttbar electron region with jet multiplicity",JetMult,"and b tag multiplicity",bTagMult,"considering minimum statistics per bin",nStatMinMC)
+print("Data electron region for ST histograms with jet multiplicity",JetMult,"and b tag multiplicity",bTagMult,"considering minimum statistics per bin",nStatMinMC)
 nqST = math.floor(SThist.Integral()/nStatMinST)
 xST = []
 yST = []
