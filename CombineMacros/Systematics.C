@@ -49,8 +49,6 @@ TString Systematics(unsigned index, TString YearS, TString sampleType, TString B
 	TString("QCDscale_fac_wjetsUp"),                        TString("QCDscale_fac_wjetsDown"),                      //12-13: offdiagonal QCD scale variations: wjets
         TString("QCDscale_fac_single_topUp"),                   TString("QCDscale_fac_single_topDown"),                 //14-15: offdiagonal QCD scale variations: single top
         TString("QCDscale_fac_dibosonUp"),                      TString("QCDscale_fac_dibosonDown"),                    //16-17: offdiagonal QCD scale variations: diboson
-
-
   };
   
   if(!offdiagonal) return variations[index];

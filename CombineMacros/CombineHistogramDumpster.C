@@ -175,7 +175,7 @@ void CombineHistogramDumpster::Loop()
       //Extraction variable block
       if(bin % 100 < 60){
         FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", nFitLimits53_500, FitLimits53_500));
-        HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", nHTlimits53-1, HTlimits53));
+        HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", nHTlimits53, HTlimits53));
         FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nFitLimits53_500, FitLimits53_500, nNLLlimits53_500, NLLlimits53_500));
         HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nHTlimits53, HTlimits53, nNLLlimits53_500, NLLlimits53_500));
       }
@@ -653,10 +653,10 @@ void CombineHistogramDumpster::Loop()
   savefile->cd();
   for(unsigned i = 0; i < FitMass.size(); ++i){
     for(unsigned j = 0; j < FitMass[i].size(); ++j){
-      TString variation = Systematics(j, YearS, sampleType, B2Gn);
       if(dset.Type == 0){
         if(j>2) continue;
         if(Iterator <= 1){
+	  TString variation = Systematics(j, YearS, sampleType, B2Gn);
 	  FitMass[i][j]->Write("data_obs_" + binS + TString::Format("_M%d_",(i+3)*100)  + variation);
 	  if(i==0) ST[j]->Write("ST_data_obs_" + binS + "_" + variation);
         } 
@@ -694,10 +694,10 @@ void CombineHistogramDumpster::Loop()
   savefileHT->cd();
   for(unsigned i = 0; i < HT.size(); ++i){
     for(unsigned j = 0; j < HT[i].size(); ++j){
-      TString variation = Systematics(j, YearS, sampleType, B2Gn);
       if(dset.Type == 0){
         if(j>2) continue;
         if(Iterator <= 1){
+	  TString variation = Systematics(j, YearS, sampleType, B2Gn);
           HT[i][j]->Write("HT_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variation);
           if(i==0) ST[i]->Write("ST_data_obs_" + binS + "_" + variation);
         }
@@ -727,10 +727,10 @@ void CombineHistogramDumpster::Loop()
   savefile2D->cd();
   for(unsigned i = 0; i < HT.size(); ++i){
     for(unsigned j = 0; j < HT[i].size(); ++j){
-      TString variation = Systematics(j, YearS, sampleType, B2Gn);
       if(dset.Type == 0){
         if(j>2) continue;
         if(Iterator <= 1){
+	  TString variation = Systematics(j, YearS, sampleType, B2Gn);
           HT_2D[i][j]->Write("HT_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variation);
 	  FitMass_2D[i][j]->Write("FitMass_data_obs_" + binS + TString::Format("_M%d_",(i+3)*100) + variation);
         }
