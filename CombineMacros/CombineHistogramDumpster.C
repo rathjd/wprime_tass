@@ -123,13 +123,13 @@ void CombineHistogramDumpster::Loop()
 
   //assemble histograms with variations for Fit mass, HT, 2D Fit mass vs NLL, 2D HT vs NLL, looping over the mass interpretations from 300 GeV to 1.1 TeV
   vector<vector<TString> > variationsName, HTvariationsName, FitMass2Dnames, HT2Dnames;
-  for (unsigned m = 3; m < 12; m++){
+  for(unsigned m = 3; m < 12; m++){
     vector<TString> dummy;
     variationsName.push_back(dummy);
     HTvariationsName.push_back(dummy);
     FitMass2Dnames.push_back(dummy);
     HT2Dnames.push_back(dummy);
-    for (unsigned i = 0; i < varSize; ++i) {
+    for(unsigned i = 0; i < varSize; ++i) {
       TString variation = Systematics(i, YearS, sampleType, B2Gn);
       variationsName[m-3].push_back(gn + "_" + binS + TString::Format("_M%d_",m*100) + variation);
       HTvariationsName[m-3].push_back("HT_" + variationsName[m-3][i]);
@@ -137,7 +137,7 @@ void CombineHistogramDumpster::Loop()
       HT2Dnames[m-3].push_back("HT2D_" + variationsName[m-3][i]);
     }
     if(IsSF_ttbar){//case when offdiagronal PDF and QCD scale uncertainties for ttbar need to be taken into account
-      for (unsigned i = 0; i < varOff; ++i){
+      for(unsigned i = 0; i < varOff; ++i){
         TString variation = Systematics(i, YearS, sampleType, B2Gn, true);
         variationsName[m-3].push_back(gn + "_" + binS + TString::Format("_M%d_",m*100) + variation);
         HTvariationsName[m-3].push_back("HT_" + variationsName[m-3][i]);
@@ -152,6 +152,12 @@ void CombineHistogramDumpster::Loop()
     TString variation = Systematics(i, YearS, sampleType, B2Gn);
     variationsNamePlain.push_back(gn + "_" + binS + "_" + variation);
   }
+  if(IsSF_ttbar){
+    for(unsigned i = 0; i < varOff; ++i){
+      TString variation = Systematics(i, YearS, sampleType, B2Gn, true);
+      variationsNamePlain.push_back(gn + "_" + binS + "_" + variation);
+    }
+  }
 
   for(unsigned m = 3; m < 12; ++m){
     vector<TH1F*> dummy1D;
@@ -161,8 +167,10 @@ void CombineHistogramDumpster::Loop()
     FitMass_2D.push_back(dummy2D);
     HT_2D.push_back(dummy2D);
 
-    for(unsigned i = 0; i < varSize; ++i){
-      TString variation = Systematics(i, YearS, sampleType, B2Gn);
+    for(unsigned i = 0; i < varSize+varOff; ++i){
+      TString variation = "";
+      if(i < varSize) variation = Systematics(i, YearS, sampleType, B2Gn);
+      else            variation = Systematics(i-varSize, YearS, sampleType, B2Gn, true);
 
       //Extraction variable block
       if(bin % 100 < 60){
