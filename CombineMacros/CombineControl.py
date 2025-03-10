@@ -252,6 +252,10 @@ for binN in bins:
               systLines[j] += systMaster[j][2].replace("-",ratio)
           elif systMaster[j][0].find(allNames[i]) > -1: #activate ISR/FSR and PDF uncertainties only specific background samples
             systLines[j] += systMaster[j][2].replace("-","1")
+          elif allNames[i] == "ttbar" and systLines[j].find("pdf_B2G") > -1:  #activate correlation of PDF uncertainties via ST SF to ttbar estimate
+            systLines[j] += systMaster[j][2].replace("-","1")
+          elif allNames[i] == "ttbar" and systLines[j].find("QCDscale") > -1: #activate correlation of factorization and renormalization uncertainties via ST SF to ttbar estimate
+            systLines[j] += systMaster[j][2].replace("-","1")
           #elif systMaster[j][0].find("signal") > -1 and allNames[i] == signalNames[0]: #activate ISR/FSR and PDF uncertainties for signal
           #  systLines[j] += systMaster[j][2].replace("-","1") 
           elif systMaster[j][0].find("HLTzvtx") > -1 and binString[0] == "2" and yearName == "2017": #activate HLT Zvtx unvertainties only for electron channels only in 2017

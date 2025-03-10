@@ -17,14 +17,6 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   TString YearS = year;
   if(year == "2016_APV") YearS="2016apv";
  
-  /*vector<TString> variations = {"" // 0
-    , "electronScale"+sYear+ "Up", "electronScale"+sYear+ "Down", "electronRes"+sYear+ "Up", "electronRes"+sYear+ "Down", "JES"+sYear+ "Up", "JES"+sYear+ "Down", "JER"+sYear+ "Up", "JER"+sYear+ "Down" // 1 - 8
-    , "electron"+sYear+ "Up", "electron"+sYear+ "Down", "muonTrigger"+sYear+ "Up", "muonTrigger"+sYear+ "Down", "muonId"+sYear+ "Up", "muonId"+sYear+ "Down", "muonIso"+sYear+ "Up", "muonIso"+sYear+ "Down" // 9 - 16
-    , "BjetTagCorrUp", "BjetTagCorrDown", "BjetTagUncorr"+sYear+ "Up", "BjetTagUncorr"+sYear+ "Down", "PUID"+sYear+ "Up", "PUID"+sYear+ "Down", "L1PreFiring"+sYear+ "Up", "L1PreFiring"+sYear+ "Down" // 17 - 24
-    , "PUreweight"+sYear+ "Up", "PUreweight"+sYear+ "Down", "PDFUp", "PDFDown", "LHEScaleUp", "LHEScaleDown", // 25 - 30
-      "LumiCorrUp", "LumiCorrDown", "LumiStat"+sYear+"Up", "LumiStat"+sYear+"Down" //31-34
-  };*/
-
   TH1F dataHist;
   vector<vector<TH1F> > SimHists;
 
@@ -52,34 +44,6 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
     Dataset dset = dlib.GetDataset(sam);
     TString gn = dset.GroupName;
     TString sampleType = gn;
-
-    //version with CMS standard names
-    /*vector<TString> variations = {"", //0: nominal
-          TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e_")                  +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
-          TString("CMS_res_e_")                    +YearS+"Up", TString("CMS_res_e_")                    +YearS+"Down",  //3-4:   electron energy resolution pT variation
-          TString("CMS_scale_j_")                  +YearS+"Up", TString("CMS_scale_j_")                  +YearS+"Down",  //5-6:   jet energy scale pT variation
-          TString("CMS_res_j_")                    +YearS+"Up", TString("CMS_res_j_")                    +YearS+"Down",  //7-8:   jet energy resolution pT variation
-          TString("CMS_eff_e_trigger_")            +YearS+"Up", TString("CMS_eff_e_trigger_")            +YearS+"Down",  //9-10:         electron trigger efficiency variation, including HLT Zvtx for 2017
-          TString("CMS_eff_e_reco_")               +YearS+"Up", TString("CMS_eff_e_reco_")               +YearS+"Down",  //11-12: electron reconstruction efficiency variation
-          TString("CMS_eff_e_")                    +YearS+"Up", TString("CMS_eff_e_")                    +YearS+"Down",  //13-14:  electron ID (including ISO) variation
-          TString("CMS_eff_m_trigger_")            +YearS+"Up", TString("CMS_eff_m_trigger_")            +YearS+"Down",  //15-16: muon trigger efficiency variation
-          TString("CMS_eff_m_id_")                 +YearS+"Up", TString("CMS_eff_m_id_")                 +YearS+"Down",  //17-18: muon ID efficiency variation
-          TString("CMS_eff_m_iso_")                +YearS+"Up", TString("CMS_eff_m_iso_")                +YearS+"Down",  //19-20: muon ISO efficiency variation
-          TString("CMS_btag_light")                      +"Up", TString("CMS_btag_light")                      +"Down",  //21-22: correlated component of b-tagging efficiency
-          TString("CMS_btag_heavy")                      +"Up", TString("CMS_btag_heavy")                      +"Down",  //23-24: correlated component of b-tagging efficiency
-          //TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency //FIXME
-          //TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency //FIXME
-          TString("CMS_eff_j_PUJET_id_")           +YearS+"Up", TString("CMS_eff_j_PUJET_id_")           +YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
-          TString("CMS_l1_ecal_prefiring_")        +YearS+"Up", TString("CMS_l1_ecal_prefiring_")        +YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
-          TString("CMS_pileup")                          +"Up", TString("CMS_pileup")                          +"Down",  //33-34: CMS pileup reweighting uncertainty, correlated for Run2
-          TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Up", TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
-          TString("QCDscale_")+sampleType                +"Up", TString("QCDscale_")+sampleType                +"Down",  //37-38: ISR/FSR uncertainties
-          TString("lumi_13TeV_correlated")               +"Up", TString("lumi_13TeV_correlated")               +"Down",  //39-40: correlated luminosity variation for 13 TeV
-          TString("lumi_13TeV_1718")                     +"Up", TString("lumi_13TeV_1718")                     +"Down",  //41-42: correlation luminosity variation for 2017 and 2018
-          TString("lumi_")                         +YearS+"Up", TString("lumi_")                         +YearS+"Down",  //43-44: uncorrelated luminosity variation by year
-          TString("CMS_eff_e_HLTzvtx_17")                +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //45-46: 2017 only electron Z vtx window of HLT inefficiency uncertainty
-    };
-    if(variations.size() != varSize) std::cout<<"!!!WARNING: Variations differ in size: "<<variations.size()<<" in vector vs "<<varSize<<" set."<<std::endl;*/
 
     //load infile per sample
     TFile *infile;
@@ -126,41 +90,10 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   vector<TH1F> SFhists, SFs;
   for(unsigned var = 0; var < varSize; ++var){
 
-    //version with CMS standard names
-    /*vector<TString> variations = {"", //0: nominal
-          TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e_")                  +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
-          TString("CMS_res_e_")                    +YearS+"Up", TString("CMS_res_e_")                    +YearS+"Down",  //3-4:   electron energy resolution pT variation
-          TString("CMS_scale_j_")                  +YearS+"Up", TString("CMS_scale_j_")                  +YearS+"Down",  //5-6:   jet energy scale pT variation
-          TString("CMS_res_j_")                    +YearS+"Up", TString("CMS_res_j_")                    +YearS+"Down",  //7-8:   jet energy resolution pT variation
-          TString("CMS_eff_e_trigger_")            +YearS+"Up", TString("CMS_eff_e_trigger_")            +YearS+"Down",  //9-10:         electron trigger efficiency variation, including HLT Zvtx for 2017
-          TString("CMS_eff_e_reco_")               +YearS+"Up", TString("CMS_eff_e_reco_")               +YearS+"Down",  //11-12: electron reconstruction efficiency variation
-          TString("CMS_eff_e_")                    +YearS+"Up", TString("CMS_eff_e_")                    +YearS+"Down",  //13-14:  electron ID (including ISO) variation
-          TString("CMS_eff_m_trigger_")            +YearS+"Up", TString("CMS_eff_m_trigger_")            +YearS+"Down",  //15-16: muon trigger efficiency variation
-          TString("CMS_eff_m_id_")                 +YearS+"Up", TString("CMS_eff_m_id_")                 +YearS+"Down",  //17-18: muon ID efficiency variation
-          TString("CMS_eff_m_iso_")                +YearS+"Up", TString("CMS_eff_m_iso_")                +YearS+"Down",  //19-20: muon ISO efficiency variation
-          TString("CMS_btag_light")                      +"Up", TString("CMS_btag_light")                      +"Down",  //21-22: correlated component of b-tagging efficiency
-          TString("CMS_btag_heavy")                      +"Up", TString("CMS_btag_heavy")                      +"Down",  //23-24: correlated component of b-tagging efficiency
-//          TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //25-26: uncorrelated component of b-tagging efficiency //FIXME
-//          TString("CMS_btag_heavy_")               +YearS+"Up", TString("CMS_btag_heavy_")               +YearS+"Down",  //27-28: cunorrelated component of b-tagging efficiency //FIXME
-          TString("CMS_eff_j_PUJET_id_")           +YearS+"Up", TString("CMS_eff_j_PUJET_id_")           +YearS+"Down",  //29-30: uncertaintiy of PU jet ID efficiency
-          TString("CMS_l1_ecal_prefiring_")        +YearS+"Up", TString("CMS_l1_ecal_prefiring_")        +YearS+"Down",  //31-32: L1 ECAL prefiring issue in 2016 and 2017 only
-          TString("CMS_pileup")                          +"Up", TString("CMS_pileup")                          +"Down",  //33-34: CMS pileup reweighting uncertainty, correlated for Run2
-          TString("dummy")				      , TString("dummy")				      ,  //35-36: Envelope of largest variations of 100 PDF variations
-          TString("dummy")				      , TString("dummy")				      ,  //37-38: ISR/FSR uncertainties
-          TString("lumi_13TeV_correlated")               +"Up", TString("lumi_13TeV_correlated")               +"Down",  //39-40: correlated luminosity variation for 13 TeV
-          TString("lumi_13TeV_1718")                     +"Up", TString("lumi_13TeV_1718")                     +"Down",  //41-42: correlation luminosity variation for 2017 and 2018
-          TString("lumi_")                         +YearS+"Up", TString("lumi_")                         +YearS+"Down",  //43-44: uncorrelated luminosity variation by year
-          TString("CMS_eff_e_HLTzvtx_17")                +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //45-46: 2017 only electron Z vtx window of HLT inefficiency uncertainty
-    };*/
-
     //except sample-dependent uncertainties for extra logic
     //at this stage, variation i departs from being concurrent with SF histogram iterator, so we just keep appending each different variation
     if(var >= 35 && var <= 40) for(unsigned sam = 0; sam < SampleTypes.size(); ++sam){ //loop over different samples{ 
       TString variation = Systematics(var, YearS, SampleTypes[sam], B2Gn);
-      /*vector<TString> variationsSpecial = {
-        "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Up",  "pdf_B2G"+B2Gn+"_envelope_"+sampleType+"Down",  //35-36: Envelope of largest variations of 100 PDF variations
-        "QCDscale_"+sampleType                +"Up",  "QCDscale_"+sampleType                +"Down",  //37-38: ISR/FSR uncertainties
-      };*/
       SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variation));
       unsigned currentPos = SFhists.size()-1;
       for(unsigned sh = 1; sh < SimHists.size(); ++sh){

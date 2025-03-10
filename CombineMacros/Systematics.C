@@ -4,7 +4,7 @@
 
 //archive of systematics sources and their indexing, returns the systematics name string
 
-TString Systematics(unsigned index, TString YearS, TString sampleType, TString B2Gn){
+TString Systematics(unsigned index, TString YearS, TString sampleType, TString B2Gn, bool offdiagonal = false){
   vector<TString> variations = {"", //0: nominal
           //object pT variation uncertainties
           TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e_")                  +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
@@ -39,5 +39,20 @@ TString Systematics(unsigned index, TString YearS, TString sampleType, TString B
           TString("CMS_eff_e_HLTzvtx_17")                +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //51-52: 2017 only electron Z vtx window of HLT inefficiency uncertainty
   };
 
-  return variations[index];
+  vector<TString> offvariations = {
+  	TString("pdf_B2G")+B2Gn+"_envelope_wjetsUp",		TString("pdf_B2G")+B2Gn+"_envelope_wjetsDown",  	//0-1:   offdiagonal PDF variations: wjets
+	TString("pdf_B2G")+B2Gn+"_envelope_single_topUp",	TString("pdf_B2G")+B2Gn+"_envelope_single_topDown",  	//2-3:   offdiagonal PDF variations: single top
+	TString("pdf_B2G")+B2Gn+"_envelope_dibosonUp",		TString("pdf_B2G")+B2Gn+"_envelope_dibosonDown",  	//4-5:   offdiagonal PDF variations: diboson
+	TString("QCDscale_ren_wjetsUp"),			TString("QCDscale_ren_wjetsDown"),  			//6-7:   offdiagonal QCD scale variations: wjets
+	TString("QCDscale_ren_single_topUp"),                   TString("QCDscale_ren_single_topDown"),                 //8-9:   offdiagonal QCD scale variations: single top
+	TString("QCDscale_ren_dibosonUp"),                      TString("QCDscale_ren_dibosonDown"),                    //10-11: offdiagonal QCD scale variations: diboson
+	TString("QCDscale_fac_wjetsUp"),                        TString("QCDscale_fac_wjetsDown"),                      //12-13: offdiagonal QCD scale variations: wjets
+        TString("QCDscale_fac_single_topUp"),                   TString("QCDscale_fac_single_topDown"),                 //14-15: offdiagonal QCD scale variations: single top
+        TString("QCDscale_fac_dibosonUp"),                      TString("QCDscale_fac_dibosonDown"),                    //16-17: offdiagonal QCD scale variations: diboson
+
+
+  };
+  
+  if(!offdiagonal) return variations[index];
+  else             return offvariations[index];
 }
