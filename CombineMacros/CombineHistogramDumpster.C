@@ -10,6 +10,7 @@
 #include <TF1.h>
 #include <cmath>
 #include "Systematics.C"
+#include "BinTables.C"
 
 //small function to calculate covariance matrix envelope of fit function
 float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
@@ -115,6 +116,8 @@ void CombineHistogramDumpster::Loop()
 
   //Decide if this is ttbar with SF from ST correction
   bool IsSF_ttbar = Iterator >= 2 && Iterator <= 4 && SFreg != 0;
+  //FIXME
+  std::cout<<"IsSF_ttbar = "<<IsSF_ttbar<<std::endl;
 
   //Declare hardcoded what the size of the systematics variations is:
   unsigned varSize = 53;
@@ -182,52 +185,23 @@ void CombineHistogramDumpster::Loop()
 
       //Extraction variable block
       if(bin % 100 < 60){
-        if(bin % 10 == 3){ //5 jets 3 b-tags
-	  double FitLimits[36] = {85., 220., 230., 239., 247., 255., 263., 270., 276., 282., 288., 294., 301., 308., 315., 322., 329., 336., 343., 350., 360., 372., 384., 396., 410., 425., 445., 465., 490., 515., 550., 590., 650., 730., 880., 2000.};
-          FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", 35, FitLimits));
-	  double HTlimits[47] = {125., 230., 245., 258., 265., 273., 281., 288., 294., 300., 306., 312., 318., 324., 330., 336., 342., 348., 354., 360., 367., 374., 381., 388., 395., 402., 409., 417., 426., 435., 445., 455., 465., 475., 487., 501., 515., 531., 550., 570., 595., 625., 660., 705., 780., 910.,  2000.};
-          HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 46, HTlimits));
-	  double NLLlimits[53] = {0., 0.80, 1.05, 1.25, 1.45, 1.60, 1.75, 1.90, 2.00, 2.15, 2.30, 2.40, 2.65, 2.80, 2.92, 3.05, 3.20, 3.30, 3.45, 3.60, 3.75, 3.90, 4.00, 4.20, 4.30, 4.45, 4.60, 4.75, 4.90, 5.10, 5.25, 5.40, 5.60, 5.80, 6.00, 6.25, 6.50, 6.75, 7.00, 7.35, 7.70, 8.05, 8.40, 8.80, 9.20, 9.70, 10.10, 10.65, 11.25, 12.00, 12.95, 14.40, 30.};
-          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 35, FitLimits, 52, NLLlimits));
-          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 46, HTlimits, 52, NLLlimits));
-        } else if(bin % 10 == 4){//5 jets 4 b-tags
-	    double FitLimits[2] = {120., 2000.};
-	    FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", 1, FitLimits));
-	    double HTlimits[15] = {155., 270., 300., 325., 345., 365., 385., 410., 435., 465., 495., 545., 610., 740., 2000.};
-	    HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 14, HTlimits));
-	    double NLLlimits[53] = {0., 0.80, 1.05, 1.25, 1.45, 1.60, 1.75, 1.90, 2.00, 2.15, 2.30, 2.40, 2.65, 2.80, 2.92, 3.05, 3.20, 3.30, 3.45, 3.60, 3.75, 3.90, 4.00, 4.20, 4.30, 4.45, 4.60, 4.75, 4.90, 5.10, 5.25, 5.40, 5.60, 5.80, 6.00, 6.25, 6.50, 6.75, 7.00, 7.35, 7.70, 8.05, 8.40, 8.80, 9.20, 9.70, 10.10, 10.65, 11.25, 12.00, 12.95, 14.40, 30.};
-          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 1, FitLimits, 52, NLLlimits));
-          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 14, HTlimits, 52, NLLlimits));
-        } else {
-          FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", 400, 0., 2000.));
-          HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 400, 0., 2000.));
-          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 400, 0., 2000., 60, 0., 30.));
-          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 400, 0., 2000., 60, 0., 30.));
-        }
+        FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", nFitLimits53_500, FitLimits53_500));
+        HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", nHTlimits53-1, HTlimits53));
+        FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nFitLimits53_500, FitLimits53_500, nNLLlimits53_500, NLLlimits53_500));
+        HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nHTlimits53, HTlimits53, nNLLlimits53_500, NLLlimits53_500));
       }
       else{
-        if(bin % 10 == 3){//6 jets 3 b-tags
-	  double FitLimits[28] = {55., 234., 246., 257., 268., 279., 290., 299., 308., 317., 326., 335., 345., 360., 375., 390., 405., 425., 450., 475., 505., 540., 580., 635., 715., 820., 1020., 2000.};
-          FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", 27, FitLimits));
-	  double HTlimits[31] = {155., 195., 320., 335., 351., 363., 375., 387., 399., 411., 422., 433., 445., 457., 469., 483., 497., 511., 527., 544., 562., 581., 605., 630., 660., 690., 735., 795., 875., 1000.,  2000.};
-          HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 30, HTlimits));
-          double NLLlimits[24] = {0., 0.80, 1.10, 1.35, 1.60, 1.80, 2.05, 2.30, 2.50, 2.75, 3.00, 3.30, 3.65, 4.00, 4.35, 4.70, 5.15, 5.70, 6.45, 7.75, 9.20, 11.00, 24.55, 30.};
-          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 27, FitLimits, 23, NLLlimits));
-          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 30, HTlimits, 23, NLLlimits));	      
+        if(bin % 10 <= 3){//6 jets 3 b-tags
+          FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", nFitLimits63_500, FitLimits63_500));
+          HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", nHTlimits63, HTlimits63));
+          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nFitLimits63_500, FitLimits63_500, nNLLlimits63_500, NLLlimits63_500));
+          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nHTlimits63, HTlimits63, nNLLlimits63_500, NLLlimits63_500));	      
         } else if(bin % 10 == 4){//6 jets 4 b-tags
-	  double FitLimits[19] = {185., 325., 355., 380., 400., 420., 440., 460., 480., 500., 525., 550., 575., 615., 655., 710., 785., 915., 2000.};
-	  FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", 18, FitLimits));
-	  double HTlimits[37] {185., 290., 315., 340., 355., 365., 375., 385., 395., 405., 415., 425., 435., 445., 455., 465., 475., 485., 495., 505., 515., 525., 535., 545., 555., 570., 590., 610., 635., 660., 690., 720., 760., 820., 890., 1010., 2000.};
-	  HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 36, HTlimits));
-	  double NLLlimits[24] = {0., 0.80, 1.10, 1.35, 1.60, 1.80, 2.05, 2.30, 2.50, 2.75, 3.00, 3.30, 3.65, 4.00, 4.35, 4.70, 5.15, 5.70, 6.45, 7.75, 9.20, 11.00, 24.55, 30.};
-          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 18, FitLimits, 23, NLLlimits));
-          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 36, HTlimits, 23, NLLlimits));
-        } else {
-          FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", 400, 0., 2000.));
-          HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", 400, 0., 2000.));
-          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 400, 0., 2000., 60, 0., 30.));
-          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", 400, 0., 2000., 60, 0., 30.));
-        }
+	  FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", nFitLimits64_500, FitLimits64_500));
+	  HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", nHTlimits64, HTlimits64));
+          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nFitLimits64_500, FitLimits64_500, nNLLlimits64_500, NLLlimits64_500));
+          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nHTlimits64, HTlimits64, nNLLlimits64_500, NLLlimits64_500));
+	}
       }
     
 
@@ -240,19 +214,17 @@ void CombineHistogramDumpster::Loop()
       TString STrewName = "STrew_";
       STrewName.Append(variationsNamePlain[i]);
       if(bin % 100 < 60){//5j version optimized to have about 1k stats in 2017 electron data per bin
-        double STlimits[58] = {180., 320., 337., 348., 358., 367., 374., 381., 388., 394., 400., 406., 412., 418., 424., 429., 435., 440., 446., 451., 457., 463., 468., 474., 480., 486., 492., 498., 504., 511., 517.,  524., 531., 538., 545., 553., 561., 570., 578., 588., 597., 607., 618., 630., 643., 656., 671., 688., 705., 724., 747., 773., 805., 843., 896., 972., 1104., 2000.};
-        ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 57, STlimits));
-        STrew.push_back(new TH1F(STrewName,"ST reweighted; ST [GeV/c]; Events", 57, STlimits));
+        ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", nSTlimits5, STlimits5));
+        STrew.push_back(new TH1F(STrewName,"ST reweighted; ST [GeV/c]; Events", nSTlimits5, STlimits5));
       } else {//6j version optimized to have about 1k stats in 2017 electron data per bin
-        double STlimits[24] = {210., 406., 435., 457., 476., 494., 509., 526., 543., 559., 577., 596., 615., 636., 658., 682., 711., 742., 779., 823., 880., 960., 1101., 2000.};
-        ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", 23, STlimits));
-        STrew.push_back(new TH1F(STrewName,"ST reweighted; ST [GeV/c]; Events", 23, STlimits));
+        ST.push_back(new TH1F(STname,"ST; ST [GeV/c]; Events", nSTlimits6, STlimits6));
+        STrew.push_back(new TH1F(STrewName,"ST reweighted; ST [GeV/c]; Events", nSTlimits6, STlimits6));
       }
 
 
       //only activate for SR runs with ttbar sample
-      if(SFreg != 0 && Iterator >= 2 && Iterator <= 4){
-	TString SFloc = TString::Format("TestHistograms/SF_Bin%d_",SFreg)+YearS+".root";
+      if(IsSF_ttbar){
+	TString SFloc = TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin%d_",SFreg)+YearS+".root";
         SFfile = new TFile(SFloc);
         TH1F *SF = (TH1F*)SFfile->Get("SF_"+variation);
         TF1 *SFfit;
@@ -684,7 +656,7 @@ void CombineHistogramDumpster::Loop()
   //save all the W' variation histograms into files
   //fit mass file
   TFile *savefile;
-  savefile = new TFile(TString::Format("TestHistograms/SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
+  savefile = new TFile(TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
   TString STvarName = gn + "_" + binS + "_" + "STfit_" + YearS + "_";
   STvarName.Append(TString::Format("%d",SFreg));
   savefile->cd();
@@ -706,6 +678,7 @@ void CombineHistogramDumpster::Loop()
         }	
         FitMass[i][j]->Write();
         if(i==0){
+	  std::cout<<"writing ST reweight histogram"<<std::endl;
           STrew[j]->Write();
           ST[j]->Write();
 	  if(j==0){
@@ -726,7 +699,7 @@ void CombineHistogramDumpster::Loop()
 
   //HT file
   TFile *savefileHT;
-  savefileHT = new TFile(TString::Format("TestHistograms/HT_SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
+  savefileHT = new TFile(TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/HT_SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
   savefileHT->cd();
   for(unsigned i = 0; i < HT.size(); ++i){
     for(unsigned j = 0; j < HT[i].size(); ++j){
@@ -759,7 +732,7 @@ void CombineHistogramDumpster::Loop()
 
   //2D histograms file for cutting on NLL and splitting between fit mass and HT
   TFile* savefile2D;
-  savefile2D = new TFile(TString::Format("TestHistograms/TwoD_SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
+  savefile2D = new TFile(TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/TwoD_SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
   savefile2D->cd();
   for(unsigned i = 0; i < HT.size(); ++i){
     for(unsigned j = 0; j < HT[i].size(); ++j){

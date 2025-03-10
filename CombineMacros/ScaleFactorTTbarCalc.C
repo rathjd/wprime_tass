@@ -83,7 +83,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
     //load infile per sample
     TFile *infile;
-    TString FileLoc = TString::Format("TestHistograms/SimpleShapes_Bin%d_",bin) + YearS + TString::Format("_%d.root",sam);
+    TString FileLoc = TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/SimpleShapes_Bin%d_",bin) + YearS + TString::Format("_%d.root",sam);
     infile = new TFile(FileLoc, "READ");
 
     //sort the samples into histograms with all variations
@@ -201,7 +201,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
     }
   }
 
-  TString SaveName = TString::Format("TestHistograms/SF_Bin%d_",bin) + YearS + ".root";
+  TString SaveName = TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin%d_",bin) + YearS + ".root";
   TFile *savefile = new TFile(SaveName,"RECREATE");
 
   //make NLL residual distribution

@@ -201,7 +201,7 @@ for i in range(3,12):
 
 #write the tables
 fLatex.write("5 jets 3 \PQb tags \HT bin edges:\n")
-fBins.write("double nHTlimits53 = "+str(len(HTbins53))+";\n")
+fBins.write("int nHTlimits53 = "+str(len(HTbins53)-1)+";\n")
 fBins.write("double HTlimits53["+str(len(HTbins53))+"] = {")
 for i in range(0, len(HTbins53)):
     b = HTbins53[i]
@@ -216,7 +216,7 @@ fLatex.write("\n")
 fBins.write("};\n")
 
 fLatex.write("6 jets 3 \PQb tags \HT bin edges:\n")
-fBins.write("double nHTlimits63 = "+str(len(HTbins63))+";\n")
+fBins.write("int nHTlimits63 = "+str(len(HTbins63)-1)+";\n")
 fBins.write("double HTlimits63["+str(len(HTbins63))+"] = {")
 for i in range(0, len(HTbins63)):
     b = HTbins63[i]
@@ -231,7 +231,7 @@ fLatex.write("\n")
 fBins.write("};\n")
 
 fLatex.write("6 jets 4 \PQb tags \HT bin edges:\n")
-fBins.write("double nHTlimits64 = "+str(len(HTbins64))+";\n")
+fBins.write("int nHTlimits64 = "+str(len(HTbins64)-1)+";\n")
 fBins.write("double HTlimits64["+str(len(HTbins64))+"] = {")
 for i in range(0, len(HTbins64)):
     b = HTbins64[i]
@@ -247,7 +247,7 @@ fBins.write("};\n")
 
 for i in range(3,12):
     fLatex.write("5 jets 3 \Pqb tags $m_{\PWpr}$ bin edges at $m_{\PWpr}="+str(i*100)+"$ \GeV:\n")
-    fBins.write("double nFitLimits53_"+str(i*100)+" = "+str(len(FitBins53[i-3]))+";\n")
+    fBins.write("int nFitLimits53_"+str(i*100)+" = "+str(len(FitBins53[i-3])-1)+";\n")
     fBins.write("double FitLimits53_"+str(i*100)+"["+str(len(FitBins53[i-3]))+"] = {")
     for j in range(0, len(FitBins53[i-3])):
         b = FitBins53[i-3][j]
@@ -262,7 +262,7 @@ for i in range(3,12):
     fBins.write("};\n")
 
     fLatex.write("6 jets 3 \Pqb tags $m_{\PWpr}$ bin edges at $m_{\PWpr}="+str(i*100)+"$ \GeV:\n")
-    fBins.write("double nFitLimits63_"+str(i*100)+" = "+str(len(FitBins63[i-3]))+";\n")
+    fBins.write("int nFitLimits63_"+str(i*100)+" = "+str(len(FitBins63[i-3])-1)+";\n")
     fBins.write("double FitLimits63_"+str(i*100)+"["+str(len(FitBins63[i-3]))+"] = {")
     for j in range(0, len(FitBins63[i-3])):
         b = FitBins63[i-3][j]
@@ -277,7 +277,7 @@ for i in range(3,12):
     fBins.write("};\n")
 
     fLatex.write("6 jets 4 \Pqb tags $m_{\PWpr}$ bin edges at $m_{\PWpr}="+str(i*100)+"$ \GeV:\n")
-    fBins.write("double nFitLimits64_"+str(i*100)+" = "+str(len(FitBins64[i-3]))+";\n")
+    fBins.write("int nFitLimits64_"+str(i*100)+" = "+str(len(FitBins64[i-3])-1)+";\n")
     fBins.write("double FitLimits64_"+str(i*100)+"["+str(len(FitBins64[i-3]))+"] = {")
     for j in range(0, len(FitBins64[i-3])):
         b = FitBins64[i-3][j]
@@ -292,7 +292,7 @@ for i in range(3,12):
     fBins.write("};\n")
 
     fLatex.write("5 jets 3 \Pqb tags -log(L) bin edges at $m_{\PWpr}="+str(i*100)+"$ \GeV:\n")
-    fBins.write("double nNLLlimits53_"+str(i*100)+" = "+str(len(NLLbins53[i-3]))+";\n")
+    fBins.write("int nNLLlimits53_"+str(i*100)+" = "+str(len(NLLbins53[i-3])-1)+";\n")
     fBins.write("double NLLlimits53_"+str(i*100)+"["+str(len(NLLbins53[i-3]))+"] = {")
     for j in range(0, len(NLLbins53[i-3])):
         b = NLLbins53[i-3][j]
@@ -307,7 +307,7 @@ for i in range(3,12):
     fBins.write("};\n")
 
     fLatex.write("6 jets 3 \Pqb tags -log(L) bin edges at $m_{\PWpr}="+str(i*100)+"$ \GeV:\n")
-    fBins.write("double nNLLlimits63_"+str(i*100)+" = "+str(len(NLLbins63[i-3]))+";\n")
+    fBins.write("int nNLLlimits63_"+str(i*100)+" = "+str(len(NLLbins63[i-3])-1)+";\n")
     fBins.write("double NLLlimits63_"+str(i*100)+"["+str(len(NLLbins63[i-3]))+"] = {")
     for j in range(0, len(NLLbins63[i-3])):
         b = NLLbins63[i-3][j]
@@ -322,7 +322,7 @@ for i in range(3,12):
     fBins.write("};\n")
 
     fLatex.write("6 jets 4 \Pqb tags -log(L) bin edges at $m_{\PWpr}="+str(i*100)+"$ \GeV:\n")
-    fBins.write("double nNLLlimits64_"+str(i*100)+" = "+str(len(NLLbins64[i-3]))+";\n")
+    fBins.write("int nNLLlimits64_"+str(i*100)+" = "+str(len(NLLbins64[i-3])-1)+";\n")
     fBins.write("double NLLlimits64_"+str(i*100)+"["+str(len(NLLbins64[i-3]))+"] = {")
     for j in range(0, len(NLLbins64[i-3])):
         b = NLLbins64[i-3][j]
@@ -385,7 +385,7 @@ STbins6 = determineQuantiles(SThist6, nStatMinST6, 0)
 
 #write the tables
 fLatex.write("5 jets 2 \PQb tags $S_{\textrm{T}}$ bin edges:\n")
-fBins.write("double nSTlimits5 = "+str(len(STbins5))+";\n")
+fBins.write("int nSTlimits5 = "+str(len(STbins5)-1)+";\n")
 fBins.write("double STlimits5["+str(len(STbins5))+"] = {")
 for i in range(0, len(STbins5)):
     b = STbins5[i]
@@ -400,7 +400,7 @@ fLatex.write("\n")
 fBins.write("};\n")
 
 fLatex.write("6 jets 2 \PQb tags $S_{\textrm{T}}$ bin edges:\n")
-fBins.write("double nSTlimits6 = "+str(len(STbins6))+";\n")
+fBins.write("int nSTlimits6 = "+str(len(STbins6)-1)+";\n")
 fBins.write("double STlimits6["+str(len(STbins6))+"] = {")
 for i in range(0, len(STbins6)):
     b = STbins6[i]

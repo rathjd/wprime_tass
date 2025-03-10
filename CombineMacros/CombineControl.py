@@ -30,11 +30,11 @@ binString = str(binNumber)
 
 #First, generate the shape variation histograms
 print("Starting processing of intermediate files")
-if os.path.isdir("TestHistograms"):
-  #os.system("rm TestHistograms/*.root") #reset
+if os.path.isdir("/eos/cms/store/group/phys_b2g/wprime/temp"):
+  #os.system("rm /eos/cms/store/group/phys_b2g/wprime/temp/*.root") #reset
   print("already exists")
 else:
-  os.system("mkdir TestHistograms") #make directory, if it doesn't exist
+  os.system("mkdir /eos/cms/store/group/phys_b2g/wprime/temp") #make directory, if it doesn't exist
 
 #run dump from intermediate tree including ST correction cycle, generates 3- and 4-tag regions both
 os.system("root -l -b -q 'runCombineHistogramDumpster.C+(" + str(binNumber) + ', "' + yearName + '"' + ")'")
@@ -70,17 +70,17 @@ for binN in bins:
   os.system("mkdir " + fileName)
 
   #assemble results
-  os.system("hadd -f " + fileName + "/SimpleShapes_" + binName + ".root TestHistograms/SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
-  os.system("hadd -f " + fileName + "/HT_SimpleShapes_" + binName + ".root TestHistograms/HT_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
-  os.system("hadd -f " + fileName + "/TwoD_SimpleShapes_" + binName + ".root TestHistograms/TwoD_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file 
+  os.system("hadd -f " + fileName + "/SimpleShapes_" + binName + ".root /eos/cms/store/group/phys_b2g/wprime/temp/SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
+  os.system("hadd -f " + fileName + "/HT_SimpleShapes_" + binName + ".root /eos/cms/store/group/phys_b2g/wprime/temp/HT_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
+  os.system("hadd -f " + fileName + "/TwoD_SimpleShapes_" + binName + ".root /eos/cms/store/group/phys_b2g/wprime/temp/TwoD_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file 
 
  #transfer SF files where appropriate
   if int(binN) % 10 == 2:
-      os.system("cp TestHistograms/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
-      print("cp TestHistograms/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
+      os.system("cp /eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
+      print("cp /eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
   elif int(binN) % 10 > 2:
-      os.system("cp TestHistograms/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + fileName + "/.")
-      print("cp TestHistograms/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + fileName + "/.") 
+      os.system("cp /eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + fileName + "/.")
+      print("cp /eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + fileName + "/.") 
 
   #skip making cards for 1- and 2-tag regions
   if int(binN) % 10 < 3:
