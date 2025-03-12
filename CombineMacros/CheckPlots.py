@@ -93,8 +93,8 @@ baseSystematics = [
 #make list of sample-dependent systematics
 extendSystematics = []
 for bgr in backgrounds:
-    if not bgr[0].find("single_top") > -1:
-        extendSystematics.append("pdf_B2G"+B2Gn+"_envelope_"+bgr[0])
+    #if not bgr[0].find("single_top") > -1:
+    extendSystematics.append("pdf_B2G"+B2Gn+"_envelope_"+bgr[0])
     extendSystematics.append("QCDscale_ren_"+bgr[0])
     extendSystematics.append("QCDscale_fac_"+bgr[0])
 baseSystematics.extend(extendSystematics)
@@ -465,29 +465,56 @@ CMS.SaveCanvas(canv2braw, "ST_Wprime"+binS+"2_"+year+".pdf")
 #make 1b-tag ST correction fit plot
 SF = inSF.Get("SF_")
 if JetMult == 5:
-  SFfit = TF1("fitFunction","[0]/x/x/x + [1]/x/x + [2]/x + [3] + [4]*x + [5]*x*x", 180., 2000.)
-  SFfit.SetParNames("p0*x^{-3}","p1*x^{-2}","p2*x^{-1}","p3*x^{0}","p4*x^{1}","p5*x^{2}")
+  SFfit = TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.)
+  SFfit.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}","p4*x^{2}")
   rangelow = 180.
   rangehigh = 2000.
 else:
-    SFfit = TF1("fitFunction","[0]/x + [1] + [2]*x + [3]*x*x", 210., 2000.)
-    SFfit.SetParNames("p0*x^{-1}","p1*x^{0}","p2*x^{1}","p3*x^{2}")
+    SFfit = TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x", 210., 2000.)
+    SFfit.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}")
     rangelow = 180.
     rangehigh = 2000.
 fr = SF.Fit(SFfit,"SRF")
 cov = fr.GetCovarianceMatrix()
 if JetMult == 5:
-  SFfitUp = TF1("fitFunctionUp", "[0]/x/x/x/x/x/x + [1]/x/x/x/x/x + [2]/x/x/x/x + [3]/x/x/x + [4]/x/x + [5]/x + [6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x", 180., 2000.)
-  SFfitUp.SetParameters(cov(0,0), cov(0,1)+cov(1,0), cov(0,2)+cov(1,1)+cov(2,0), cov(0,3)+cov(1,2)+cov(2,1)+cov(3,0)+SFfit.GetParameter(0), cov(0,4)+cov(1,3)+cov(2,2)+cov(3,1)+cov(4,0)+SFfit.GetParameter(1), cov(0,5)+cov(1,4)+cov(2,3)+cov(3,2)+cov(4,1)+cov(5,0)+SFfit.GetParameter(2), cov(1,5)+cov(2,4)+cov(3,3)+cov(4,2)+cov(5,1)+SFfit.GetParameter(3), cov(2,5)+cov(3,4)+cov(4,3)+cov(5,2)+SFfit.GetParameter(4), cov(3,5)+cov(4,4)+cov(5,3)+SFfit.GetParameter(5), cov(4,5)+cov(5,4), cov(5,5))
-  SFfitDown = TF1("fitFunctionDown", "[0]/x/x/x/x/x/x + [1]/x/x/x/x/x + [2]/x/x/x/x + [3]/x/x/x + [4]/x/x + [5]/x + [6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x", 180., 2000.)
-  SFfitDown.SetParameters(-cov(0,0), -cov(0,1)-cov(1,0), -cov(0,2)-cov(1,1)-cov(2,0), -cov(0,3)-cov(1,2)-cov(2,1)-cov(3,0)+SFfit.GetParameter(0), -cov(0,4)-cov(1,3)-cov(2,2)-cov(3,1)-cov(4,0)+SFfit.GetParameter(1), -cov(0,5)-cov(1,4)-cov(2,3)-cov(3,2)-cov(4,1)-cov(5,0)+SFfit.GetParameter(2), -cov(1,5)-cov(2,4)-cov(3,3)-cov(4,2)-cov(5,1)+SFfit.GetParameter(3), -cov(2,5)-cov(3,4)-cov(4,3)-cov(5,2)+SFfit.GetParameter(4), -cov(3,5)-cov(4,4)-cov(5,3)+SFfit.GetParameter(5), -cov(4,5)-cov(5,4), -cov(5,5))
+  SFfitUp = TF1("fitFunctionUp", "[0]/x/x/x/x + [1]/x/x/x + [2]/x/x + [3]/x + [4] + [5]*x + [6]*x*x + [7]*x*x*x + [8]*x*x*x*x", 180., 2000.)
+  SFfitUp.SetParameters(cov(0,0),
+                        cov(0,1)+cov(1,0),
+                        cov(0,2)+cov(1,1)+cov(2,0)+SFfit.GetParameter(0),
+                        cov(0,3)+cov(1,2)+cov(2,1)+cov(3,0)+SFfit.GetParameter(1),
+                        cov(0,4)+cov(1,3)+cov(2,2)+cov(3,1)+cov(4,0)+SFfit.GetParameter(2),
+                        cov(1,4)+cov(2,3)+cov(3,2)+cov(4,1)+SFfit.GetParameter(3),
+                        cov(2,4)+cov(3,3)+cov(4,2)+SFfit.GetParameter(4),
+                        cov(3,4)+cov(4,3),
+                        cov(4,4))
+  SFfitDown = TF1("fitFunctionDown", "[0]/x/x/x/x + [1]/x/x/x + [2]/x/x + [3]/x + [4] + [5]*x + [6]*x*x + [7]*x*x*x + [8]*x*x*x*x", 180., 2000.)
+  SFfitDown.SetParameters(-cov(0,0),
+                          -cov(0,1)-cov(1,0),
+                          -cov(0,2)-cov(1,1)-cov(2,0)+SFfit.GetParameter(0),
+                          -cov(0,3)-cov(1,2)-cov(2,1)-cov(3,0)+SFfit.GetParameter(1),
+                          -cov(0,4)-cov(1,3)-cov(2,2)-cov(3,1)-cov(4,0)+SFfit.GetParameter(2),
+                          -cov(1,4)-cov(2,3)-cov(3,2)-cov(4,1)+SFfit.GetParameter(3),
+                          -cov(2,4)-cov(3,3)-cov(4,2)+SFfit.GetParameter(4),
+                          -cov(3,4)-cov(4,3),
+                          -cov(4,4))
+
 else:
-  SFfitUp = TF1("fitFunctionUp", "[0]/x/x + [1]/x + [2] + [3]*x + [4]*x*x + [5]*x*x*x + [6]*x*x*x*x", 210., 2000.)
-  SFfitUp.SetParameters(cov(0,0), cov(0,1)+cov(1,0)+SFfit.GetParameter(0), cov(0,2)+cov(1,1)+cov(2,0)+SFfit.GetParameter(1), cov(0,3)+cov(1,2)+cov(2,1)+cov(3,0)+SFfit.GetParameter(2), cov(1,3)+cov(2,2)+SFfit.GetParameter(3)+cov(3,1), cov(2,3)+cov(3,2), cov(3,3))
-  SFfitDown = TF1("fitFunctionDown", "[0]/x/x + [1]/x + [2] + [3]*x + [4]*x*x + [5]*x*x*x + [6]*x*x*x*x", 210., 2000.)
-  SFfitDown.SetParameters(-cov(0,0), -cov(0,1)-cov(1,0)+SFfit.GetParameter(0), -cov(0,2)-cov(1,1)-cov(2,0)+SFfit.GetParameter(1), -cov(0,3)-cov(1,2)-cov(2,1)-cov(3,0)+SFfit.GetParameter(2), -cov(1,3)-cov(2,2)+SFfit.GetParameter(3)-cov(3,1), -cov(2,3)-cov(3,2), -cov(3,3))
-
-
+  SFfitUp = TF1("fitFunctionUp", "[0]/x/x/x/x + [1]/x/x/x + [2]/x/x + [3]/x + [4] + [5]*x + [6]*x*x", 210., 2000.)
+  SFfitUp.SetParameters(cov(0,0),
+                        cov(0,1)+cov(1,0),
+                        cov(0,2)+cov(1,1)+cov(2,0)+SFfit.GetParameter(0),
+                        cov(0,3)+cov(1,2)+cov(2,1)+cov(3,0)+SFfit.GetParameter(1),
+                        cov(1,3)+cov(2,2)+cov(3,1)+SFfit.GetParameter(2),
+                        cov(2,3)+cov(3,2)+SFfit.GetParameter(3),
+                        cov(3,3))
+  SFfitDown = TF1("fitFunctionDown", "[0]/x/x/x/x + [1]/x/x/x + [2]/x/x + [3]/x + [4] + [5]*x + [6]*x*x", 210., 2000.)
+  SFfitDown.SetParameters(-cov(0,0),
+                          -cov(0,1)-cov(1,0),
+                          -cov(0,2)-cov(1,1)-cov(2,0)+SFfit.GetParameter(0),
+                          -cov(0,3)-cov(1,2)-cov(2,1)-cov(3,0)+SFfit.GetParameter(1),
+                          -cov(1,3)-cov(2,2)-cov(3,1)+SFfit.GetParameter(2),
+                          -cov(2,3)-cov(3,2)+SFfit.GetParameter(3),
+                          -cov(3,3))
 
 canvSF1b = CMS.cmsCanvas("STSFfit_"+binS+"_"+year+"_1b", STstart, STend, SFfitDown.GetMinimum(rangelow,rangehigh)*0.8, SFfit.GetMaximum(rangelow,rangehigh)*1.2, "S_{T} [GeV/c]", "(data - MC(w/o t#bar{t}))/t#bar{t}", square=CMS.kSquare, extraSpace = 0.01, iPos = 0)
 canvSF1b.cd(1)
@@ -514,29 +541,55 @@ CMS.SaveCanvas(canvSF1b, "STfit_Wprime"+binS+"1_"+year+".pdf")
 #make 2b-tag ST correction fit plot
 SF2 = inSF2.Get("SF_")
 if JetMult == 5:
-  SFfit2 = TF1("fitFunction2","[0]/x/x/x + [1]/x/x + [2]/x + [3] + [4]*x + [5]*x*x", 180., 2000.)
-  SFfit2.SetParNames("p0*x^{-3}","p1*x^{-2}","p2*x^{-1}","p3*x^{0}","p4*x^{1}","p5*x^{2}")
+  SFfit2 = TF1("fitFunction2","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.)
+  SFfit2.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}","p4*x^{2}")
   rangelow2 = 180.
   rangehigh2 = 2000.
 else:
-    SFfit2 = TF1("fitFunction","[0]/x + [1] + [2]*x + [3]*x*x", 210., 2000.)
-    SFfit2.SetParNames("p0*x^{-1}","p1*x^{0}","p2*x^{1}","p3*x^{2}")
+    SFfit2 = TF1("fitFunction2","[0]/x/x+[1]/x+[2]+[3]*x", 210., 2000.)
+    SFfit2.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}")
     rangelow2 = 180.
     rangehigh2 = 2000.
 fr2 = SF2.Fit(SFfit2,"SRF")
 cov2 = fr2.GetCovarianceMatrix()
 if JetMult == 5:
-  SFfitUp2 = TF1("fitFunctionUp2", "[0]/x/x/x/x/x/x + [1]/x/x/x/x/x + [2]/x/x/x/x + [3]/x/x/x + [4]/x/x + [5]/x + [6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x", 180., 2000.)
-  SFfitUp2.SetParameters(cov2(0,0), cov2(0,1)+cov2(1,0), cov2(0,2)+cov2(1,1)+cov2(2,0), cov2(0,3)+cov2(1,2)+cov2(2,1)+cov2(3,0)+SFfit2.GetParameter(0), cov2(0,4)+cov2(1,3)+cov2(2,2)+cov2(3,1)+cov2(4,0)+SFfit2.GetParameter(1), cov2(0,5)+cov2(1,4)+cov2(2,3)+cov2(3,2)+cov2(4,1)+cov2(5,0)+SFfit2.GetParameter(2), cov2(1,5)+cov2(2,4)+cov2(3,3)+cov2(4,2)+cov2(5,1)+SFfit2.GetParameter(3), cov2(2,5)+cov2(3,4)+cov2(4,3)+cov2(5,2)+SFfit2.GetParameter(4), cov2(3,5)+cov2(4,4)+cov2(5,3)+SFfit2.GetParameter(5), cov2(4,5)+cov2(5,4), cov2(5,5))
-  SFfitDown2 = TF1("fitFunctionDown2", "[0]/x/x/x/x/x/x + [1]/x/x/x/x/x + [2]/x/x/x/x + [3]/x/x/x + [4]/x/x + [5]/x + [6] + [7]*x + [8]*x*x + [9]*x*x*x + [10]*x*x*x*x", 180., 2000.)
-  SFfitDown2.SetParameters(-cov2(0,0), -cov2(0,1)-cov2(1,0), -cov2(0,2)-cov2(1,1)-cov2(2,0), -cov2(0,3)-cov2(1,2)-cov2(2,1)-cov2(3,0)+SFfit2.GetParameter(0), -cov2(0,4)-cov2(1,3)-cov2(2,2)-cov2(3,1)-cov2(4,0)+SFfit2.GetParameter(1), -cov2(0,5)-cov2(1,4)-cov2(2,3)-cov2(3,2)-cov2(4,1)-cov2(5,0)+SFfit2.GetParameter(2), -cov2(1,5)-cov2(2,4)-cov2(3,3)-cov2(4,2)-cov2(5,1)+SFfit2.GetParameter(3), -cov2(2,5)-cov2(3,4)-cov2(4,3)-cov2(5,2)+SFfit2.GetParameter(4), -cov2(3,5)-cov2(4,4)-cov2(5,3)+SFfit2.GetParameter(5), -cov2(4,5)-cov2(5,4), -cov2(5,5))
+  SFfitUp2 = TF1("fitFunctionUp2", "[0]/x/x/x/x + [1]/x/x/x + [2]/x/x + [3]/x + [4] + [5]*x + [6]*x*x + [7]*x*x*x + [8]*x*x*x*x", 180., 2000.)
+  SFfitUp2.SetParameters(cov2(0,0),
+                         cov2(0,1)+cov2(1,0),
+                         cov2(0,2)+cov2(1,1)+cov2(2,0)+SFfit2.GetParameter(0),
+                         cov2(0,3)+cov2(1,2)+cov2(2,1)+cov2(3,0)+SFfit2.GetParameter(1),
+                         cov2(0,4)+cov2(1,3)+cov2(2,2)+cov2(3,1)+cov2(4,0)+SFfit.GetParameter(2),
+                         cov2(1,4)+cov2(2,3)+cov2(3,2)+cov2(4,1)+SFfit2.GetParameter(3),
+                         cov2(2,4)+cov2(3,3)+cov2(4,2)+SFfit2.GetParameter(4),
+                         cov2(3,4)+cov2(4,3),
+                         cov2(4,4))
+  SFfitDown2 = TF1("fitFunctionDown2", "[0]/x/x/x/x + [1]/x/x/x + [2]/x/x + [3]/x + [4] + [5]*x + [6]*x*x + [7]*x*x*x + [8]*x*x*x*x", 180., 2000.)
+  SFfitDown2.SetParameters(-cov2(0,0),
+                           -cov2(0,1)-cov2(1,0),
+                           -cov2(0,2)-cov2(1,1)-cov2(2,0)+SFfit2.GetParameter(0),
+                           -cov2(0,3)-cov2(1,2)-cov2(2,1)-cov2(3,0)+SFfit2.GetParameter(1),
+                           -cov2(0,4)-cov2(1,3)-cov2(2,2)-cov2(3,1)-cov2(4,0)+SFfit.GetParameter(2),
+                           -cov2(1,4)-cov2(2,3)-cov2(3,2)-cov2(4,1)+SFfit2.GetParameter(3),
+                           -cov2(2,4)-cov2(3,3)-cov2(4,2)+SFfit2.GetParameter(4),
+                           -cov2(3,4)-cov2(4,3),
+                           -cov2(4,4))
 else:
-  SFfitUp2 = TF1("fitFunctionUp2", "[0]/x/x + [1]/x + [2] + [3]*x + [4]*x*x + [5]*x*x*x + [6]*x*x*x*x", 210., 2000.)
-  SFfitUp2.SetParameters(cov2(0,0), cov2(0,1)+cov2(1,0)+SFfit2.GetParameter(0), cov2(0,2)+cov2(1,1)+cov2(2,0)+SFfit2.GetParameter(1), cov2(0,3)+cov2(1,2)+cov2(2,1)+cov2(3,0)+SFfit2.GetParameter(2), cov2(1,3)+cov2(2,2)+SFfit2.GetParameter(3)+cov2(3,1), cov2(2,3)+cov2(3,2), cov2(3,3))
-  SFfitDown2 = TF1("fitFunctionDown2", "[0]/x/x + [1]/x + [2] + [3]*x + [4]*x*x + [5]*x*x*x + [6]*x*x*x*x", 210., 2000.)
-  SFfitDown2.SetParameters(-cov2(0,0), -cov2(0,1)-cov2(1,0)+SFfit2.GetParameter(0), -cov2(0,2)-cov2(1,1)-cov2(2,0)+SFfit2.GetParameter(1), -cov2(0,3)-cov2(1,2)-cov2(2,1)-cov2(3,0)+SFfit2.GetParameter(2), -cov2(1,3)-cov2(2,2)+SFfit2.GetParameter(3)-cov2(3,1), -cov2(2,3)-cov2(3,2), -cov2(3,3))
-
-
+  SFfitUp2 = TF1("fitFunctionUp2", "[0]/x/x/x/x + [1]/x/x/x + [2]/x/x + [3]/x + [4] + [5]*x + [6]*x*x", 210., 2000.)
+  SFfitUp2.SetParameters(cov2(0,0),
+                         cov2(0,1)+cov2(1,0),
+                         cov2(0,2)+cov2(1,1)+cov2(2,0)+SFfit2.GetParameter(0),
+                         cov2(0,3)+cov2(1,2)+cov2(2,1)+cov2(3,0)+SFfit2.GetParameter(1),
+                         cov2(1,3)+cov2(2,2)+cov2(3,1)+SFfit2.GetParameter(2),
+                         cov2(2,3)+cov2(3,2)+SFfit2.GetParameter(3),
+                         cov2(3,3))
+  SFfitDown2 = TF1("fitFunctionDown2", "[0]/x/x/x/x + [1]/x/x/x + [2]/x/x + [3]/x + [4] + [5]*x + [6]*x*x", 210., 2000.)
+  SFfitDown2.SetParameters(-cov2(0,0),
+                           -cov2(0,1)-cov2(1,0),
+                           -cov2(0,2)-cov2(1,1)-cov2(2,0)+SFfit2.GetParameter(0),
+                           -cov2(0,3)-cov2(1,2)-cov2(2,1)-cov2(3,0)+SFfit2.GetParameter(1),
+                           -cov2(1,3)-cov2(2,2)-cov2(3,1)+SFfit2.GetParameter(2),
+                           -cov2(2,3)-cov2(3,2)+SFfit2.GetParameter(3),
+                           -cov2(3,3))
 
 canvSF2b = CMS.cmsCanvas("STSFfit_"+binS+"_"+year+"_2b", STstart, STend, SFfitDown2.GetMinimum(rangelow2,rangehigh2)*0.8, SFfit2.GetMaximum(rangelow2,rangehigh2)*1.2, "S_{T} [GeV/c]", "(data - MC(w/o t#bar{t}))/t#bar{t}", square=CMS.kSquare, extraSpace = 0.01, iPos = 0)
 canvSF2b.cd(1)
@@ -794,8 +847,6 @@ for bmult in range(3,JetMult-1):
         inSig.SetLineColor(8)
         inSig.SetLineWidth(3)
         inSig.SetLineStyle(2)
-        inSig.SetMarkerStyle(21)
-        inSig.SetMarkerColor(2)
         inSig.SetFillColor(8)
         inSig.SetFillStyle(3008)
         grErrSig = TGraph(len(ErrX), ErrX, ErrSy)

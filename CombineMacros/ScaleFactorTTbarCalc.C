@@ -150,8 +150,8 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
   //define fit function
   TF1 *fitFunction;
-  if(bin % 100 < 60) fitFunction = new TF1("fitFunction","[0]/x/x/x+[1]/x/x+[2]/x+[3]+[4]*x+[5]*x*x", 150., 2000.);
-  else 		     fitFunction = new TF1("fitFunction","[0]/x+[1]+[2]*x+[3]*x*x", 150., 2000.);
+  if(bin % 100 < 60) fitFunction = new TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 150., 2000.);
+  else 		     fitFunction = new TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x", 150., 2000.);
   //fit nominal variant with statistical uncertainties only, get covariance matrix, calculate statistical envelope
   TFitResultPtr fr = SFhists[0].Fit(fitFunction,"SRF");
   TMatrixD cov = fr->GetCovarianceMatrix();
