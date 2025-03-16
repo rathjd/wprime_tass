@@ -28,13 +28,15 @@ except:
 
 binString = str(binNumber)
 
+eospath = "/eos/cms/store/group/phys_b2g/wprime/temp"
+
 #First, generate the shape variation histograms
 print("Starting processing of intermediate files")
-if os.path.isdir("/eos/cms/store/group/phys_b2g/wprime/temp"):
+if os.path.isdir(eospath):
   #os.system("rm /eos/cms/store/group/phys_b2g/wprime/temp/*.root") #reset
   print("already exists")
 else:
-  os.system("mkdir /eos/cms/store/group/phys_b2g/wprime/temp") #make directory, if it doesn't exist
+  os.system("mkdir "+eospath) #make directory, if it doesn't exist
 
 #run dump from intermediate tree including ST correction cycle, generates 3- and 4-tag regions both
 os.system("root -l -b -q 'runCombineHistogramDumpster.C+(" + str(binNumber) + ', "' + yearName + '"' + ")'")
@@ -64,23 +66,23 @@ for binN in bins:
   binName = "Wprime" + binN + "_" + yearName
   print(binName," ",fileName)
 
-  if os.path.isdir(fileName):
+  if os.path.isdir(eospath + "/" + fileName):
       print(fileName," directory already exists, removing it")
-      os.system("rm -rf " + fileName)
-  os.system("mkdir " + fileName)
+      os.system("rm -rf " + eospath + "/" + fileName)
+  os.system("mkdir " + eospath + "/" + fileName)
 
   #assemble results
-  os.system("hadd -f " + fileName + "/SimpleShapes_" + binName + ".root /eos/cms/store/group/phys_b2g/wprime/temp/SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
-  os.system("hadd -f " + fileName + "/HT_SimpleShapes_" + binName + ".root /eos/cms/store/group/phys_b2g/wprime/temp/HT_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
-  os.system("hadd -f " + fileName + "/TwoD_SimpleShapes_" + binName + ".root /eos/cms/store/group/phys_b2g/wprime/temp/TwoD_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file 
+  os.system("hadd -f " + eospath + "/" + fileName + "/SimpleShapes_" + binName + ".root "+eospath+"/SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
+  os.system("hadd -f " + eospath + "/" + fileName + "/HT_SimpleShapes_" + binName + ".root "+eospath+"/HT_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
+  os.system("hadd -f " + eospath + "/" + fileName + "/TwoD_SimpleShapes_" + binName + ".root "+eospath+"/TwoD_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file 
 
  #transfer SF files where appropriate
   if int(binN) % 10 == 2:
-      os.system("cp /eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
-      print("cp /eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + fileName + "/.")
+      os.system("cp " + eospath + "/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + eospath + "/" + fileName + "/.")
+      print("cp " + eospath + "/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + eospath + "/" + fileName + "/.")
   elif int(binN) % 10 > 2:
-      os.system("cp /eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + fileName + "/.")
-      print("cp /eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + fileName + "/.") 
+      os.system("cp " + eospath + "/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + eospath + "/" + fileName + "/.")
+      print("cp " + eospath + "/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + eospath + "/" + fileName + "/.") 
 
   #skip making cards for 1- and 2-tag regions
   if int(binN) % 10 < 3:
@@ -144,7 +146,7 @@ for binN in bins:
     signalNames = ["M" + str(massBin*100)]
     for CardName in CardNames:
       print("Creating Combine card file",fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt")
-      f = open(fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt","w")
+      f = open(eospath + "/" + fileName + "/" + CardName[0] + "_" + binName + "_M" + str(massBin*100) + ".txt","w")
       f.write("imax " + str(1) + "\n") #number of channels
       f.write("jmax " + str(len(bgrNames)) + "\n") #number of backgrounds
       f.write("kmax " + str(len(systMaster)) + "\n") #number of nuisance parameters
@@ -155,8 +157,8 @@ for binN in bins:
 
       #load ROOT file, find observation number
       print("Reading observed events numbers")
-      r = ROOT.TFile.Open(fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root", "read")
-      print(fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root")
+      r = ROOT.TFile.Open(eospath + "/" + fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root", "read")
+      print(eospath + "/" + fileName + "/" + CardName[1] + "SimpleShapes_" + binName + ".root")
       h = r.Get(CardName[1]+"data_obs_" + binName + "_M" + str(massBin*100) + "_")
       print("data_obs_" + binName + "_M" + str(massBin*100) + "_")
       print(type(h))
@@ -209,8 +211,8 @@ for binN in bins:
         rateLine += " "
 
       #estimate electron scale uncertainty
-      ESF    = ROOT.TFile.Open(binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
-      print("open file", binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", ESF)
+      ESF    = ROOT.TFile.Open(eospath + "/" + binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
+      print("open file", eospath + "/" + binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", ESF)
       ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Up")
       ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Down")
       ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_")
@@ -237,7 +239,7 @@ for binN in bins:
           if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
             systLines[j] += systMaster[j][2].replace("-","1") #activate ST fit uncertainty for ttbar only in the card
           elif allNames[i] != signalNames[0] and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
-            NLLresF = ROOT.TFile.Open(fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
+            NLLresF = ROOT.TFile.Open(eospath + "/" + fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
             NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100))
             NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_M" + str(massBin*100) + "_")
             NLLresH.Multiply(NLLH)

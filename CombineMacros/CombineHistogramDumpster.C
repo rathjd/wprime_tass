@@ -183,8 +183,8 @@ void CombineHistogramDumpster::Loop()
         if(bin % 10 <= 3){//6 jets 3 b-tags
           FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", nFitLimits63_500, FitLimits63_500));
           HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", nHTlimits63, HTlimits63));
-          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nFitLimits63_500, FitLimits63_500, nNLLlimits63_500, NLLlimits63_500));
-          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nHTlimits63, HTlimits63, nNLLlimits63_500, NLLlimits63_500));	      
+          FitMass_2D[m-3].push_back(new TH2F(FitMass2Dnames[m-3][i],"fitted W' mass vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nFitLimits63_500, FitLimits63_500, nNLLlimits64_500, NLLlimits64_500));
+          HT_2D[m-3].push_back(new TH2F(HT2Dnames[m-3][i],"HT vs best -log(likelihood); m_{W'} [GeV/c^{2}]; -log(likelihood); Events", nHTlimits63, HTlimits63, nNLLlimits64_500, NLLlimits64_500));	      
         } else if(bin % 10 == 4){//6 jets 4 b-tags
 	  FitMass[m-3].push_back(new TH1F(variationsName[m-3][i],"fitted W' mass; m_{W'} [GeV/c^{2}]; Events", nFitLimits64_500, FitLimits64_500));
 	  HT[m-3].push_back(new TH1F(HTvariationsName[m-3][i],"H_{T}; H_{T} [GeV/c^{2}]; Events", nHTlimits64, HTlimits64));
@@ -253,15 +253,13 @@ void CombineHistogramDumpster::Loop()
     TString NLL2Dname = "NegLogLnoBvsNegLogL_";
     NLL2Dname.Append(variationsName[m-3][0]);
     if(bin % 100 < 60){
-      double NLLlimits[53] = {0., 0.80, 1.05, 1.25, 1.45, 1.60, 1.75, 1.90, 2.00, 2.15, 2.30, 2.40, 2.65, 2.80, 2.92, 3.05, 3.20, 3.30, 3.45, 3.60, 3.75, 3.90, 4.00, 4.20, 4.30, 4.45, 4.60, 4.75, 4.90, 5.10, 5.25, 5.40, 5.60, 5.80, 6.00, 6.25, 6.50, 6.75, 7.00, 7.35, 7.70, 8.05, 8.40, 8.80, 9.20, 9.70, 10.10, 10.65, 11.25, 12.00, 12.95, 14.40, 30.};
-      NegLogLnoB.push_back( new TH1F(NLLname, "-log(L) without b-tagging; -log(L)_{!b}; Events", 52, NLLlimits));
+      NegLogLnoB.push_back( new TH1F(NLLname, "-log(L) without b-tagging; -log(L)_{!b}; Events", nNLLlimits53_500, NLLlimits53_500));
     
-      NegLogLnoBvsNegLogL.push_back( new TH2F(NLL2Dname, "-log(L) without b-tagging vs -log(L); -log(L)_{!b}; -log(L); Events", 52, NLLlimits, 52, NLLlimits));
+      NegLogLnoBvsNegLogL.push_back( new TH2F(NLL2Dname, "-log(L) without b-tagging vs -log(L); -log(L)_{!b}; -log(L); Events", nNLLlimits53_500, NLLlimits53_500, nNLLlimits53_500, NLLlimits53_500));
     }
     else{
-      double NLLlimits[24] = {0., 0.80, 1.10, 1.35, 1.60, 1.80, 2.05, 2.30, 2.50, 2.75, 3.00, 3.30, 3.65, 4.00, 4.35, 4.70, 5.15, 5.70, 6.45, 7.75, 9.20, 11.00, 24.55, 30.};
-      NegLogLnoB.push_back( new TH1F(NLLname, "-log(L) without b-tagging; -log(L)_{!b}; Events", 23, NLLlimits));
-      NegLogLnoBvsNegLogL.push_back( new TH2F(NLL2Dname, "-log(L) without b-tagging vs -log(L); -log(L)_{!b}; -log(L); Events", 23, NLLlimits, 23, NLLlimits));
+      NegLogLnoB.push_back( new TH1F(NLLname, "-log(L) without b-tagging; -log(L)_{!b}; Events", nNLLlimits64_500, NLLlimits64_500));
+      NegLogLnoBvsNegLogL.push_back( new TH2F(NLL2Dname, "-log(L) without b-tagging vs -log(L); -log(L)_{!b}; -log(L); Events", nNLLlimits64_500, NLLlimits64_500, nNLLlimits64_500, NLLlimits64_500));
     }
 
   }//end mass variant loop
