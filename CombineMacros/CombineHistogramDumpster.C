@@ -129,7 +129,7 @@ void CombineHistogramDumpster::Loop()
     HTvariationsName.push_back(dummy);
     FitMass2Dnames.push_back(dummy);
     HT2Dnames.push_back(dummy);
-    for(unsigned i = 0; i < varSize; ++i) {
+    for(unsigned i = 0; i < varSize; ++i) { //standard systematic names list
       TString variation = Systematics(i, YearS, sampleType, B2Gn);
       variationsName[m-3].push_back(gn + "_" + binS + TString::Format("_M%d_",m*100) + variation);
       HTvariationsName[m-3].push_back("HT_" + variationsName[m-3][i]);
@@ -140,9 +140,9 @@ void CombineHistogramDumpster::Loop()
       for(unsigned i = 0; i < varOff; ++i){
         TString variation = Systematics(i, YearS, sampleType, B2Gn, true);
         variationsName[m-3].push_back(gn + "_" + binS + TString::Format("_M%d_",m*100) + variation);
-        HTvariationsName[m-3].push_back("HT_" + variationsName[m-3][i]);
-        FitMass2Dnames[m-3].push_back("FitMass2D_" + variationsName[m-3][i]);
-        HT2Dnames[m-3].push_back("HT2D_" + variationsName[m-3][i]);
+        HTvariationsName[m-3].push_back("HT_" + variationsName[m-3][i + varSize]); //take offset into account within the variationsName vector
+        FitMass2Dnames[m-3].push_back("FitMass2D_" + variationsName[m-3][i + varSize]);
+        HT2Dnames[m-3].push_back("HT2D_" + variationsName[m-3][i + varSize]);
       }
     }
   }
@@ -622,7 +622,7 @@ void CombineHistogramDumpster::Loop()
 
 	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
           if(IsSF_ttbar){
-	    const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]);
+	    const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]); //note that SFs[i] runs the full length of variations = varSize+varOff
 	    FitMass[m-3][i]->Fill(fillBranchZero, CentralWeightSTcorr);
 	    HT[m-3][i]->Fill(fillVar, CentralWeightSTcorr);
 
@@ -723,8 +723,8 @@ void CombineHistogramDumpster::Loop()
   TFile* savefile2D;
   savefile2D = new TFile(TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/TwoD_SimpleShapes_Bin%d_",bin)+YearS+TString::Format("_%d.root",Iterator),"RECREATE");
   savefile2D->cd();
-  for(unsigned i = 0; i < HT.size(); ++i){
-    for(unsigned j = 0; j < HT[i].size(); ++j){
+  for(unsigned i = 0; i < FitMass_2D.size(); ++i){
+    for(unsigned j = 0; j < FitMass_2D[i].size(); ++j){
       if(dset.Type == 0){
         if(j>2) continue;
         if(Iterator <= 1){
