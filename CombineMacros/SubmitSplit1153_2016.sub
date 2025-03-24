@@ -7,7 +7,7 @@ error        = SplitScan2016_1153_$(ProcID).err
 log          = SplitScan2016_1153_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour  = "testmatch"
++JobFlavour  = "nextweek"
 RequestCpus  = 2
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))

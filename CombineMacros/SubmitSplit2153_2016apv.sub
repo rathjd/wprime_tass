@@ -1,10 +1,10 @@
-executable   = SubmitSplit2153_2018.sh
+executable   = SubmitSplit2153_2016apv.sh
 arguments    = $(ProcID)
 max_retries  = 1
-batch_name   = SplitScan2153_2018
-output       = SplitScan2018_2153_$(ProcID).out
-error        = SplitScan2018_2153_$(ProcID).err
-log          = SplitScan2018_2153_$(ProcID).log
+batch_name   = SplitScan2153_2016apv
+output       = SplitScan2016apv_2153_$(ProcID).out
+error        = SplitScan2016apv_2153_$(ProcID).err
+log          = SplitScan2016apv_2153_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
 +JobFlavour  = "nextweek"

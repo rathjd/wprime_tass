@@ -1,0 +1,14 @@
+executable   = SubmitBrazilFinalCombination.sh
+max_retries  = 1
+batch_name   = SubmitBrazilFinalCombination
+output       = SubmitBrazilFinalCombination.out
+error        = SubmitBrazilFinalCombination.err
+log          = SubmitBrazilFinalCombination.log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "testmatch"
+RequestCpus  = 2
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 1
+

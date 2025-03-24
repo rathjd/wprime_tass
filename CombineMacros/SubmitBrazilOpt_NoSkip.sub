@@ -1,0 +1,14 @@
+executable   = SubmitBrazilOpt_NoSkip.sh
+max_retries  = 1
+batch_name   = SubmitBrazilOpt_NoSkip
+output       = SubmitBrazilOpt_NoSkip.out
+error        = SubmitBrazilOpt_NoSkip.err
+log          = SubmitBrazilOpt_NoSkip.log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "tomorrow"
+RequestCpus  = 2
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 1
+

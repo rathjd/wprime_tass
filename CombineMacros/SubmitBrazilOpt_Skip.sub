@@ -1,0 +1,14 @@
+executable   = SubmitBrazilOpt_Skip.sh
+max_retries  = 1
+batch_name   = SubmitBrazilOpt_Skip
+output       = SubmitBrazilOpt_Skip.out
+error        = SubmitBrazilOpt_Skip.err
+log          = SubmitBrazilOpt_Skip.log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "workday"
+RequestCpus  = 2
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 1
+

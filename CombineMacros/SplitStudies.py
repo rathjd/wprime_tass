@@ -12,7 +12,7 @@ binNr = "2163"
 mass = 300
 
 try:
-    if int(sys.argv[1]) > 0:
+    if sys.argv[1].find("201") > -1:
         year = sys.argv[1]
         print("year set to "+ year)
 except:
@@ -36,12 +36,22 @@ try:
 except:
     print("mass defaults to", mass)
 
-#maximum number of NLL bins depending on jet multiplicity
+#maximum number of NLL bins depending on jet multiplicity, directly read from binning input file
 maxNLL = 0
+binsFile = open("BinTables.C","r")
+binsLines = binsFile.readlines()
 if binNr[2] == "5":
-    maxNLL = 52
+    for line in binsLines:
+        splitLine = line.split()
+        if splitLine[1].find("nNLLlimits53_500") > -1:
+            maxNLL = int(splitLine[3][0:len(splitLine[3])-1])
+            break
 elif binNr[2] == "6":
-    maxNLL = 23
+    for line in binsLines:
+        splitLine = line.split()
+        if splitLine[1].find("nNLLlimits64_500") > -1:
+            maxNLL = int(splitLine[3][0:len(splitLine[3])-1])
+            break
 
 massString = str(mass)
 
@@ -53,8 +63,8 @@ savefile = TFile("LimitSplits_M"+massString+"_"+binNr+"_"+year+".root","RECREATE
 
 #HThist = TH3F("HThist_"+massString,"H_{T} limits;binSplit;binEnd;limit category", 11, 4.5, 15.5, 19, 5.5, 24.5, 6, -0.5, 5.5)
 #FitHist = TH3F("FitHist_"+massString,"fitted mass limits;binSplit;binEnd;limit category", 11, 4.5, 15.5, 19, 5.5, 24.5, 6, -0.5, 5.5)
-CombHist = TH3F("CombHist_"+massString,"Combination limits;binSplit;binEnd;limit category", maxNLL, -0.5, -0.5+maxNLL, maxNLL, -0.5, -0.5+maxNLL, 6, -0.5, 5.5)
-CombHistExp = TH2F("CombHistExp_"+massString,"Combination limits expected;binSplit;binEnd", maxNLL, -0.5, -0.5+maxNLL, maxNLL, -0.5, -0.5+maxNLL)
+CombHist = TH3F("CombHist_"+massString,"Combination limits;binSplit;binEnd;limit category", maxNLL, -0.5, -0.5 + maxNLL, maxNLL, -0.5, -0.5 + maxNLL, 6, -0.5, 5.5)
+CombHistExp = TH2F("CombHistExp_"+massString,"Combination limits expected;binSplit;binEnd", maxNLL, -0.5, -0.5 + maxNLL, maxNLL, -0.5, -0.5 + maxNLL)
 expLimits = array( 'd' )
 LimitUncAve = array( 'd' )
 
@@ -104,11 +114,11 @@ for binSplit in range(1, maxNLL):
 
         #check for empty bins
         if binNr[0]=="1":
-            FitRm = TFile("../CombinationAll/FitSlices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            FitRm = TFile("../Combination/FitSlices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
             BgrMfit = FitRm.Get("Fit_ttbar_WprimeFit"+binNr+"_"+year+"_M"+massString+"_")
             SigMfit = FitRm.Get("Fit_M"+massString+"_WprimeFit"+binNr+"_"+year+"_M"+massString+"_")
 
-            HTRm = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            HTRm = TFile("../Combination/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
             BgrMHT = HTRm.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
             SigMHT = HTRm.Get("HT_M"+massString+"_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
 
@@ -124,11 +134,11 @@ for binSplit in range(1, maxNLL):
                     skip = True
                     print("HT slice had empty background bin",binN+1)
         elif binNr[0]=="2":
-            FitRe = TFile("../CombinationAll/FitSlices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            FitRe = TFile("../Combination/FitSlices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
             BgrEfit = FitRe.Get("Fit_ttbar_WprimeFit"+binNr+"_"+year+"_M"+massString+"_")
             SigEfit = FitRe.Get("Fit_M"+massString+"_WprimeFit"+binNr+"_"+year+"_M"+massString+"_")
 
-            HTRe = TFile("../CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
+            HTRe = TFile("../Combination/HTslices_Wprime"+binNr+"_"+year+"_M"+massString+".root", "READ")
             BgrEHT = HTRe.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
             SigEHT = HTRe.Get("HT_M"+massString+"_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
 
@@ -148,7 +158,7 @@ for binSplit in range(1, maxNLL):
             continue
 
         try:
-            os.system("combine -M AsymptoticLimits -m "+massString+" ../CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+"_M"+massString+".txt")
+            os.system("combine -M AsymptoticLimits -m "+massString+" ../Combination/CombinationSlices_Wprime"+binNr+"_"+year+"_M"+massString+".txt")
         except:
             print("Combination failed for ",binSplit,":",binEnd)
             skip = True

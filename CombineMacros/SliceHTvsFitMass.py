@@ -10,6 +10,8 @@ def SuppressNegBins(hist):
 
 #macro to splice a bin between fitted mass and HT along -log(likelihood) values
 
+Years = ["2016apv","2016","2017","2018"]
+
 #configure bin
 year = "2018"
 binNr = "1153"
@@ -18,11 +20,12 @@ binEnd = -1
 mass = "300"
 
 try:
-    if int(sys.argv[1]) > 0:
+    if year in Years:
         year = sys.argv[1]
         print("year set to "+ year)
 except:
     print("year defaults to "+ year)
+    print("valid options would have been",Years)
 
 try:
     if int(sys.argv[2]) > 0:
@@ -57,6 +60,7 @@ except:
     print("mass defaults to",mass)
 
 #switch for where to run
+eospath = "/eos/cms/store/group/phys_b2g/wprime/temp/Combination/"
 directory = "../"
 try:
     if sys.argv[5] == "direct":
@@ -73,14 +77,14 @@ NLLvals = [["ttbar",      0., 0., 1., 1.],
            ["diboson",    0., 0., 1., 1.]]
 
 #load file with 2D distributions and get filenames
-inFileSF = TFile(directory+"CombinationAll/SF_Bin"+binNr[0:3]+"2_"+year+".root","READ")
-inFile = TFile(directory+"CombinationAll/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+year+".root","READ")
+inFileSF = TFile(directory+"Combination/SF_Bin"+binNr[0:3]+"2_"+year+".root","READ")
+inFile = TFile(directory+"Combination/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+year+".root","READ")
 
 FileContent = [key.GetName() for key in gDirectory.GetListOfKeys()]
   
 #define output files
-outFileHT = TFile(directory+"CombinationAll/HTslices_Wprime"+binNr+"_"+year+"_M"+mass+".root","RECREATE")
-outFileFit = TFile(directory+"CombinationAll/FitSlices_Wprime"+binNr+"_"+year+"_M"+mass+".root","RECREATE")
+outFileHT = TFile(directory+"Combination/HTslices_Wprime"+binNr+"_"+year+"_M"+mass+".root","RECREATE")
+outFileFit = TFile(directory+"Combination/FitSlices_Wprime"+binNr+"_"+year+"_M"+mass+".root","RECREATE")
 
 #run over keys, sort and Project them appropriately
 for content in FileContent:
@@ -147,11 +151,11 @@ outFileFit.Close()
     
 
 #write cards ready to be processed
-FitCardIn = open(directory+"CombinationAll/FitMass_Wprime"+binNr+"_"+year+"_M"+mass+".txt","r")
-HTcardIn  = open(directory+"CombinationAll/HT_Wprime"+binNr+"_"+year+"_M"+mass+".txt","r")
+FitCardIn = open(directory+"Combination/FitMass_Wprime"+binNr+"_"+year+"_M"+mass+".txt","r")
+HTcardIn  = open(directory+"Combination/HT_Wprime"+binNr+"_"+year+"_M"+mass+".txt","r")
 
-FitCardOut = open(directory+"CombinationAll/FitSlice_Wprime"+binNr+"_"+year+"_M"+mass+".txt","w")
-HTcardOut = open(directory+"CombinationAll/HTslice_Wprime"+binNr+"_"+year+"_M"+mass+".txt","w")
+FitCardOut = open(directory+"Combination/FitSlice_Wprime"+binNr+"_"+year+"_M"+mass+".txt","w")
+HTcardOut = open(directory+"Combination/HTslice_Wprime"+binNr+"_"+year+"_M"+mass+".txt","w")
 
 #make a sliced fit card
 FitLines = FitCardIn.readlines()
@@ -271,7 +275,7 @@ HTcardOut.close()
 HTcardIn.close()
 
 #define combined card
-os.system("combineCards.py "+directory+"CombinationAll/FitSlice_Wprime"+binNr+"_"+year+"_M"+mass+".txt "+directory+"CombinationAll/HTslice_Wprime"+binNr+"_"+year+"_M"+mass+".txt > "+directory+"CombinationAll/CombinationSlices_Wprime"+binNr+"_"+year+"_M"+mass+".txt")
+os.system("combineCards.py "+directory+"Combination/FitSlice_Wprime"+binNr+"_"+year+"_M"+mass+".txt "+directory+"Combination/HTslice_Wprime"+binNr+"_"+year+"_M"+mass+".txt > "+directory+"Combination/CombinationSlices_Wprime"+binNr+"_"+year+"_M"+mass+".txt")
 
 #close input files
 inFile.Close()
