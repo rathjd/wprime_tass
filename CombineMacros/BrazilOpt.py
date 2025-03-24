@@ -2,9 +2,9 @@ import os,sys
 from ROOT import TGraph, TFile, TTree, TCanvas
 from array import array
 
-savefile = TFile("CombinationAll/OptimizedLimit.root","RECREATE");
+savefile = TFile("Combination/OptimizedLimit.root","RECREATE");
 
-b2gpath = "/eos/cms/store/group/phys_b2g/wprime/PatrickCombine/" 
+b2gpath = "/eos/cms/store/group/phys_b2g/wprime/February25_NewSystematics_Combine/" 
 
 masses = array( 'd' )
 
@@ -12,7 +12,7 @@ crossSections = [683.8+708.3, 321.7+336.1, 161.1+165.3, 85.92+85.82, 48.84+47.47
 
 limitNumbers = []
 
-years = ["2016", "2017", "2018"]
+years = ["2016apv", "2016", "2017", "2018"]
 binS  = [["1153", "2153"], ["1163", "2163"], ["1164", "2164"]]
 
 optimization = []
@@ -95,26 +95,35 @@ if not compromise:
     #                [[14, 25], [1, 14], [10, 22]],
     #                [[17, 27], [7, 14], [ 8, 22]]]
     #reran 6j4b channels, excluding slices with bins having signal, but not background predictions, categorically
-    optimization = [[[ 5, 21], [2, 13], [12, 22]],
-                    [[ 9, 23], [4, 13], [10, 22]],
-                    [[ 8, 22], [3, 13], [13, 22]],#change
-                    [[10, 26], [4, 13], [11, 22]],
-                    [[ 9, 23], [3, 14], [10, 22]],
-                    [[ 9, 27], [4, 15], [11, 22]],
-                    [[11, 28], [2, 14], [13, 22]],
-                    [[14, 25], [1, 14], [10, 22]],
-                    [[17, 27], [7, 14], [ 8, 22]]]
+    #optimization = [[[ 5, 21], [2, 13], [12, 22]],
+    #                [[ 9, 23], [4, 13], [10, 22]],
+    #                [[ 8, 22], [3, 13], [13, 22]],#change
+    #                [[10, 26], [4, 13], [11, 22]],
+    #                [[ 9, 23], [3, 14], [10, 22]],
+    #                [[ 9, 27], [4, 15], [11, 22]],
+    #                [[11, 28], [2, 14], [13, 22]],
+    #                [[14, 25], [1, 14], [10, 22]],
+    #                [[17, 27], [7, 14], [ 8, 22]]]
+    optimization = [[[1, 50], [4, 22], [7, 22]], 
+                    [[2, 51], [5, 22], [7, 22]], 
+                    [[3, 48], [3, 22], [5, 22]], 
+                    [[2, 49], [3, 22], [5, 22]], 
+                    [[2, 50], [4, 20], [5, 22]], 
+                    [[2, 48], [3, 22], [5, 22]], 
+                    [[3, 49], [4, 22], [5, 22]], 
+                    [[3, 49], [3, 22], [5, 22]], 
+                    [[3, 51], [3, 22], [5, 21]]]
 else:
 #compromise version
-    optimization = [[[10, 25], [3, 14], [10, 22]],
-                    [[10, 25], [3, 14], [10, 22]],
-                    [[10, 25], [3, 14], [10, 22]],
-                    [[10, 25], [3, 14], [10, 22]],
-                    [[10, 25], [3, 14], [10, 22]],
-                    [[10, 25], [3, 14], [10, 22]],
-                    [[10, 25], [3, 14], [10, 22]],
-                    [[10, 25], [3, 14], [10, 22]],
-                    [[10, 25], [3, 14], [10, 22]]]
+    optimization = [[[3, 51], [5, 22], [7, 22]],
+                    [[3, 51], [5, 22], [7, 22]],
+                    [[3, 51], [5, 22], [7, 22]],
+                    [[3, 51], [5, 22], [7, 22]],
+                    [[3, 51], [5, 22], [7, 22]],
+                    [[3, 51], [5, 22], [7, 22]],
+                    [[3, 51], [5, 22], [7, 22]],
+                    [[3, 51], [5, 22], [7, 22]],
+                    [[3, 51], [5, 22], [7, 22]]]
     folder = "allYears_CompromiseSlices"
 
 print(compromise)
@@ -123,7 +132,7 @@ print(folder)
 
 #macro to extract limits from combined cards, once set up optimized slices
 
-os.chdir("CombinationAll")
+os.chdir("Combination")
 
 for mass in range(0,9):
     masses.append(float((3+mass)*100))
