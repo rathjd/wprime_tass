@@ -5,10 +5,10 @@ import cmsstyle as CMS
 import math
 
 #ResultsPath = '/eos/cms/store/group/phys_b2g/wprime/PatrickCombine/allYears_OptimizedSlices/'
-ResultsPath = 'CombinationAll/'
+ResultsPath = 'Combination/'
 
 #lists of bins, years, systematics, backgrounds
-Years = ['2016','2017','2018']
+Years = ['2016','2016apv','2017','2018']
 Bins  = ['1153','2153','1163','2163','1164','2164']
 backgrounds = [["ttbar", 2],
                ["wjets", 3],
@@ -21,35 +21,59 @@ for yearName in Years:
     #CMS style setup
     if yearName == '2016':
         CMS.SetLumi("36.3")
+    elif yearName == "2016apv":
+        CMS.SetLumi("19.52")
     elif yearName == '2017':
         CMS.SetLumi("41.5")
     elif yearName == '2018':
         CMS.SetLumi("59.8")
     CMS.SetEnergy("13")
 
-    #general systematics to be considered
-    baseSystematics = ["LumiCorr",
-                       "LumiStat"+yearName,
-                       "electron"+yearName,
-                       "muonTrigger"+yearName,
-                       "muonId"+yearName,
-                       "muonIso"+yearName,
-                       "BjetTagCorr",
-                       "BjetTagUncorr"+yearName,
-                       "PUID"+yearName,
-                       "L1PreFiring"+yearName,
-                       "PUreweight"+yearName,
-                       "PDF",
-                       "LHEScale",
-                       "electronRes"+yearName,
-                       "JES"+yearName,
-                       "JER"+yearName]
+    B2Gn = "xxyyy" #FIXME: This is a placeholder
+    baseSystematics = [
+                   #uncertainties on object variations other than electron scale
+                   "CMS_res_e_"             +yearName,
+                   "CMS_scale_j_"           +yearName,
+                   "CMS_res_j_"             +yearName,
+
+                   #event weight variations
+                   "CMS_eff_e_trigger_"     +yearName,
+                   "CMS_eff_e_reco_"        +yearName,
+                   "CMS_eff_e_"             +yearName,
+                   "CMS_eff_m_trigger_"     +yearName,
+                   "CMS_eff_m_id_"          +yearName,
+                   "CMS_eff_m_iso_"         +yearName,
+                   "CMS_btag_light"              ,
+                   "CMS_btag_heavy"              ,
+                   "CMS_btag_light_"        +yearName,
+                   "CMS_btag_heavy_"        +yearName,
+                   "CMS_eff_j_PUJET_id_"    +yearName,
+                   "CMS_l1_ecal_prefiring_" +yearName,
+                   "CMS_pileup"                  ,
+                   "ps_isr"                      ,
+                   "ps_fsr"                      ,
+
+                   #uncertainties on normalization
+                   "lumi_13TeV_correlated"       ,
+                   "lumi_13TeV_1718"             ,
+                   "lumi_"                  +yearName,
+                   "CMS_eff_e_HLTzvtx_17"]
+
+    #make list of sample-dependent systematics
+    extendSystematics = []
+    for bgr in backgrounds:
+        #if not bgr[0].find("single_top") > -1:
+        extendSystematics.append("pdf_B2G"+B2Gn+"_envelope_"+bgr[0])
+        extendSystematics.append("QCDscale_ren_"+bgr[0])
+        extendSystematics.append("QCDscale_fac_"+bgr[0])
+    baseSystematics.extend(extendSystematics)
 
     #loop over bins
     for binString in Bins:
         #card-based systematics to be considered
-        CardSystematics = ["electronScale"+yearName,
-                           "NLLnonClosure"+yearName+"_"+binString[0:3]+"2"]
+        CardSystematics = ["CMS_scale_e"            +yearName,
+                           "CMS_B2G"+B2Gn+"_STfit_"+yearName+"_"+binString[0:3]+"2",
+                           "CMS_B2G"+B2Gn+"_NLLnonClosure_"+yearName+"_"+binString[0:3]+"2"]
 
         #title configuration
         if binString[0] == 1:
@@ -167,6 +191,11 @@ for yearName in Years:
 
                 #determine the uncertainties per bin
                 for syst in baseSystematics:
+                    #skip offdiagonal uncertainties for non-ttbar
+                    if background[0].find("ttbar") == -1:
+                        if (syst.find("QCDscale") > -1 or syst.find("pdf") > -1) and syst.find(background[0]) == -1:
+                            continue
+
                     UpFit   = inFitROOT.Get("Fit_" + background[0] + "_WprimeFit" + identifier + "_" + syst + "Up")
                     DownFit = inFitROOT.Get("Fit_" + background[0] + "_WprimeFit" + identifier + "_" + syst + "Down")
                     UpFit.Scale(1., "width")
@@ -236,6 +265,10 @@ for yearName in Years:
 
             #determine the uncertainties per bin
             for syst in baseSystematics:
+                #skip uncertainties not available in signal
+                if syst.find("QCDscale") > -1 or syst.find("pdf") > -1:
+                    continue
+
                 UpFit   = inFitROOT.Get("Fit_M" + mStr + "_WprimeFit" + identifier + "_" + syst + "Up")
                 DownFit = inFitROOT.Get("Fit_M" + mStr + "_WprimeFit" + identifier + "_" + syst + "Down")
                 UpFit.Scale(1., "width")
@@ -360,9 +393,14 @@ for yearName in Years:
 
             #make fit mass plot
             maxFit = max(BgrTotalFit.GetMaximum(), SigFit.GetMaximum())*1.1
+            minSigFit = 0.1
+            for x in range(0, SigFit.GetNbinsX()):
+                binCont = SigFit.GetBinContent(x+1)
+                if binCont > 0.:
+                    minSigFit = min(binCont, minSigFit)
 
-            canvFit = CMS.cmsDiCanvas("Fit_" + identifier, FitStart, FitEnd, 0, maxFit, 0.5, 1.5, "m_{fit} [GeV/c^{2}]", "Events/bin width", "Data/Pred.", square = CMS.kSquare, extraSpace = 0.1, iPos = 0)
-            canvFit.cd(1)
+            canvFit = CMS.cmsDiCanvas("Fit_" + identifier, FitStart, FitEnd, minSigFit, maxFit, 0.5, 1.5, "m_{fit} [GeV/c^{2}]", "Events/bin width", "Data/Pred.", square = CMS.kSquare, extraSpace = 0.1, iPos = 0)
+            padFit = canvFit.cd(1)
 
             legFit.AddEntry(BinOriginFit, "Data", "lp")
             CMS.cmsDrawStack(StackFit, legFit, BgrFit)
@@ -376,15 +414,14 @@ for yearName in Years:
             SigFit.SetLineColor(8)
             SigFit.SetLineWidth(3)
             SigFit.SetLineStyle(2)
-            SigFit.SetMarkerStyle(21)
-            SigFit.SetMarkerColor(2)
+            SigFit.SetMarkerSize(0)
 
             grErrSigFit = TGraph(len(ErrFitX), ErrFitX, ErrSigFitY)
-            grErrSigFit.SetFillColor(8)
+            grErrSigFit.SetFillColor(17)
             grErrSigFit.SetFillStyle(3008)
 
             grErrSigFit.Draw("F, same")
-            SigFit.Draw("lp, same")
+            SigFit.Draw("l, same")
 
             legFit.AddEntry(SigFit, "m_{W'}="+mStr+" GeV", "lp")
             legFit.AddEntry(grErrFit, "stat. + syst. unc.", "f")
@@ -392,6 +429,7 @@ for yearName in Years:
             legFit.Draw()
 
             CMS.fixOverlay()
+            padFit.SetLogy()
 
             canvFit.cd(2)
 
@@ -410,9 +448,14 @@ for yearName in Years:
 
             #make HT plot
             maxHT = max(BgrTotalHT.GetMaximum(), SigHT.GetMaximum())*1.1
+            minSigHT = 0.1
+            for x in range(0, SigHT.GetNbinsX()):
+                binCont = SigHT.GetBinContent(x+1)
+                if binCont > 0.:
+                    minSigHT = min(binCont, minSigFit)
 
-            canvHT = CMS.cmsDiCanvas("HT_" + identifier, HTstart, HTend, 0, maxHT, 0.5, 1.5, "H_{T} [GeV/c]", "Events/bin width", "Data/Pred.", square = CMS.kSquare, extraSpace = 0.1, iPos = 0)
-            canvHT.cd(1)
+            canvHT = CMS.cmsDiCanvas("HT_" + identifier, HTstart, HTend, minSigHT, maxHT, 0.5, 1.5, "H_{T} [GeV/c]", "Events/bin width", "Data/Pred.", square = CMS.kSquare, extraSpace = 0.1, iPos = 0)
+            padHT = canvHT.cd(1)
 
             legHT.AddEntry(BinOriginHT, "Data", "lp")
             CMS.cmsDrawStack(StackHT, legHT, BgrHT)
@@ -426,15 +469,14 @@ for yearName in Years:
             SigHT.SetLineColor(8)
             SigHT.SetLineWidth(3)
             SigHT.SetLineStyle(2)
-            SigHT.SetMarkerStyle(21)
-            SigHT.SetMarkerColor(2)
+            SigHT.SetMarkerSize(0)
 
             grErrSigHT = TGraph(len(ErrHTX), ErrHTX, ErrSigHTY)
-            grErrSigHT.SetFillColor(8)
+            grErrSigHT.SetFillColor(17)
             grErrSigHT.SetFillStyle(3008)
 
             grErrSigHT.Draw("F, same")
-            SigHT.Draw("lp, same")
+            SigHT.Draw("l, same")
 
             legHT.AddEntry(SigHT, "m_{W'}="+mStr+" GeV", "lp")
             legHT.AddEntry(grErrHT, "stat. + syst. unc.", "f")
@@ -442,6 +484,7 @@ for yearName in Years:
             legHT.Draw()
 
             CMS.fixOverlay()
+            padHT.SetLogy()
 
             canvHT.cd(2)
 
