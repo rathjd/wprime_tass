@@ -104,19 +104,20 @@ SRsystematics = [  "CMS_scale_e"            +year,
                    "CMS_B2G"+B2Gn+"_NLLnonClosure_"+year+"_"+binString[0:3]+"2"]
 
 #input files
+eospath = "/eos/cms/store/group/phys_b2g/wprime/temp/" 
 binS = str(LeptonFlav)+"1"+str(JetMult)
 print("assembling results for",binS,"in year",year)
-inOrigin = TFile(binS+"1_"+year+"/SimpleShapes_Wprime"+binS+"1_"+year+".root","READ")
+inOrigin = TFile(eospath + binS + "1_" + year + "/SimpleShapes_Wprime" + binS + "1_" + year + ".root","READ")
 print("origin of correction",binS+"1_"+year+"/SimpleShapes_Wprime"+binS+"1_"+year+".root")
-inSF     = TFile(binS+"2_"+year+"/SF_Bin"+binS+"1_"+year+".root","READ")
+inSF     = TFile(eospath + binS + "2_" + year + "/SF_Bin" + binS + "1_" + year + ".root","READ")
 print("SF file of origin",binS+"2_"+year+"/SF_Bin"+binS+"1_"+year+".root")
-inSF2    = TFile(binS+"3_"+year+"/SF_Bin"+binS+"2_"+year+".root","READ")
+inSF2    = TFile(eospath + binS + "3_" + year + "/SF_Bin" + binS + "2_" + year + ".root","READ")
 print("SF file of target region",binS+"3_"+year+"/SF_Bin"+binS+"2_"+year+".root")
-inResult = TFile(binS+"2_"+year+"/SimpleShapes_Wprime"+binS+"2_"+year+".root","READ")
+inResult = TFile(eospath + binS + "2_" + year + "/SimpleShapes_Wprime" + binS + "2_" + year + ".root","READ")
 print("result file of validation region",binS+"2_"+year+"/SimpleShapes_Wprime"+binS+"2_"+year+".root")
-inTwoD3 = TFile(binS+"3_"+year+"/TwoD_SimpleShapes_Wprime"+binS+"3_"+year+".root","READ")
+inTwoD3 = TFile(eospath + binS + "3_" + year + "/TwoD_SimpleShapes_Wprime" + binS + "3_" + year + ".root","READ")
 if JetMult == 6:
-    inTwoD4 = TFile(binS+"4_"+year+"/TwoD_SimpleShapes_Wprime"+binS+"4_"+year+".root","READ")
+    inTwoD4 = TFile(eospath + binS + "4_" + year + "/TwoD_SimpleShapes_Wprime" + binS + "4_" + year + ".root","READ")
 
 #extract data histograms
 Data1b = inOrigin.Get("ST_data_obs_Wprime"+binS+"1_"+year+"_")
@@ -670,12 +671,24 @@ for background in backgrounds:
                 print("NegLogLnoBvsNegLogL_"+background[0]+"_Wprime"+binS+"4_"+year+"_M"+str(mass*100)+"_","is empty")
 
 #make NLL stack plots per masspoint
+
+#maximum number of NLL bins depending on jet multiplicity, directly read from binning input file
+maxNLL5 = 0
+maxNLL6 = 0
+binsFile = open("BinTables.C","r")
+binsLines = binsFile.readlines()
+for line in binsLines:
+    splitLine = line.split()
+    if splitLine[1].find("nNLLlimits53_500") > -1:
+        maxNLL5 = int(splitLine[3][0:len(splitLine[3])-1])
+    if splitLine[1].find("nNLLlimits64_500") > -1:
+        maxNLL6 = int(splitLine[3][0:len(splitLine[3])-1])
+if JetMult == 5:
+    nbinsX = maxNLL5
+elif JetMult == 6:
+    nbinsX = maxNLL6
+
 for bmult in range(3,JetMult-1):
-    #cetermine NLL bin count
-    if bmult == 3:
-        nbinsX=52
-    else:
-        nbinsX=23
     for mass in range(3,12):
         #configure containers
         Stack = THStack("Stack_"+binS+str(bmult)+"_"+year+"_M"+str(mass*100),"")
