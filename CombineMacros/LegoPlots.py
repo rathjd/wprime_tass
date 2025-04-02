@@ -11,14 +11,26 @@ inFile = TFile("LegoOptimization.root","READ")
 CMS.SetLumi("138")
 CMS.SetEnergy("13")
 
+#maximum number of NLL bins depending on jet multiplicity, directly read from binning input file
+maxNLL5 = 0
+maxNLL6 = 0
+binsFile = open("BinTables.C","r")
+binsLines = binsFile.readlines()
+for line in binsLines:
+    splitLine = line.split()
+    if splitLine[1].find("nNLLlimits53_500") > -1:
+        maxNLL5 = int(splitLine[3][0:len(splitLine[3])-1])
+    if splitLine[1].find("nNLLlimits64_500") > -1:
+        maxNLL6 = int(splitLine[3][0:len(splitLine[3])-1])
+
 for j in range(5,7):
     for mass in range(3,12):
         for jbBin in jbBins:
             #only run, if jet multiplicity fits
             if str(j) == jbBin[0]:
-                BinN = 52
+                BinN = maxNLL5
                 if jbBin[0] == "6":
-                    BinN = 23
+                    BinN = maxNLL6
 
                 hist = inFile.Get("Lego"+str(j)+"j_Wp"+str(mass*100)+"_11"+jbBin+"_21"+jbBin)
                 leg = CMS.cmsLeg(0.2,0.89-0.05*1,0.6,0.89,textSize=0.05)

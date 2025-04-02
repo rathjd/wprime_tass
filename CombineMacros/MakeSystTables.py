@@ -66,34 +66,52 @@ else:
     chan = "e6j2b"
 
 #read root file with histograms and combine card for systematics sources
-infile = TFile("CombinationAll/"+fileprefix+"_Wprime"+binS+"_"+year+"_M"+mass+".root","read")
-incard = open("CombinationAll/"+varName+"_Wprime"+binS+"_"+year+"_M"+mass+".txt","r")
+infile = TFile("Combination/"+fileprefix+"_Wprime"+binS+"_"+year+"_M"+mass+".root","read")
+incard = open("Combination/"+varName+"_Wprime"+binS+"_"+year+"_M"+mass+".txt","r")
 
 #define categories and systematics
+B2Gn = "xxyyy" #FIXME
 colNames = [["M"+mass, True],
             ["ttbar", True],
             ["wjets", True],
             ["single_top", True],
             ["diboson", True]]
-rowNames = [["LumiCorr", "lumi_13TeV_correlated"],
-            ["LumiStat"+year, "lumi_"+year],
-            ["electron"+year, "CMS_eff_e_" + year],
-            ["muonTrigger"+year, "CMS_eff_m_trigger_"+year],
-            ["muonId"+year, "CMS_eff_m_id_"+year],
-            ["muonIso"+year, "CMS_eff_m_iso_"+year],
-            ["BjetTagCorr", "CMS_btag_comb"],
-            ["BjetTagUncorr"+year, "CMS_eff_b_"+year],
-            ["PUID"+year, "CMS_eff_j_PUJET_id_"+year],
-            ["L1PreFiring"+year, "CMS_l1_ecal_prefiring_"+year],
-            ["PUreweight"+year, "CMS_pileup_"+year],
-            ["PDF", "pdf_B2Gxxyyy_envelope"],
-            ["LHEScale", "QCDscale_ttbar"],
-            ["electronScale"+year, "CMS_scale_e_"+year],
-            ["electronRes"+year, "CMS_res_e_"+year],
-            ["JES"+year, "CMS_scale_j_"+year],
-            ["JER"+year, "CMS_res_j_"+year],
-            ["STfit_"+year+"_"+binS[0:3]+"2_STfit", "CMS_B2Gxxyyy_STfit_"+year+"_"+chan],
-            ["NLLnonClosure"+year+"_"+binS[0:3]+"2", "CMS_B2Gxxyyy_NLLnonClosure_"+year+"_"+chan]]
+rowNames = [["lumi_13TeV_correlated", "lumi_13TeV_correlated"],
+            ["lumi_13TeV_1718", "lumi_13TeV_1718"],
+            ["lumi_"+year, "lumi_"+year],
+            ["CMS_eff_e_trigger_"+year, "CMS_eff_e_trigger_"+year],
+            ["CMS_eff_e_reco_"+year, "CMS_eff_e_reco_"+year],
+            ["CMS_eff_e_"+year, "CMS_eff_e_"+year,],
+            ["CMS_eff_m_trigger_"+year, "CMS_eff_m_trigger_"+year],
+            ["CMS_eff_m_id_"+year, "CMS_eff_m_id_"+year],
+            ["CMS_eff_m_iso_"+year, "CMS_eff_m_iso_"+year],
+            ["CMS_btag_light", "CMS_btag_light"],
+            ["CMS_btag_heavy", "CMS_btag_heavy"],
+            ["CMS_btag_light_"+year, "CMS_btag_light_"+year],
+            ["CMS_btag_heavy_"+year, "CMS_btag_heavy_"+year],
+            ["CMS_eff_j_PUJET_id_"+year, "CMS_eff_j_PUJET_id_"+year],
+            ["CMS_l1_ecal_prefiring_"+year, "CMS_l1_ecal_prefiring_"+year],
+            ["CMS_pileup", "CMS_pileup"],
+            ["pdf_B2G"+B2Gn+"_envelope_ttbar", "pdf_B2G"+B2Gn+"_envelope_ttbar"],
+            ["pdf_B2G"+B2Gn+"_envelope_wjets", "pdf_B2G"+B2Gn+"_envelope_wjets"],
+            ["pdf_B2G"+B2Gn+"_envelope_single_top", "pdf_B2G"+B2Gn+"_envelope_single_top"],
+            ["pdf_B2G"+B2Gn+"_envelope_diboson", "pdf_B2G"+B2Gn+"_envelope_diboson"],
+            ["QCDscale_ren_ttbar", "QCDscale_ren_ttbar"],
+            ["QCDscale_ren_wjets", "QCDscale_ren_wjets"],
+            ["QCDscale_ren_single_top", "QCDscale_ren_single_top"],
+            ["QCDscale_ren_diboson", "QCDscale_ren_diboson"],
+            ["QCDscale_fac_ttbar", "QCDscale_fac_ttbar"],
+            ["QCDscale_fac_wjets", "QCDscale_fac_wjets"],
+            ["QCDscale_fac_single_top", "QCDscale_fac_single_top"],
+            ["QCDscale_fac_diboson", "QCDscale_fac_diboson"],
+            ["ps_isr", "ps_isr"],
+            ["ps_fsr", "ps_fsr"],
+            ["CMS_scale_e_"+year, "CMS_scale_e_"+year],
+            ["CMS_res_e_"+year, "CMS_res_e_"+year],
+            ["CMS_scale_j_"+year, "CMS_scale_j_"+year],
+            ["CMS_res_j_"+year, "CMS_res_j_"+year],
+            ["CMS_B2G"+B2Gn+"_STfit_"+year+"_"+chan, "CMS_B2G"+B2Gn+"_STfit_"+year+"_"+chan],
+            ["CMS_B2G"+B2Gn+"_NLLnonClosure_"+year+"_"+chan, "CMS_B2G"+B2Gn+"_NLLnonClosure_"+year+"_"+chan]]
 
 #define output table file and table header
 outf = open("SystTable_"+varName+"_"+binS+"_"+year+"_M"+mass+".tex", "w")
@@ -132,14 +150,17 @@ outf.write("    " + columnN + "\\\\\hline\hline\n")
 #fill all rows with systematics values but for the last
 for row in rowNames:
     rowS = "    " + row[1].replace("_","\_")
-    if row[0].find("NLLnonClosure") < 0 and row[0].find("electronScale") < 0:
+    if row[0].find("NLLnonClosure") < 0 and row[0].find("CMS_scale_e") < 0:
         for col in colNames: #exception for STfit uncertainty which is only active for ttbar
+            isTtbar = col[0].find("ttbar") > -1
+            isSpecialSyst = ((row[0].find("QCDscale") > -1 or row[0].find("pdf") > -1) and not row[0].find(col[0]) > -1)
             if not col[1]:
                 continue
             if row[0].find("STfit") > -1 and col[0] != "ttbar":
                 rowS += " & 0"
-            else:
+            elif isTtbar or (not isTtbar and not isSpecialSyst):
                 stringAssembly = rootprefix + col[0] + "_Wprime" + regionadd + binS + "_" + year + "_M" + mass + "_"
+                print(stringAssembly + row[0])
                 UpVar   = infile.Get(stringAssembly + row[0] + "Up")
                 DownVar = infile.Get(stringAssembly + row[0] + "Down")
                 Norm    = infile.Get(stringAssembly)
@@ -155,7 +176,7 @@ for row in rowNames:
                 lineSplit = line.split()
                 for i in [i for i, col in enumerate(colNames) if col[1]]:
                     rowS+= " & " + lineSplit[i+2]
-            elif line.find("electronScale") > -1 and row[0].find("electronScale") > -1:
+            elif line.find("CMS_scale_e") > -1 and row[0].find("CMS_scale_e") > -1:
                 lineSplit = line.split()
                 for i in [i for i, col in enumerate(colNames) if col[1]]:
                     rowS+= " & " + lineSplit[i+2]

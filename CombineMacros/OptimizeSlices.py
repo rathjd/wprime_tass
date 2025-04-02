@@ -6,14 +6,27 @@ import math
 
 crossSections = [683.8+708.3, 321.7+336.1, 161.1+165.3, 85.92+85.82, 48.84+47.47, 29.81+27.73, 18.33+16.49, 11.73+10.25, 7.683+6.546]
 
-OptimiBins = [[[1153, 2153], [2016, 2017, 2018]],
-              [[1163, 2163], [2016, 2017, 2018]],
-              [[1164, 2164], [2016, 2017, 2018]]]
+OptimiBins = [[[1153, 2153], ["2016", "2016apv", 2017, 2018]],
+              [[1163, 2163], ["2016", "2016apv", 2017, 2018]],
+              [[1164, 2164], ["2016", "2016apv", 2017, 2018]]]
 
 saveFile = TFile("LegoOptimization.root","RECREATE")
 
 FinalList = []
 
+#maximum number of NLL bins depending on jet multiplicity, directly read from binning input file
+maxNLL5 = 0
+maxNLL6 = 0
+binsFile = open("BinTables.C","r")
+binsLines = binsFile.readlines()
+for line in binsLines:
+    splitLine = line.split()
+    if splitLine[1].find("nNLLlimits53_500") > -1:
+        maxNLL5 = int(splitLine[3][0:len(splitLine[3])-1])
+    if splitLine[1].find("nNLLlimits64_500") > -1:
+        maxNLL6 = int(splitLine[3][0:len(splitLine[3])-1])
+
+#loop over all masses for optimization
 for mass in range(0,9):
     massP = (3+mass)*100
     FinalList.append([])
@@ -31,7 +44,7 @@ for mass in range(0,9):
         for binN in OptimiBin[0]:
             for year in OptimiBin[1]:
                 try:
-                    inFile = TFile(str(year)+"_"+str(binN)+"_"+str(massP)+"_combineTmp/LimitSplits_M"+str(massP)+"_"+str(binN)+"_"+str(year)+".root","READ")
+                    inFile = TFile(str(year)+"_"+str(binN)+"_"+str(massP)+"_combineTmp/LimitSplits_M"+str(massP)+"_"+str(binN)+"_"+year+".root","READ")
                     FullHist = inFile.Get("CombHist_"+str(massP))
                     FullHist.GetZaxis().SetRange(3,3)
                     Expected = FullHist.Project3D("yx")
@@ -50,8 +63,8 @@ for mass in range(0,9):
         
         #Combine expected limits, find lowest value
         BestLimit = [0, 0, 100.] #binSplit, binEnd, r
-        Lego5 = TH2F("Lego5j_Wp"+str(massP)+"_"+str(OptimiBin[0][0])+"_"+str(OptimiBin[0][1]),"optimization mass "+str(massP)+" in bins "+str(OptimiBin[0][0])+" and "+str(OptimiBin[0][1])+";binEnd;binSplit;95% CL [fb]", 52, -0.5, 51.5, 52, -0.5, 51.5)
-        Lego6 = TH2F("Lego6j_Wp"+str(massP)+"_"+str(OptimiBin[0][0])+"_"+str(OptimiBin[0][1]),"optimization mass "+str(massP)+" in bins "+str(OptimiBin[0][0])+" and "+str(OptimiBin[0][1])+";binEnd;binSplit;95% CL [fb]", 23, -0.5, 22.5, 23, -0.5, 22.5)
+        Lego5 = TH2F("Lego5j_Wp"+str(massP)+"_"+str(OptimiBin[0][0])+"_"+str(OptimiBin[0][1]),"optimization mass "+str(massP)+" in bins "+str(OptimiBin[0][0])+" and "+str(OptimiBin[0][1])+";binEnd;binSplit;95% CL [fb]", maxNLL5, -0.5, -0.5 + maxNLL5, maxNLL5, -0.5, -0.5 + maxNLL5)
+        Lego6 = TH2F("Lego6j_Wp"+str(massP)+"_"+str(OptimiBin[0][0])+"_"+str(OptimiBin[0][1]),"optimization mass "+str(massP)+" in bins "+str(OptimiBin[0][0])+" and "+str(OptimiBin[0][1])+";binEnd;binSplit;95% CL [fb]", maxNLL6, -0.5, -0.5 + maxNLL6, maxNLL6, -0.5, -0.5 + maxNLL6)
 
         for xc in range(0, len(OptiMatrix)):
             for yc in range(0, len(OptiMatrix[xc])):

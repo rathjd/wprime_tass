@@ -11,7 +11,7 @@ cardName = "Combination"
 
 cardNameOptions = ["FitMass", "HT", "Combination", "FitSlice", "HTslice", "Optimized", "CombinationSlices"]
 
-yearOptions = ["2016", "2017", "2018", "all"]
+yearOptions = ["2016apv", "2016", "2017", "2018", "all"]
 
 #accept shell inputs
 try:
@@ -38,8 +38,10 @@ except:
     print("card type defaults to "+cardName+", legitimate options are:")
 
 #CMS style setup
-if year == "2016":
-    CMS.SetLumi("36.3")
+if   year == "2016apv":
+    CMS.SetLumi("19.5")
+elif year == "2016":
+    CMS.SetLumi("16.8") 
 elif year == "2017":
     CMS.SetLumi("41.5")
 elif year == "2018":
@@ -85,7 +87,7 @@ if year == "all":
 
 
 #set up actual limit extraction
-savefile = TFile("CombinationAll/CombinedLimit_"+cardName+"_"+binS+"_"+year+".root","RECREATE");
+savefile = TFile("Combination/CombinedLimit_"+cardName+"_"+binS+"_"+year+".root","RECREATE");
 
 masses = array( 'd' )
 
@@ -98,8 +100,8 @@ limitNumbers = []
 for mass in range(0,9):
     masses.append(float((3+mass)*100))
     massString = str((3+mass)*100)
-    print("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
-    os.system("combine -M AsymptoticLimits -m "+massString+" ""CombinationAll/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
+    print("combine -M AsymptoticLimits -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
+    os.system("combine -M AsymptoticLimits -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
 
     infile = TFile("higgsCombineTest.AsymptoticLimits.mH"+massString+".root","READ")
 

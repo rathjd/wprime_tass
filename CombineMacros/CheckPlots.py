@@ -862,6 +862,7 @@ for bmult in range(3,JetMult-1):
         inSig.SetLineStyle(2)
         inSig.SetFillColor(8)
         inSig.SetFillStyle(3008)
+        inSig.SetMarkerStyle(1)
         grErrSig = TGraph(len(ErrX), ErrX, ErrSy)
         grErrSig.SetFillColor(8)
         grErrSig.SetFillStyle(3008)
