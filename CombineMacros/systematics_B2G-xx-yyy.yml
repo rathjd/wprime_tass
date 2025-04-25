@@ -63,6 +63,9 @@ lumi_13TeV_correlated:
   class: luminosity
   description: portion of luminosity uncertainty on 13TeV pp data which is correlated
     between 2016, 2017, and 2018 data taking.
+lumi_13TeV_1718:
+  class: luminosity
+  description: portion of luminosity uncertainty on 13TeV pp data which is correlated between 2017, and 2018 data taking.
 pdf_B2Gxxyyyy_envelope_(ttbar|wjets|single_top|diboson|signal):
   class: custom
   description: pdf uncertainties by taking the envelope of the 100 largest PDF variations for each type of sample considered

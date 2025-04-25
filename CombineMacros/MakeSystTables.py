@@ -180,6 +180,8 @@ for row in rowNames:
                     rowS   += " & $^{" + UpS + "}_{" + DownS + "}$"
                 else:
                     rowS   += " & 0 "
+            else:
+                rowS += "& 0"
     else: #need an exception for the case of the NLL nonclosure, which is an lnN uncertainty in the card, not a shape uncertainty like all the others
         for line in cardContent:
             if line.find("NLLnonClosure") > -1 and row[0].find("NLLnonClosure") > -1:
