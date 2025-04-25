@@ -58,12 +58,22 @@ elif varName == "HTslice":
 
 if binS == "1153":
     chan = "mu5j2b"
+    sigchan = "\\PGm event, 5 jets, 3 \\PQb tagged"
 elif binS == "2153":
     chan = "e5j2b"
+    sigchan = "\\PGe event, 5 jets, 3 \\PQb tagged"
 elif binS == "1163" or binS == "1164":
     chan = "mu6j2b"
+    if binS == "1163":
+        sigchan = "\\PGm event, 6 jets, 3 \\PQb tagged"
+    if binS == "1164":
+        sigchan = "\\PGm event, 6 jets, 4 \\PQb tagged"
 else:
+    if binS == "2163":
+        sigchan = "\\PGe event, 6 jets, 3 \\PQb tagged"
     chan = "e6j2b"
+    if binS == "2164":
+        sigchan = "\\PGe event, 6 jets, 4 \\PQb tagged"
 
 #read root file with histograms and combine card for systematics sources
 infile = TFile("Combination/"+fileprefix+"_Wprime"+binS+"_"+year+"_M"+mass+".root","read")
@@ -187,6 +197,6 @@ for row in rowNames:
 
 #define table end
 outf.write("  \end{tabular}\n")
-outf.write("  \caption{Systematics size in normalization for " + varName + " in " + chan + " " + year + " at $m_{\\textrm{W'}}=$"+mass+"\,GeV. Super(sub)scripts indicate up(down) variations.}\n")
+outf.write("  \caption{Systematics size in normalization for " + varName + " in " + sigchan + " " + year + " at $m_{\\textrm{W'}}=$"+mass+"\,GeV. Super(sub)scripts indicate up(down) variations.}\n")
 outf.write("  \label{tab:Syst_" + varName + "_" + binS + "_" + year + "_M" + mass +"}\n")
 outf.write("\end{table}")
