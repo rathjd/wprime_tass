@@ -181,7 +181,7 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
 // used to generate this class and read the Tree.
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
-    TString FilePath = "/eos/cms/store/group/phys_b2g/wprime/analyzednewskims/";
+    TString FilePath = "/eos/cms/store/group/phys_b2g/wprime/analyzeroutputmay2025/";
     FilePath.Append(year_);
     FilePath.Append("_");
     FilePath.Append(dset.Name);
