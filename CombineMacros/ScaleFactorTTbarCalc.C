@@ -36,7 +36,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   unsigned varSize = 53; //note that this is hardcoded as a crosscheck
 
   //loop over samples, organizing data, ttbar, and non-ttbar with variations
-  for(unsigned sam = 0; sam < 24; ++sam){
+  for(unsigned sam = 0; sam < 27; ++sam){
     if(bin/1000 == 1 && sam == 0) continue;
     if(bin/2000 == 1 && sam == 1) continue;
 
@@ -60,7 +60,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 	dataHistNLL.push_back( *(TH1F*)(infile->Get(MassDataName))->Clone(TString::Format("dataHistNLL_M%d",mass)));
       }
     }
-    else if(sam==2 || sam==5 || sam==13 || sam==18){//first sample in each sample set
+    else if(sam==2 || sam==8 || sam==16 || sam==21){//first sample in each sample set
       for(unsigned var = 0; var < varSize; ++var){
 	TString variation = Systematics(var, YearS, sampleType, B2Gn);
         TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variation;

@@ -116,7 +116,7 @@ public:
     AddDataset_NGTCXS("WZTo1L1Nu2Q"             ,"diboson"       , 1, 5 ,    9119,   {  3701521,   3690271,   7345742,   7395487}); // 23
     AddDataset_NGTCXS("WZTo1L3Nu"               ,"diboson"       , 1, 5 ,    3414,   {  1238781,   1229946,   2481654,   2497292}); // 24
     AddDataset_NGTCXS("WZTo2Q2L"                ,"diboson"       , 1, 5 ,    6565,   { 15678816,  13526954,  29091996,  28576996}); // 25
-    AddDataset_NGTCXS("WZTo3LNu"                ,"diboson"       , 1, 5 ,    823.4,   { 18105398,  20810003,  10339582, 38624209}); // 26
+    AddDataset_NGTCXS("WZTo3LNu"                ,"diboson"       , 1, 5 ,   823.4,   { 18105398,  20810003,  10339582, 38624209}); // 26
 
     // McM page
     // https://cms-pdmv.cern.ch/mcm/requests?range=B2G-RunIISummer20UL16wmLHEGEN-03230,B2G-RunIISummer20UL16wmLHEGEN-03247&page=0&shown=127
