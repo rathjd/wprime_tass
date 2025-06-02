@@ -61,7 +61,7 @@ if binS == "1153":
     sigchan = "\\PGm event, 5 jets, 3 \\PQb tagged"
 elif binS == "2153":
     chan = "e5j2b"
-    sigchan = "\\PGe event, 5 jets, 3 \\PQb tagged"
+    sigchan = "\\Pe event, 5 jets, 3 \\PQb tagged"
 elif binS == "1163" or binS == "1164":
     chan = "mu6j2b"
     if binS == "1163":
@@ -70,10 +70,10 @@ elif binS == "1163" or binS == "1164":
         sigchan = "\\PGm event, 6 jets, 4 \\PQb tagged"
 else:
     if binS == "2163":
-        sigchan = "\\PGe event, 6 jets, 3 \\PQb tagged"
+        sigchan = "\\Pe event, 6 jets, 3 \\PQb tagged"
     chan = "e6j2b"
     if binS == "2164":
-        sigchan = "\\PGe event, 6 jets, 4 \\PQb tagged"
+        sigchan = "\\Pe event, 6 jets, 4 \\PQb tagged"
 
 #read root file with histograms and combine card for systematics sources
 infile = TFile("Combination/"+fileprefix+"_Wprime"+binS+"_"+year+"_M"+mass+".root","read")
