@@ -90,6 +90,10 @@ public:
     AddDataset_NGTCXS("ttbar_semileptonic"     ,"ttbar"         , 1, 2 ,366300,   {132178000, 144722000, 346052000, 476408000}); // 2
     AddDataset_NGTCXS("ttbar_leptonic"	       ,"ttbar"         , 1, 2 ,  88500.,   { 37505000,  43546000, 106724000, 145020000}); // 3
     AddDataset_NGTCXS("ttbar_hadronic"         ,"ttbar"         , 1, 2,   378900,   { 97260000, 107067000, 232999999, 334206000}); // 4
+    AddDataset_NGTCXS("ttbar_bbbar_semileptonic"         ,"ttbar"         , 1, 2,   19200,   {2991789, 3223118, 7318891, 10378681}); // 4
+    AddDataset_NGTCXS("ttbar_bbbar_leptonic"         ,"ttbar"         , 1, 2,   4600,   { 1388348, 1571799, 3472503, 4792850}); // 4
+    AddDataset_NGTCXS("ttbar_bbbar_hadronic"         ,"ttbar"         , 1, 2,   19900,   { 2303410, 2597868, 5694656, 8049064}); // 4
+
 
     AddDataset_NGTCXS("wjets_HT_70_100"        ,"wjets"         , 1, 3 , 1292000,   { 16931765,  19439931,  44576510,  66220256}); // 5
     AddDataset_NGTCXS("wjets_HT_100_200"       ,"wjets"         , 1, 3 , 1395000,   { 21734530,  19753958,  47424468,  51408967}); // 6
@@ -104,8 +108,8 @@ public:
     AddDataset_NGTCXS("single_top_schan"       ,"single_top"    , 1, 4 ,    3740,   {  5518000,   5471000,  13620000,  19365999}); // 13
     AddDataset_NGTCXS("single_top_tchan"       ,"single_top"    , 1, 4 ,  115300,   { 55961000,  63073000, 129903000, 178336000}); // 14
     AddDataset_NGTCXS("single_antitop_tchan"   ,"single_top"    , 1, 4 ,   69090,   { 31024000,  30609000,  69793000,  95627000}); // 15
-    AddDataset_NGTCXS("single_top_tw"          ,"single_top"    , 1, 4 ,   34910,   {  3294673,   3368375,   8507203,  11270430}); // 16
-    AddDataset_NGTCXS("single_antitop_tw"      ,"single_top"    , 1, 4 ,   34970,   {  3176485,   3654510,   8433998,  10949620}); // 17
+    AddDataset_NGTCXS("single_top_tw"          ,"single_top"    , 1, 4 ,   34910,   {  3614470,   3470455,   8322161,  12379320}); // 16
+    AddDataset_NGTCXS("single_antitop_tw"      ,"single_top"    , 1, 4 ,   34970,   {  3594458,   4002310,   8166788,  11779400}); // 17
 
     AddDataset_NGTCXS("WW"                     ,"diboson"       , 1, 5 ,   51650,   { 20071678,  19976139,  39931603,  40272013}); // 18
     AddDataset_NGTCXS("ZZ"                     ,"diboson"       , 1, 5 ,   12170,   {  1282000,   1151000,   2706000,   3526000}); // 19
