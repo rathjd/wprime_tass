@@ -115,7 +115,7 @@ void CombineHistogramDumpster::Loop()
   TH1::AddDirectory(false);//FIXME:Suppress warnings for histogram declarations
 
   //Decide if this is ttbar with SF from ST correction
-  bool IsSF_ttbar = Iterator >= 2 && Iterator <= 4 && SFreg != 0;
+  bool IsSF_ttbar = Iterator >= 2 && Iterator <= 7 && SFreg != 0;
 
   //Declare hardcoded what the size of the systematics variations is:
   unsigned varSize = 53;
@@ -542,8 +542,6 @@ void CombineHistogramDumpster::Loop()
 	  FitMass_2D[m-3][i]->Fill(fillBranch, NLLfill, STcorrCentralWeight);
 	  HT_2D[m-3][i]->Fill(fillVar, NLLfill, STcorrCentralWeight);
 
-	  //if(m==3) STrew[i]->Fill(STvals[i], STcorrCentralWeight);//only do this once for all masses
-
 	  if(i == 0){//make sure to scale ttbar and get stat. unc. of fit propagated
             const float STcorr = SFs[i].Eval(STvals[i]);
 	    const float statSFunc = CalculateCovError(STvals[0], SFcovs[0], jetMult);
@@ -558,11 +556,6 @@ void CombineHistogramDumpster::Loop()
 	    FitMass_2D_STstatDown[m-3]->Fill(fillBranch, NLLfillZero, STcorrStatDown);
 	    HT_2D_STstatUp[m-3]->Fill(fillVar, NLLfillZero, STcorrStatUp);
 	    HT_2D_STstatDown[m-3]->Fill(fillVar, NLLfillZero, STcorrStatDown);
-
-	    /*if(m==3){//only do this once for all masses
-	      STrew_STstatUp->Fill(STvals[0], STcorrStatUp);
-              STrew_STstatDown->Fill(STvals[0], STcorrStatDown);
-	    }*/
 
 	    NegLogLnoB[m-3]->Fill(NLLnoBfill, STcorrCentralWeight);
 	    NegLogLnoBvsNegLogL[m-3]->Fill(NLLnoBfillZero, NLLfillZero, STcorrCentralWeight);
@@ -581,7 +574,6 @@ void CombineHistogramDumpster::Loop()
             NegLogLnoBvsNegLogL[m-3]->Fill(NLLnoBfillZero, NLLfillZero, CentralWeight);
 	  }
         }
-        //if(m==3) ST[i]->Fill(STvals[i], EventWeight[0]*SampleWeight*EventWeightObjectVariations[i]); //only do this once for all masses
       }
 
       //Make sure to match default region for default objects with event weight variations
@@ -594,8 +586,6 @@ void CombineHistogramDumpster::Loop()
 
         //EventWeight variations
         for(unsigned i = 9; i < varSize + varOff; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)
-	  //FIXME: Additional lepton cut
-	  //if(LeptonPt < 40.) break;
 	
           string HistName;
 
@@ -631,7 +621,6 @@ void CombineHistogramDumpster::Loop()
 
 	    FitMass_2D[m-3][i]->Fill(fillBranchZero, NLLfillZero, CentralWeightSTcorr);
 	    HT_2D[m-3][i]->Fill(fillVar, NLLfillZero, CentralWeightSTcorr);
-	    //if(m==3) STrew[i]->Fill(STvals[0], CentralWeightSTcorr); //do this only once for all masses
 	  }
           else{
 	    FitMass[m-3][i]->Fill(fillBranchZero, CentralWeight);
@@ -640,7 +629,6 @@ void CombineHistogramDumpster::Loop()
 	    FitMass_2D[m-3][i]->Fill(fillBranchZero, NLLfillZero, CentralWeight);
             HT_2D[m-3][i]->Fill(fillVar, NLLfillZero, CentralWeight);
 	  }
-	  //if(m==3) ST[i]->Fill(STvals[0], CentralWeight); //only do this once for all masses
         }
       }
     }
