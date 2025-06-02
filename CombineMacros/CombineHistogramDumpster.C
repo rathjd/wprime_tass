@@ -379,6 +379,9 @@ void CombineHistogramDumpster::Loop()
         if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
 	if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
       }
+      if (year == 2018){
+        if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] <32 ) continue;
+      }
 
       float EvWeight = EventWeight[0];
       if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;

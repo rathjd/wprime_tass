@@ -87,32 +87,36 @@ public:
     AddDataset_NGTCXS("SingleElectron"         ,"Data"          , 0, 1 , 1., {1,1,1,1}); // 0
     AddDataset_NGTCXS("SingleMuon"             ,"Data"          , 0, 1 , 1., {1,1,1,1}); // 1
 
-    AddDataset_NGTCXS("ttbar_semileptonic"     ,"ttbar"         , 1, 2 ,365974.4,   {132178000, 144722000, 346052000, 476408000}); // 2
-    AddDataset_NGTCXS("ttbar_leptonic"	       ,"ttbar"         , 1, 2 ,  88290.,   { 37505000,  43546000, 106724000, 145020000}); // 3
-    AddDataset_NGTCXS("ttbar_hadronic"         ,"ttbar"         , 1, 2,   377960,   { 97260000, 107067000, 232999999, 334206000}); // 4
+    AddDataset_NGTCXS("ttbar_semileptonic"     ,"ttbar"         , 1, 2 ,366300,   {132178000, 144722000, 346052000, 476408000}); // 2
+    AddDataset_NGTCXS("ttbar_leptonic"	       ,"ttbar"         , 1, 2 ,  88500.,   { 37505000,  43546000, 106724000, 145020000}); // 3
+    AddDataset_NGTCXS("ttbar_hadronic"         ,"ttbar"         , 1, 2,   378900,   { 97260000, 107067000, 232999999, 334206000}); // 4
+    AddDataset_NGTCXS("ttbar_bbbar_semileptonic"         ,"ttbar"         , 1, 2,   19200,   {2991789, 3223118, 7318891, 10378681}); // 4
+    AddDataset_NGTCXS("ttbar_bbbar_leptonic"         ,"ttbar"         , 1, 2,   4600,   { 1388348, 1571799, 3472503, 4792850}); // 4
+    AddDataset_NGTCXS("ttbar_bbbar_hadronic"         ,"ttbar"         , 1, 2,   19900,   { 2303410, 2597868, 5694656, 8049064}); // 4
 
-    AddDataset_NGTCXS("wjets_HT_70_100"        ,"wjets"         , 1, 3 , 1353000,   { 16931765,  19439931,  44576510,  66220256}); // 5
-    AddDataset_NGTCXS("wjets_HT_100_200"       ,"wjets"         , 1, 3 , 1627450,   { 21734530,  19753958,  47424468,  51408967}); // 6
-    AddDataset_NGTCXS("wjets_HT_200_400"       ,"wjets"         , 1, 3 ,  435237,   { 17870845,  15067621,  42281979,  58225632}); // 7
-    AddDataset_NGTCXS("wjets_HT_400_600"       ,"wjets"         , 1, 3 ,   59181,   {  2467498,   2115509,   5468473,   7444030}); // 8
-    AddDataset_NGTCXS("wjets_HT_600_800"       ,"wjets"         , 1, 3 ,   14581,   {  2344130,   2251807,   5545298,   7718765}); // 9
-    AddDataset_NGTCXS("wjets_HT_800_1200"      ,"wjets"         , 1, 3 ,    6656,   {  2510487,   2132228,   5088483,   7306187}); // 10
-    AddDataset_NGTCXS("wjets_HT_1200_2500"     ,"wjets"         , 1, 3 ,    1608,   {  2119975,   2090561,   4752118,   6481518}); // 11
-    AddDataset_NGTCXS("wjets_HT_2500_inf"      ,"wjets"         , 1, 3 ,      39,   {   808649,    709514,   1185699,   2097648}); // 12
+
+    AddDataset_NGTCXS("wjets_HT_70_100"        ,"wjets"         , 1, 3 , 1292000,   { 16931765,  19439931,  44576510,  66220256}); // 5
+    AddDataset_NGTCXS("wjets_HT_100_200"       ,"wjets"         , 1, 3 , 1395000,   { 21734530,  19753958,  47424468,  51408967}); // 6
+    AddDataset_NGTCXS("wjets_HT_200_400"       ,"wjets"         , 1, 3 ,  407900,   { 17870845,  15067621,  42281979,  58225632}); // 7
+    AddDataset_NGTCXS("wjets_HT_400_600"       ,"wjets"         , 1, 3 ,   57480,   {  2467498,   2115509,   5468473,   7444030}); // 8
+    AddDataset_NGTCXS("wjets_HT_600_800"       ,"wjets"         , 1, 3 ,   12870,   {  2344130,   2251807,   5545298,   7718765}); // 9
+    AddDataset_NGTCXS("wjets_HT_800_1200"      ,"wjets"         , 1, 3 ,    5366,   {  2510487,   2132228,   5088483,   7306187}); // 10
+    AddDataset_NGTCXS("wjets_HT_1200_2500"     ,"wjets"         , 1, 3 ,    1074,   {  2119975,   2090561,   4752118,   6481518}); // 11
+    AddDataset_NGTCXS("wjets_HT_2500_inf"      ,"wjets"         , 1, 3 ,      8.0001,   {   808649,    709514,   1185699,   2097648}); // 12
     // AddDataset_NGTCXS("wjets_inclusive"        ,"wjets"         , 1, 3 , 0,       {0,0,0,0});                     
 
     AddDataset_NGTCXS("single_top_schan"       ,"single_top"    , 1, 4 ,    3740,   {  5518000,   5471000,  13620000,  19365999}); // 13
     AddDataset_NGTCXS("single_top_tchan"       ,"single_top"    , 1, 4 ,  115300,   { 55961000,  63073000, 129903000, 178336000}); // 14
     AddDataset_NGTCXS("single_antitop_tchan"   ,"single_top"    , 1, 4 ,   69090,   { 31024000,  30609000,  69793000,  95627000}); // 15
-    AddDataset_NGTCXS("single_top_tw"          ,"single_top"    , 1, 4 ,   34910,   {  3294673,   3368375,   8507203,  11270430}); // 16
-    AddDataset_NGTCXS("single_antitop_tw"      ,"single_top"    , 1, 4 ,   34970,   {  3176485,   3654510,   8433998,  10949620}); // 17
+    AddDataset_NGTCXS("single_top_tw"          ,"single_top"    , 1, 4 ,   34910,   {  3614470,   3470455,   8322161,  12379320}); // 16
+    AddDataset_NGTCXS("single_antitop_tw"      ,"single_top"    , 1, 4 ,   34970,   {  3594458,   4002310,   8166788,  11779400}); // 17
 
     AddDataset_NGTCXS("WW"                     ,"diboson"       , 1, 5 ,   51650,   { 20071678,  19976139,  39931603,  40272013}); // 18
     AddDataset_NGTCXS("ZZ"                     ,"diboson"       , 1, 5 ,   12170,   {  1282000,   1151000,   2706000,   3526000}); // 19
     AddDataset_NGTCXS("WZTo1L1Nu2Q"            ,"diboson"       , 1, 5 ,    9119,   {  3701521,   3690271,   7345742,   7395487}); // 20
     AddDataset_NGTCXS("WZTo1L3Nu"              ,"diboson"       , 1, 5 ,    3414,   {  1238781,   1229946,   2481654,   2497292}); // 21
     AddDataset_NGTCXS("WZTo2Q2L"               ,"diboson"       , 1, 5 ,    6565,   { 15678816,  13526954,  29091996,  28576996}); // 22
-    AddDataset_NGTCXS("WZTo3LNu"               ,"diboson"       , 1, 5 ,    4430,   { 18105398,  20810003,  10339582,  38624209}); // 23
+    AddDataset_NGTCXS("WZTo3LNu"               ,"diboson"       , 1, 5 ,    823.4,   { 18105398,  20810003,  10339582,  38624209}); // 23
 
     // McM page
     // https://cms-pdmv.cern.ch/mcm/requests?range=B2G-RunIISummer20UL16wmLHEGEN-03230,B2G-RunIISummer20UL16wmLHEGEN-03247&page=0&shown=127
