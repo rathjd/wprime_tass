@@ -284,10 +284,17 @@ void CombineHistogramDumpster::Loop()
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
+    //std::cout<<jentry<<std::endl;
+    //
     //blind data in SRs
     if(Iterator < 2 && bin % 10 >= 3) continue;
 
+    //std::cout<<"iterator pass"<<std::endl;
+
     float LeptonPtVars[9] = {LeptonPt, LeptonPt_SU, LeptonPt_SD, LeptonPt_RU, LeptonPt_RD, LeptonPt, LeptonPt, LeptonPt, LeptonPt}; //Lepton pT
+
+    //std::cout<<"lepton pT vals set"<<std::endl
+
     //int n = 4;
     //float Vals[9] = {JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt_SU->at(n), JetPt_SD->at(n), JetPt_RU->at(n), JetPt_RD->at(n)}; //Jet pT
     //float Vals[9] = {METPt, METPt, METPt, METPt, METPt, METPt_SU, METPt_SD, METPt_RU, METPt_RD};
@@ -302,6 +309,9 @@ void CombineHistogramDumpster::Loop()
 
     //0: default
     float defHT = 0.;
+
+    //std::cout<<"jet collection expected size "<<JetPt->size()<<std::endl;
+    //
     for(unsigned i = 0; i < JetPt->size(); ++i) if(JetPt->at(i) > 30.){
       defHT += JetPt->at(i);
       /*JetCounts[0]++;
@@ -311,6 +321,9 @@ void CombineHistogramDumpster::Loop()
       JetCounts[4]++;
       if(JetbTag->at(i)) bJetMainCount++;*/
     }
+
+    //std::cout<<"HT calculated"<<std::endl;
+
     STvals[0] = LeptonPt + METPt + defHT; Vals[0] = defHT;
     //1: eScaleUp
     STvals[1] = LeptonPt_SU + METPt + defHT; Vals[1] = defHT;
@@ -357,6 +370,8 @@ void CombineHistogramDumpster::Loop()
       }
     }
 
+    //std::cout<<"stage 1"<<std::endl;
+
     //validate actual region
     
     /*int RegionIdents[9];
@@ -379,8 +394,8 @@ void CombineHistogramDumpster::Loop()
         if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
 	if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
       }
-      if (year == 2018){
-        if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] <32 ) continue;
+      else if (year == 2018){
+        if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
       }
 
       float EvWeight = EventWeight[0];
@@ -403,12 +418,17 @@ void CombineHistogramDumpster::Loop()
       ST[i]->Fill(STvals[i], CentralWeight);
     }
 
+    //std::cout<<"stage 2"<<std::endl;
+
     //variation of systematic events weights
     if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < varSize + varOff; ++i){
       //additional 2017 lepton pT cut
       if(year == 2017){
         if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
         if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
+      }
+      else if (year == 2018){
+        if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
       }
       float EvWeight = 1.;
       if     (i == varSize-8)    EvWeight += LumiCorrVal;
@@ -440,6 +460,8 @@ void CombineHistogramDumpster::Loop()
       }
       ST[i]->Fill(STvals[0], CentralWeight);
     }
+
+    //std::cout<<"stage 3"<<std::endl;
 
     //mass-interpretation-dependent variables
     //variations of mass interpretation
@@ -485,6 +507,9 @@ void CombineHistogramDumpster::Loop()
         if(year == 2017){
           if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
           if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
+        }
+	else if (year == 2018){
+          if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
         }
 
         //FIXME: Additional Lepton cuts
@@ -576,12 +601,17 @@ void CombineHistogramDumpster::Loop()
         }
       }
 
+      //std::cout<<"stage 4"<<std::endl;
+
       //Make sure to match default region for default objects with event weight variations
       if(RegionIdentifier[0] == bin){
 	//additional 2017 lepton pT cut
         if(year == 2017){
           if(RegionIdentifier[0]/1000 == 1 && LeptonPtVars[0] < 30.) continue;
           if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 40.) continue;
+        }
+	else if (year == 2018){
+          if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 32. ) continue;
         }
 
         //EventWeight variations
@@ -633,6 +663,9 @@ void CombineHistogramDumpster::Loop()
       }
     }
   }
+
+  std::cout<<"saving stage"<<std::endl;
+
   //save all the W' variation histograms into files
   //fit mass file
   TFile *savefile;

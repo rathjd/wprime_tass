@@ -12,6 +12,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <ROOT/RVec.hxx>
 
 // Header file for the classes stored in the TTree if any.
 #include <vector>
@@ -33,14 +34,14 @@ public :
   Float_t         LeptonPt_RD;
   /*Float_t         LeptonEta;
   Float_t	  LeptonPhi;*/
-  vector<float>   *JetPt;
-  vector<float>   *JetPt_SU;
-  vector<float>   *JetPt_SD;
-  vector<float>   *JetPt_RU;
-  vector<float>   *JetPt_RD;
-  /*vector<float>   *JetEta;
-  vector<float>   *JetPhi;*/
-  vector<bool>	  *JetbTag;
+  ROOT::RVec<float>     *JetPt;
+  ROOT::RVec<float>   *JetPt_SU;
+  ROOT::RVec<float>   *JetPt_SD;
+  ROOT::RVec<float>   *JetPt_RU;
+  ROOT::RVec<float>   *JetPt_RD;
+  /*ROOT::RVec<float>   *JetEta;
+  ROOT::RVec<float>   *JetPhi;*/
+  ROOT::RVec<bool>	  *JetbTag;
   Float_t         METPt;
   Float_t         METPt_SU;
   Float_t         METPt_SD;
@@ -48,43 +49,43 @@ public :
   Float_t         METPt_RD;
   /*Float_t         METPhi;
   Float_t	  dPhiMetLep;
-  vector<float>   *mT;
-  vector<float>   *WPrimeMassSimpleFL;
-  vector<float>   *WPrimeMassSimpleLL;*/
-  //vector<float>   *WPrimeMass;
-  //vector<float>   *Likelihood;
-  //vector<int>     *WPType;
+  ROOT::RVec<float>   *mT;
+  ROOT::RVec<float>   *WPrimeMassSimpleFL;
+  ROOT::RVec<float>   *WPrimeMassSimpleLL;*/
+  //ROOT::RVec<float>   *WPrimeMass;
+  //ROOT::RVec<float>   *Likelihood;
+  //ROOT::RVec<int>     *WPType;
   /*Int_t           nPU;
   Float_t         nTrueInt;
   Int_t           nPV;
   Int_t           nPVGood;*/
-  vector<double>   *Best_Likelihood_300;
-  vector<double>   *Best_Likelihood_400;
-  vector<double>   *Best_Likelihood_500;
-  vector<double>   *Best_Likelihood_600;
-  vector<double>   *Best_Likelihood_700;
-  vector<double>   *Best_Likelihood_800;
-  vector<double>   *Best_Likelihood_900;
-  vector<double>   *Best_Likelihood_1000;
-  vector<double>   *Best_Likelihood_1100;
-  vector<double>   *Best_WPrimeMass_300;
-  vector<double>   *Best_WPrimeMass_400;
-  vector<double>   *Best_WPrimeMass_500;
-  vector<double>   *Best_WPrimeMass_600;
-  vector<double>   *Best_WPrimeMass_700;
-  vector<double>   *Best_WPrimeMass_800;
-  vector<double>   *Best_WPrimeMass_900;
-  vector<double>   *Best_WPrimeMass_1000;
-  vector<double>   *Best_WPrimeMass_1100;
-  vector<double>   *Best_PbTag_300;
-  vector<double>   *Best_PbTag_400;
-  vector<double>   *Best_PbTag_500;
-  vector<double>   *Best_PbTag_600;
-  vector<double>   *Best_PbTag_700;
-  vector<double>   *Best_PbTag_800;
-  vector<double>   *Best_PbTag_900;
-  vector<double>   *Best_PbTag_1000;
-  vector<double>   *Best_PbTag_1100;
+  ROOT::RVec<double>   *Best_Likelihood_300;
+  ROOT::RVec<double>   *Best_Likelihood_400;
+  ROOT::RVec<double>   *Best_Likelihood_500;
+  ROOT::RVec<double>   *Best_Likelihood_600;
+  ROOT::RVec<double>   *Best_Likelihood_700;
+  ROOT::RVec<double>   *Best_Likelihood_800;
+  ROOT::RVec<double>   *Best_Likelihood_900;
+  ROOT::RVec<double>   *Best_Likelihood_1000;
+  ROOT::RVec<double>   *Best_Likelihood_1100;
+  ROOT::RVec<double>   *Best_WPrimeMass_300;
+  ROOT::RVec<double>   *Best_WPrimeMass_400;
+  ROOT::RVec<double>   *Best_WPrimeMass_500;
+  ROOT::RVec<double>   *Best_WPrimeMass_600;
+  ROOT::RVec<double>   *Best_WPrimeMass_700;
+  ROOT::RVec<double>   *Best_WPrimeMass_800;
+  ROOT::RVec<double>   *Best_WPrimeMass_900;
+  ROOT::RVec<double>   *Best_WPrimeMass_1000;
+  ROOT::RVec<double>   *Best_WPrimeMass_1100;
+  ROOT::RVec<double>   *Best_PbTag_300;
+  ROOT::RVec<double>   *Best_PbTag_400;
+  ROOT::RVec<double>   *Best_PbTag_500;
+  ROOT::RVec<double>   *Best_PbTag_600;
+  ROOT::RVec<double>   *Best_PbTag_700;
+  ROOT::RVec<double>   *Best_PbTag_800;
+  ROOT::RVec<double>   *Best_PbTag_900;
+  ROOT::RVec<double>   *Best_PbTag_1000;
+  ROOT::RVec<double>   *Best_PbTag_1100;
   Float_t	   EventWeightObjectVariations[9];
 
   // List of branches
@@ -181,7 +182,7 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
 // used to generate this class and read the Tree.
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
-    TString FilePath = "/eos/cms/store/group/phys_b2g/wprime/analyzeroutputmay2025/";
+    TString FilePath = "/eos/cms/store/group/phys_b2g/wprime/analyzeroutputjune2025/";
     FilePath.Append(year_);
     FilePath.Append("_");
     FilePath.Append(dset.Name);
