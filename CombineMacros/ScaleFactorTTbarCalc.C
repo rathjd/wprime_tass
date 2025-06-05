@@ -8,7 +8,7 @@
 #include <TFitResult.h> 
 #include <TMatrixD.h>
 #include <TMath.h>
-//#include "Systematics.C"
+//#include "Systematics.C" 
 
 //derive ttbar SF from 2-tag regions of same multiplicity and lepton flavour, then propagate stat uncertainty envelope bin-by-bin and do syst variation histograms
 void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
@@ -158,8 +158,8 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   for(unsigned i = 0; i < SFhists[0].GetNbinsX(); ++i){
     double bc = SFhists[0].GetBinCenter(i+1);
     vector<double> Derivatives;
-    if(bin % 100 < 60) Derivatives = {1./bc/bc/bc, 1./bc/bc, 1./bc, 1., bc, bc*bc};
-    else 	       Derivatives = {1./bc, 1., bc, bc*bc};
+    if(bin % 100 < 60) Derivatives = {1./bc/bc/bc, 1./bc/bc, 0., 1., bc};
+    else 	       Derivatives = {1./bc/bc/bc, 1./bc, 0., 1.};
     float FinalEnvelope = 0.;
     //scan covariance matrix
     for(unsigned x = 0; x < Derivatives.size(); ++x){

@@ -15,8 +15,8 @@
 //small function to calculate covariance matrix envelope of fit function
 float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
   vector<double> Derivatives;
-  if(jetNumber==5) Derivatives = {1./STval/STval, 1./STval, 1., STval, STval*STval};
-  else		   Derivatives = {1./STval/STval, 1./STval, 1., STval};
+  if(jetNumber==5) Derivatives = {1./STval/STval/STval, 1./STval/STval, 0., 1., STval};
+  else		   Derivatives = {1./STval/STval/STval, 1./STval/STval, 0., 1.};
   float FinalEnvelope = 0.;
   for(unsigned x = 0; x < Derivatives.size(); ++x){
     for(unsigned y = 0; y < Derivatives.size(); ++y){
@@ -218,7 +218,7 @@ void CombineHistogramDumpster::Loop()
         TH1F *SF = (TH1F*)SFfile->Get("SF_"+variation);
         TF1 *SFfit;
         if(bin % 100 < 60) SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.);
-        else 		 SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x", 210., 2000.);
+        else 		   SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x"        , 210., 2000.);
         TFitResultPtr fr = SF->Fit(SFfit,"SRF");
         TMatrixD cov = fr->GetCovarianceMatrix();
         SFs.push_back(*SFfit);
@@ -265,7 +265,7 @@ void CombineHistogramDumpster::Loop()
   }//end mass variant loop
 
   //STrew only needs to be done once
-  STrew_STstatUp = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitUp");
+  STrew_STstatUp   = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitUp");
   STrew_STstatDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitDown");
 
   //calculate jet multiplicity
