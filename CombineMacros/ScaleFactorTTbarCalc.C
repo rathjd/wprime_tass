@@ -150,8 +150,8 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
   //define fit function
   TF1 *fitFunction;
-  if(bin % 100 < 60) fitFunction = new TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 150., 2000.);
-  else 		     fitFunction = new TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x", 150., 2000.);
+  if(bin % 100 < 60) fitFunction = new TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.);
+  else 		     fitFunction = new TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x"        , 210., 2000.);
   //fit nominal variant with statistical uncertainties only, get covariance matrix, calculate statistical envelope
   TFitResultPtr fr = SFhists[0].Fit(fitFunction,"SRF");
   TMatrixD cov = fr->GetCovarianceMatrix();
@@ -159,7 +159,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
     double bc = SFhists[0].GetBinCenter(i+1);
     vector<double> Derivatives;
     if(bin % 100 < 60) Derivatives = {1./bc/bc/bc, 1./bc/bc, 0., 1., bc};
-    else 	       Derivatives = {1./bc/bc/bc, 1./bc, 0., 1.};
+    else 	       Derivatives = {1./bc/bc/bc, 1./bc/bc, 0., 1.};
     float FinalEnvelope = 0.;
     //scan covariance matrix
     for(unsigned x = 0; x < Derivatives.size(); ++x){
