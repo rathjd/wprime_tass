@@ -1,3 +1,4 @@
+#macro to write cards for the tW' to tb analysis within B2G, CADI number yet to be assigned, by Denis Rathjens
 import os, sys
 import ROOT
 import math
