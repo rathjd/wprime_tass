@@ -331,7 +331,7 @@ for bin in range(0, len(Bgr1bSystUp)): #upper band
     Err2brawX.append(BgrTotal2braw.GetBinLowEdge(bin+2))
     Err2brawY.append(Bgr2brawSystUp[bin]+BgrTotal2braw.GetBinContent(bin+1))
     Err2brawR.append(BgrTotal2braw.GetBinContent(bin+1) and Bgr2brawSystUp[bin]/BgrTotal2braw.GetBinContent(bin+1)+1. or 0.)
-for bin in range(len(Bgr1bSystUp)-1,-2,-1): #lower band
+for bin in range(len(Bgr1bSystUp)-1,-1,-1): #lower band
     Err1bX.append(BgrTotal1b.GetBinLowEdge(bin+2))
     Err1bY.append(-Bgr1bSystDown[bin]+BgrTotal1b.GetBinContent(bin+1))
     Err1bR.append(BgrTotal1b.GetBinContent(bin+1) and -Bgr1bSystDown[bin]/BgrTotal1b.GetBinContent(bin+1)+1. or 0.)    
@@ -352,6 +352,7 @@ for bin in range(len(Bgr1bSystUp)-1,-2,-1): #lower band
     Err2brawX.append(BgrTotal2braw.GetBinLowEdge(bin+1))
     Err2brawY.append(-Bgr2brawSystDown[bin]+BgrTotal2braw.GetBinContent(bin+1))
     Err2brawR.append(BgrTotal2braw.GetBinContent(bin+1) and -Bgr2brawSystDown[bin]/BgrTotal2braw.GetBinContent(bin+1)+1. or 0.)
+
 
 #make 1 b-tag region plot
 STmax1b = max(Data1b.GetMaximum(), BgrTotal1b.GetMaximum())*1.1
@@ -466,19 +467,15 @@ CMS.SaveCanvas(canv2braw, "ST_Wprime"+binS+"2_"+year+".pdf")
 #make 1b-tag ST correction fit plot
 SF = inSF.Get("SF_")
 if JetMult == 5:
-  SFfit = TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.)
+  SFfit = TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", STstart, STend)
   SFfit.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}","p4*x^{2}")
-  rangelow = 180.
-  rangehigh = 2000.
 else:
-    SFfit = TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x", 210., 2000.)
+    SFfit = TF1("fitFunction","[0]/x/x+[1]/x+[2]+[3]*x", STstart, STend)
     SFfit.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}")
-    rangelow = 180.
-    rangehigh = 2000.
 fr = SF.Fit(SFfit,"SRF")
 cov = fr.GetCovarianceMatrix()
 if JetMult == 5:
-  SFfitUp = TF1("fitFunctionUp", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1) + [8]*pow(x,2)", 180., 2000.)
+  SFfitUp = TF1("fitFunctionUp", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1) + [8]*pow(x,2)", STstart, STend)
   SFfitUp.SetParameters(cov(0,0), #0: x^-6
                         cov(0,1)+cov(1,0), #1: x^-5
                         cov(1,1), #2: x^-4
@@ -488,7 +485,7 @@ if JetMult == 5:
                         cov(3,3)+SFfit.GetParameter(2), #6: x^0
                         cov(3,4)+cov(4,3)+SFfit.GetParameter(3), #7: x^1
                         cov(4,4)+SFfit.GetParameter(4)) #8: x^2
-  SFfitDown = TF1("fitFunctionDown", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1) + [8]*pow(x,2)", 180., 2000.)
+  SFfitDown = TF1("fitFunctionDown", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1) + [8]*pow(x,2)", STstart, STend)
   SFfitDown.SetParameters(-cov(0,0), #0: x^-6
                           -cov(0,1)-cov(1,0), #1: x^-5
                           -cov(1,1), #2: x^-4
@@ -500,7 +497,7 @@ if JetMult == 5:
                           -cov(4,4)+SFfit.GetParameter(4)) #8: x^2
 
 else:
-  SFfitUp = TF1("fitFunctionUp", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1)", 210., 2000.)
+  SFfitUp = TF1("fitFunctionUp", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1)", STstart, STend)
   SFfitUp.SetParameters(cov(0,0), #0: x^-6
                         cov(0,1)+cov(1,0), #1: x^-5
                         cov(1,1), #2: x^-4
@@ -510,7 +507,7 @@ else:
                         cov(3,3)+SFfit.GetParameter(2), #6: x^0
                         SFfit.GetParameter(3)) #7: x^1
 
-  SFfitDown = TF1("fitFunctionDown", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1)", 210., 2000.)
+  SFfitDown = TF1("fitFunctionDown", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1)", STstart, STend)
   SFfitDown.SetParameters(-cov(0,0), #0: x^-6
                           -cov(0,1)-cov(1,0), #1: x^-5
                           -cov(1,1), #2: x^-4
@@ -520,7 +517,7 @@ else:
                           -cov(3,3)+SFfit.GetParameter(2), #6: x^0
                           SFfit.GetParameter(3)) #7: x^1
 
-canvSF1b = CMS.cmsCanvas("STSFfit_"+binS+"_"+year+"_1b", STstart, STend, SFfitDown.GetMinimum(rangelow,rangehigh)*0.8, SFfit.GetMaximum(rangelow,rangehigh)*1.2, "S_{T} [GeV/c]", "(data - MC(w/o t#bar{t}))/t#bar{t}", square=CMS.kSquare, extraSpace = 0.01, iPos = 0)
+canvSF1b = CMS.cmsCanvas("STSFfit_"+binS+"_"+year+"_1b", STstart, STend, SFfitDown.GetMinimum(STstart,STend)*0.8, SFfit.GetMaximum(STstart,STend)*1.2, "S_{T} [GeV/c]", "(data - MC(w/o t#bar{t}))/t#bar{t}", square=CMS.kSquare, extraSpace = 0.01, iPos = 0)
 canvSF1b.cd(1)
 CMS.cmsDraw(SF, "P", mcolor=1)
 SFfitUp.SetLineColor(2)
@@ -545,19 +542,15 @@ CMS.SaveCanvas(canvSF1b, "STfit_Wprime"+binS+"1_"+year+".pdf")
 #make 2b-tag ST correction fit plot
 SF2 = inSF2.Get("SF_")
 if JetMult == 5:
-  SFfit2 = TF1("fitFunction2","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.)
+  SFfit2 = TF1("fitFunction2","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", STstart, STend)
   SFfit2.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}","p4*x^{2}")
-  rangelow2 = 180.
-  rangehigh2 = 2000.
 else:
-    SFfit2 = TF1("fitFunction2","[0]/x/x+[1]/x+[2]+[3]*x", 210., 2000.)
+    SFfit2 = TF1("fitFunction2","[0]/x/x+[1]/x+[2]+[3]*x", STstart, STend)
     SFfit2.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}")
-    rangelow2 = 180.
-    rangehigh2 = 2000.
 fr2 = SF2.Fit(SFfit2,"SRF")
 cov2 = fr2.GetCovarianceMatrix()
 if JetMult == 5:
-  SFfitUp2 = TF1("fitFunctionUp2", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1) + [8]*pow(x,2)", 180., 2000.)
+  SFfitUp2 = TF1("fitFunctionUp2", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1) + [8]*pow(x,2)", STstart, STend)
   SFfitUp2.SetParameters(cov(0,0), #0: x^-6
                          cov(0,1)+cov(1,0), #1: x^-5
                          cov(1,1), #2: x^-4
@@ -568,7 +561,7 @@ if JetMult == 5:
                          cov(3,4)+cov(4,3)+SFfit.GetParameter(3), #7: x^1
                          cov(4,4)+SFfit.GetParameter(4)) #8: x^2
 
-  SFfitDown2 = TF1("fitFunctionDown2", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1) + [8]*pow(x,2)", 180., 2000.)
+  SFfitDown2 = TF1("fitFunctionDown2", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1) + [8]*pow(x,2)", STstart, STend)
   SFfitDown2.SetParameters(-cov(0,0), #0: x^-6
                            -cov(0,1)-cov(1,0), #1: x^-5
                            -cov(1,1), #2: x^-4
@@ -579,7 +572,7 @@ if JetMult == 5:
                            -cov(3,4)-cov(4,3)+SFfit.GetParameter(3), #7: x^1
                            -cov(4,4)+SFfit.GetParameter(4)) #8: x^2
 else:
-  SFfitUp2 = TF1("fitFunctionUp2", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1)", 210., 2000.)
+  SFfitUp2 = TF1("fitFunctionUp2", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1)", STstart, STend)
   SFfitUp2.SetParameters(cov(0,0), #0: x^-6
                          cov(0,1)+cov(1,0), #1: x^-5
                          cov(1,1), #2: x^-4
@@ -588,7 +581,7 @@ else:
                          SFfit.GetParameter(1), #5: x^-1
                          cov(3,3)+SFfit.GetParameter(2), #6: x^0
                          SFfit.GetParameter(3)) #7: x^1
-  SFfitDown2 = TF1("fitFunctionDown2", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1)", 210., 2000.)
+  SFfitDown2 = TF1("fitFunctionDown2", "[0]*pow(x,-6) + [1]*pow(x,-5) + [2]*pow(x,-4) + [3]*pow(x,-3) + [4]*pow(x,-2) + [5]*pow(x,-1) + [6]*1 + [7]*pow(x,1)", STstart, STend)
   SFfitDown2.SetParameters(-cov(0,0), #0: x^-6
                            -cov(0,1)-cov(1,0), #1: x^-5
                            -cov(1,1), #2: x^-4
@@ -598,7 +591,7 @@ else:
                            -cov(3,3)+SFfit.GetParameter(2), #6: x^0
                            SFfit.GetParameter(3)) #7: x^1
 
-canvSF2b = CMS.cmsCanvas("STSFfit_"+binS+"_"+year+"_2b", STstart, STend, SFfitDown2.GetMinimum(rangelow2,rangehigh2)*0.8, SFfit2.GetMaximum(rangelow2,rangehigh2)*1.2, "S_{T} [GeV/c]", "(data - MC(w/o t#bar{t}))/t#bar{t}", square=CMS.kSquare, extraSpace = 0.01, iPos = 0)
+canvSF2b = CMS.cmsCanvas("STSFfit_"+binS+"_"+year+"_2b", STstart, STend, SFfitDown2.GetMinimum(STstart,STend)*0.8, SFfit2.GetMaximum(STstart,STend)*1.2, "S_{T} [GeV/c]", "(data - MC(w/o t#bar{t}))/t#bar{t}", square=CMS.kSquare, extraSpace = 0.01, iPos = 0)
 canvSF2b.cd(1)
 CMS.cmsDraw(SF2, "P", mcolor=1)
 SFfitUp2.SetLineColor(2)
@@ -841,7 +834,7 @@ for bmult in range(3,JetMult-1):
             ErrBy.append(BgrSystUp[binN]+BgrTotal.GetBinContent(binN+1))
             ErrSy.append(SigSystUp[binN]+inSig.GetBinContent(binN+1))
             ErrR.append(BgrTotal.GetBinContent(binN+1) and BgrSystUp[binN]/BgrTotal.GetBinContent(binN+1)+1. or 0.)
-        for binN in range(nbinsX-1,-2,-1): #lower band
+        for binN in range(nbinsX-1,-1,-1): #lower band
             ErrX.append(Up.GetBinLowEdge(binN+2))
             ErrBy.append(-BgrSystDown[binN]+BgrTotal.GetBinContent(binN+1))
             ErrSy.append(-SigSystDown[binN]+inSig.GetBinContent(binN+1))
