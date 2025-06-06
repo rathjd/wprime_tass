@@ -158,8 +158,8 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   for(unsigned i = 0; i < SFhists[0].GetNbinsX(); ++i){
     double bc = SFhists[0].GetBinCenter(i+1);
     vector<double> Derivatives;
-    if(bin % 100 < 60) Derivatives = {1./bc/bc/bc, 1./bc/bc, 0., 1., bc};
-    else 	       Derivatives = {1./bc/bc/bc, 1./bc/bc, 0., 1.};
+    if(bin % 100 < 60) Derivatives = {-1./bc/bc/bc, -1./bc/bc, 0., 1., bc};
+    else 	       Derivatives = {-1./bc/bc/bc, -1./bc/bc, 0., 1.};
     float FinalEnvelope = 0.;
     //scan covariance matrix
     for(unsigned x = 0; x < Derivatives.size(); ++x){
