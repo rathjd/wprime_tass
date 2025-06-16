@@ -449,7 +449,7 @@ void CombineHistogramDumpster::Loop()
       }
 
       //make sure to get the correct event weight, either a variation or the central
-      if(i < varSize-9)	EvWeight *= EventWeight[i-8] >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
+      if(i < varSize-8)	EvWeight *= EventWeight[i-8] >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
       else		EvWeight *= EventWeight[0]; //normalization variation normal
       
       const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
@@ -640,7 +640,7 @@ void CombineHistogramDumpster::Loop()
           }
 
           //make sure to get the correct event weight, either a variation or the central
-	  if(i < varSize-9)  EvWeight *= EventWeight[i-8] >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
+	  if(i < varSize-8)  EvWeight *= EventWeight[i-8] >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
           else               EvWeight *= EventWeight[0]; //normalization variation normal
 
 	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
