@@ -26,6 +26,8 @@ for line in binsLines:
     if splitLine[1].find("nNLLlimits64_500") > -1:
         maxNLL6 = int(splitLine[3][0:len(splitLine[3])-1])
 
+print("number of NLL bins 5:",maxNLL5,"; 6:",maxNLL6)
+
 #loop over all masses for optimization
 for mass in range(0,9):
     massP = (3+mass)*100
@@ -36,10 +38,10 @@ for mass in range(0,9):
         #set up matrices with file contents
         OptiMatrix = [[]]
         if OptimiBin[0][0] % 100 < 60: #5-jet bin
-            OptiMatrix = [[0 for i in range(52)] for j in range(52)]
+            OptiMatrix = [[0 for i in range(maxNLL5)] for j in range(maxNLL5)]
         else: #6-jet bin
-            OptiMatrix = [[0 for i in range(23)] for j in range(23)]
-            
+            OptiMatrix = [[0 for i in range(maxNLL6)] for j in range(maxNLL6)]
+
         #fill the matrix with 1/expected limits^2
         for binN in OptimiBin[0]:
             for year in OptimiBin[1]:
@@ -54,8 +56,10 @@ for mass in range(0,9):
                     #Plu1Sig = FullHist.Project3D("yx")
                     for xc in range(0,Expected.GetNbinsX()):
                         for yc in range(0,Expected.GetNbinsY()):
-                            if Expected.GetBinContent(xc+1,yc+1) > 0:
+                            if Expected.GetBinContent(xc+1,yc+1) > 0 and OptiMatrix[xc][yc] >= 0.:
                                 OptiMatrix[xc][yc] += pow(Expected.GetBinContent(xc+1,yc+1),-2)
+                            else: #this exception invalidates points which for one channel or year have insufficient background/signal coverage
+                                OptiMatrix[xc][yc] = -1.
                     inFile.Close()
                             
                 except:

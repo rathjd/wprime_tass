@@ -6,7 +6,7 @@ error        = SubmitBrazilOpt_NoSkip.err
 log          = SubmitBrazilOpt_NoSkip.log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour  = "tomorrow"
++JobFlavour  = "testmatch"
 RequestCpus  = 2
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))

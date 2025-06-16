@@ -104,15 +104,25 @@ if not compromise:
     #                [[11, 28], [2, 14], [13, 22]],
     #                [[14, 25], [1, 14], [10, 22]],
     #                [[17, 27], [7, 14], [ 8, 22]]]
-    optimization = [[[1, 50], [4, 22], [7, 22]], 
-                    [[2, 51], [5, 22], [7, 22]], 
-                    [[3, 48], [3, 22], [5, 22]], 
-                    [[2, 49], [3, 22], [5, 22]], 
-                    [[2, 50], [4, 20], [5, 22]], 
-                    [[2, 48], [3, 22], [5, 22]], 
-                    [[3, 49], [4, 22], [5, 22]], 
-                    [[3, 49], [3, 22], [5, 22]], 
-                    [[3, 51], [3, 22], [5, 21]]]
+    #optimization = [[[1, 50], [4, 22], [7, 22]], 
+    #                [[2, 51], [5, 22], [7, 22]], 
+    #                [[3, 48], [3, 22], [5, 22]], 
+    #                [[2, 49], [3, 22], [5, 22]], 
+    #                [[2, 50], [4, 20], [5, 22]], 
+    #                [[2, 48], [3, 22], [5, 22]], 
+    #                [[3, 49], [4, 22], [5, 22]], 
+    #                [[3, 49], [3, 22], [5, 22]], 
+    #                [[3, 51], [3, 22], [5, 21]]]
+    #new ttbb limits, ps_fsrDown is bust
+    optimization =   [[[13, 61], [7, 24], [11, 24]],
+                      [[ 7, 59], [6, 24], [ 9, 22]],
+                      [[ 8, 65], [5, 24], [ 7, 24]],
+                      [[10, 76], [5, 24], [ 7, 24]],
+                      [[11, 75], [5, 24], [ 7, 24]],
+                      [[12, 67], [5, 24], [ 7, 24]],
+                      [[12, 67], [5, 24], [ 7, 24]],
+                      [[12, 67], [5, 24], [ 7, 24]],
+                      [[12, 74], [5, 24], [ 7, 24]]]
 else:
 #compromise version
     optimization = [[[3, 51], [5, 22], [7, 22]],
@@ -144,6 +154,10 @@ for mass in range(0,9):
         for binN in binS:
             for year in years:
                 for binX in binN:
+                    #print(year,binX,mass,counterJet)
+                    #print(str(optimization[mass][counterJet][0]))
+                    #print(str(optimization[mass][counterJet][1]))
+                    #print(massString)
                     os.system("python3 ../SliceHTvsFitMass.py "+year+" "+binX+" "+str(optimization[mass][counterJet][0])+" "+str(optimization[mass][counterJet][1])+" "+massString)#+" direct")
             counterJet+=1
 

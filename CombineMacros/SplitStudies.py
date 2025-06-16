@@ -122,13 +122,20 @@ for binSplit in range(1, maxNLL):
             BgrMHT = HTRm.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
             SigMHT = HTRm.Get("HT_M"+massString+"_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
 
+            #check fit slice for abnormalities
+            if SigMfit.Integral() == 0:
+                skip = True
+                print("signal content empty for fit slice")
             for binN in range(0, BgrMfit.GetNbinsX()):
                 if BgrMfit.GetBinContent(binN+1) <= 0 and SigMfit.GetBinContent(binN+1) > 0:
                     skip = True
-                    print("fit slice had empty background bin",binN+1)
+                    print("fit slice had empty background in bin",binN+1)
             if skip:
                 break #skip this entire row of scans, as the fit slice size doesn't change and will be empty
 
+            #check HT slice for abnormalities
+            if SigMHT.Integral() == 0:
+                skip = True
             for binN in range(0, BgrMHT.GetNbinsX()):
                 if BgrMHT.GetBinContent(binN+1) <= 0 and SigMHT.GetBinContent(binN+1) > 0:
                     skip = True
@@ -142,6 +149,10 @@ for binSplit in range(1, maxNLL):
             BgrEHT = HTRe.Get("HT_ttbar_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
             SigEHT = HTRe.Get("HT_M"+massString+"_WprimeHT"+binNr+"_"+year+"_M"+massString+"_")
 
+            #check fit slice for abnormalities
+            if SigEfit.Integral() == 0:
+                skip = True
+                print("signal content empty for HT slice")
             for binN in range(0, BgrEfit.GetNbinsX()):
                 if BgrEfit.GetBinContent(binN+1) <= 0 and SigEfit.GetBinContent(binN+1) > 0:
                     skip = True
@@ -149,6 +160,9 @@ for binSplit in range(1, maxNLL):
             if skip:
                 break #skip this entire row of scans, as the fit slice size doesn't change and will be empty
 
+            #check HT slice for abnormalities
+            if SigEHT.Integral() == 0:
+                skip = True
             for binN in range(0, BgrEHT.GetNbinsX()):
                 if BgrEHT.GetBinContent(binN+1) <= 0 and SigEHT.GetBinContent(binN+1) > 0:
                     skip = True
@@ -203,8 +217,9 @@ canvas.Write()
 canvas.SaveAs("LimitGraph_"+year+"_"+ binNr+"_mWp"+massString+".pdf")
 
 canvas2 = TCanvas("ExpLimits_"+massString,year+" "+ binNr+" m(W')="+massString,1000,1000)
-gStyle.SetPaintTextFormat("0.3f")
-CombHistExp.Draw("colz,text")
+#gStyle.SetPaintTextFormat("0.3f")
+#CombHistExp.Draw("colz,text")
+CombHistExp.Draw("colz")
 canvas2.SaveAs("ExpLimits_"+year+"_"+ binNr+"_mWp"+massString+".pdf")
 savefile.Close()
 
