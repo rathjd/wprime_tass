@@ -17,8 +17,8 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
 
   std::cout<<"binMajor = "<<binMajor<<" in year "<<year<<" with jet multiplicity "<<jetMultiplicity<<std::endl;
 
-  //run 1 b-tag control region without signal samples
-  for(unsigned i = 0; i < 27; ++i){
+  //run 1 b-tag control region with signal samples
+  for(unsigned i = 0; i < 45; ++i){
     if(bin/1000 == 1 && i == 0) continue; //skip electron data sample for muon regions
     if(bin/1000 == 2 && i == 1) continue; //skip muon data sample for electron regions
     CombineHistogramDumpster D(0, i, binMajor+1, year, 0);
@@ -27,8 +27,8 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
   //fit SFs and variations for 1 b-tag region
   ScaleFactorTTbarCalc(binMajor+1, year);
   
-  //run 2 b-tag control region without signal samples, add reweighted ST distributions and NLL histograms with 1 b-tag corrections, as well as unreweighted ST distributions
-  for(unsigned i = 0; i < 27; ++i){
+  //run 2 b-tag control region with signal samples, add reweighted ST distributions and NLL histograms with 1 b-tag corrections, as well as unreweighted ST distributions
+  for(unsigned i = 0; i < 45; ++i){
     if(bin/1000 == 1 && i == 0) continue; //skip electron data sample for muon regions
     if(bin/1000 == 2 && i == 1) continue; //skip muon data sample for electron regions
     CombineHistogramDumpster D(0, i, binMajor+2, year, binMajor+1);
