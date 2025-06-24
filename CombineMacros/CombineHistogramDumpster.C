@@ -15,15 +15,15 @@
 //small function to calculate covariance matrix envelope of fit function
 float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
   vector<double> Derivatives;
-  if(jetNumber==5) Derivatives = {-1./STval/STval/STval, -1./STval/STval, 0., 1., STval};
-  else		   Derivatives = {-1./STval/STval/STval, -1./STval/STval, 0., 1.};
+  if(jetNumber==5) Derivatives = {1./STval/STval, 1./STval, 1., STval, STval*STval};
+  else		   Derivatives = {1./STval/STval, 1./STval, 1., STval};
   float FinalEnvelope = 0.;
   for(unsigned x = 0; x < Derivatives.size(); ++x){
     for(unsigned y = 0; y < Derivatives.size(); ++y){
       FinalEnvelope += Derivatives[x] * Derivatives[y] * covM(x,y);
     }
   }
-  return FinalEnvelope;
+  return sqrt(FinalEnvelope);
 }
 
 void CombineHistogramDumpster::Loop()
