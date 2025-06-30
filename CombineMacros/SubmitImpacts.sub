@@ -1,0 +1,15 @@
+executable   = SubmitImpacts.sh
+arguments    = $(ProcID)
+max_retries  = 1
+batch_name   = SubmitImpacts_$(ProcID)
+output       = SubmitImpacts_$(ProcID).out
+error        = SubmitImpacts_$(ProcID).err
+log          = SubmitImpacts_$(ProcID).log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "tomorrow"
+RequestCpus  = 8
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 9
+
