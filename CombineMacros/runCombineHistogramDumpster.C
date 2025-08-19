@@ -1,4 +1,5 @@
 #include "CombineHistogramDumpster.C"
+#include "CombineHistogramDumpsterRvec.C"
 #include "ScaleFactorTTbarCalc.C"
 
 //macro to run the Combine histogram generation process
@@ -21,8 +22,14 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
   for(unsigned i = 0; i < 45; ++i){
     if(bin/1000 == 1 && i == 0) continue; //skip electron data sample for muon regions
     if(bin/1000 == 2 && i == 1) continue; //skip muon data sample for electron regions
-    CombineHistogramDumpster D(0, i, binMajor+1, year, 0);
-    D.Loop();
+    if(i > 1){
+	CombineHistogramDumpster D(0, i, binMajor+1, year, 0);
+	D.Loop();
+    }
+    else{
+	CombineHistogramDumpsterRvec D(0, i, binMajor+1, year, 0);
+	D.Loop();
+    }
   }
   //fit SFs and variations for 1 b-tag region
   ScaleFactorTTbarCalc(binMajor+1, year);
@@ -31,8 +38,14 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
   for(unsigned i = 0; i < 45; ++i){
     if(bin/1000 == 1 && i == 0) continue; //skip electron data sample for muon regions
     if(bin/1000 == 2 && i == 1) continue; //skip muon data sample for electron regions
-    CombineHistogramDumpster D(0, i, binMajor+2, year, binMajor+1);
-    D.Loop();
+    if(i > 1){
+        CombineHistogramDumpster D(0, i, binMajor+2, year, binMajor+1);
+        D.Loop();
+    }
+    else{
+        CombineHistogramDumpsterRvec D(0, i, binMajor+2, year, binMajor+1);
+        D.Loop();
+    }
   }
 
   //fit SFs and variations for 2 b-tag region
@@ -42,11 +55,23 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
   for(unsigned i = 0; i < 45; ++i){
     if(bin/1000 == 1 && i == 0) continue;
     else if(bin/2000 == 1 && i == 1) continue;
-      CombineHistogramDumpster D(0, i, binMajor+3, year, binMajor+2);
-      D.Loop();
+      if(i > 1){
+        CombineHistogramDumpster D(0, i, binMajor+3, year, binMajor+2);
+        D.Loop();
+      }
+      else{
+        CombineHistogramDumpsterRvec D(0, i, binMajor+3, year, binMajor+2);
+        D.Loop();
+      }
       if(jetMultiplicity != 5){
-        CombineHistogramDumpster E(0, i, binMajor+4, year, binMajor+2);
-        E.Loop();
+	if(i > 1){
+          CombineHistogramDumpster E(0, i, binMajor+4, year, binMajor+2);
+          E.Loop();
+        }
+        else{
+          CombineHistogramDumpsterRvec E(0, i, binMajor+4, year, binMajor+2);
+          E.Loop();
+        }
       }
   }
 }

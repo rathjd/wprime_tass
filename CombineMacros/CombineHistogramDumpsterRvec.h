@@ -5,8 +5,8 @@
 // found on file: /eos/user/s/siluo/WPrimeAnalysis/Validation/2018_FL500.root
 //////////////////////////////////////////////////////////
 
-#ifndef CombineHistogramDumpster_h
-#define CombineHistogramDumpster_h
+#ifndef CombineHistogramDumpsterRvec_h
+#define CombineHistogramDumpsterRvec_h
 
 #include "Dataset.cc"
 #include <TROOT.h>
@@ -17,7 +17,7 @@
 // Header file for the classes stored in the TTree if any.
 #include <vector>
 
-class CombineHistogramDumpster {
+class CombineHistogramDumpsterRvec {
 public :
   TChain          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain
@@ -34,14 +34,14 @@ public :
   Float_t         LeptonPt_RD;
   /*Float_t         LeptonEta;
   Float_t	  LeptonPhi;*/
-  std::vector<float>   *JetPt;
-  std::vector<float>   *JetPt_SU;
-  std::vector<float>   *JetPt_SD;
-  std::vector<float>   *JetPt_RU;
-  std::vector<float>   *JetPt_RD;
-  /*std::vector<float>   *JetEta;
-  std::vector<float>   *JetPhi;*/
-  std::vector<bool>	  *JetbTag;
+  ROOT::RVec<float>   *JetPt;
+  ROOT::RVec<float>   *JetPt_SU;
+  ROOT::RVec<float>   *JetPt_SD;
+  ROOT::RVec<float>   *JetPt_RU;
+  ROOT::RVec<float>   *JetPt_RD;
+  /*ROOT::RVec<float>   *JetEta;
+  ROOT::RVec<float>   *JetPhi;*/
+  ROOT::RVec<bool>	  *JetbTag;
   Float_t         METPt;
   Float_t         METPt_SU;
   Float_t         METPt_SD;
@@ -49,43 +49,43 @@ public :
   Float_t         METPt_RD;
   /*Float_t         METPhi;
   Float_t	  dPhiMetLep;
-  std::vector<float>   *mT;
-  std::vector<float>   *WPrimeMassSimpleFL;
-  std::vector<float>   *WPrimeMassSimpleLL;*/
-  //std::vector<float>   *WPrimeMass;
-  //std::vector<float>   *Likelihood;
-  //std::vector<int>     *WPType;
+  ROOT::RVec<float>   *mT;
+  ROOT::RVec<float>   *WPrimeMassSimpleFL;
+  ROOT::RVec<float>   *WPrimeMassSimpleLL;*/
+  //ROOT::RVec<float>   *WPrimeMass;
+  //ROOT::RVec<float>   *Likelihood;
+  //ROOT::RVec<int>     *WPType;
   /*Int_t           nPU;
   Float_t         nTrueInt;
   Int_t           nPV;
   Int_t           nPVGood;*/
-  std::vector<double>   *Best_Likelihood_300;
-  std::vector<double>   *Best_Likelihood_400;
-  std::vector<double>   *Best_Likelihood_500;
-  std::vector<double>   *Best_Likelihood_600;
-  std::vector<double>   *Best_Likelihood_700;
-  std::vector<double>   *Best_Likelihood_800;
-  std::vector<double>   *Best_Likelihood_900;
-  std::vector<double>   *Best_Likelihood_1000;
-  std::vector<double>   *Best_Likelihood_1100;
-  std::vector<double>   *Best_WPrimeMass_300;
-  std::vector<double>   *Best_WPrimeMass_400;
-  std::vector<double>   *Best_WPrimeMass_500;
-  std::vector<double>   *Best_WPrimeMass_600;
-  std::vector<double>   *Best_WPrimeMass_700;
-  std::vector<double>   *Best_WPrimeMass_800;
-  std::vector<double>   *Best_WPrimeMass_900;
-  std::vector<double>   *Best_WPrimeMass_1000;
-  std::vector<double>   *Best_WPrimeMass_1100;
-  std::vector<double>   *Best_PbTag_300;
-  std::vector<double>   *Best_PbTag_400;
-  std::vector<double>   *Best_PbTag_500;
-  std::vector<double>   *Best_PbTag_600;
-  std::vector<double>   *Best_PbTag_700;
-  std::vector<double>   *Best_PbTag_800;
-  std::vector<double>   *Best_PbTag_900;
-  std::vector<double>   *Best_PbTag_1000;
-  std::vector<double>   *Best_PbTag_1100;
+  ROOT::RVec<double>   *Best_Likelihood_300;
+  ROOT::RVec<double>   *Best_Likelihood_400;
+  ROOT::RVec<double>   *Best_Likelihood_500;
+  ROOT::RVec<double>   *Best_Likelihood_600;
+  ROOT::RVec<double>   *Best_Likelihood_700;
+  ROOT::RVec<double>   *Best_Likelihood_800;
+  ROOT::RVec<double>   *Best_Likelihood_900;
+  ROOT::RVec<double>   *Best_Likelihood_1000;
+  ROOT::RVec<double>   *Best_Likelihood_1100;
+  ROOT::RVec<double>   *Best_WPrimeMass_300;
+  ROOT::RVec<double>   *Best_WPrimeMass_400;
+  ROOT::RVec<double>   *Best_WPrimeMass_500;
+  ROOT::RVec<double>   *Best_WPrimeMass_600;
+  ROOT::RVec<double>   *Best_WPrimeMass_700;
+  ROOT::RVec<double>   *Best_WPrimeMass_800;
+  ROOT::RVec<double>   *Best_WPrimeMass_900;
+  ROOT::RVec<double>   *Best_WPrimeMass_1000;
+  ROOT::RVec<double>   *Best_WPrimeMass_1100;
+  ROOT::RVec<double>   *Best_PbTag_300;
+  ROOT::RVec<double>   *Best_PbTag_400;
+  ROOT::RVec<double>   *Best_PbTag_500;
+  ROOT::RVec<double>   *Best_PbTag_600;
+  ROOT::RVec<double>   *Best_PbTag_700;
+  ROOT::RVec<double>   *Best_PbTag_800;
+  ROOT::RVec<double>   *Best_PbTag_900;
+  ROOT::RVec<double>   *Best_PbTag_1000;
+  ROOT::RVec<double>   *Best_PbTag_1100;
   Float_t	   EventWeightObjectVariations[9];
 
   // List of branches
@@ -152,8 +152,8 @@ public :
   TBranch        *b_Best_PbTag_1100; //!
   TBranch	 *b_EventWeightObjectVariations; //!
 
-  CombineHistogramDumpster(TChain *tree = 0, unsigned it_ = 99, int bin_ = 1152, TString year_ = "2018", int SFreg_ = 0);
-  virtual ~CombineHistogramDumpster();
+  CombineHistogramDumpsterRvec(TChain *tree = 0, unsigned it_ = 99, int bin_ = 1152, TString year_ = "2018", int SFreg_ = 0);
+  virtual ~CombineHistogramDumpsterRvec();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
@@ -171,8 +171,8 @@ public :
 
 #endif
 
-#ifdef CombineHistogramDumpster_cxx
-CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, int bin_, TString year_, int SFreg_) : fChain(0) 
+#ifdef CombineHistogramDumpsterRvec_cxx
+CombineHistogramDumpsterRvec::CombineHistogramDumpsterRvec(TChain *tree, unsigned it_, int bin_, TString year_, int SFreg_) : fChain(0) 
 {
   /*if(it_>39) {
     std::cout<<"iterator out of range"<<std::endl;
@@ -199,19 +199,19 @@ CombineHistogramDumpster::CombineHistogramDumpster(TChain *tree, unsigned it_, i
   Init(tree);
 }
 
-CombineHistogramDumpster::~CombineHistogramDumpster()
+CombineHistogramDumpsterRvec::~CombineHistogramDumpsterRvec()
 {
   if (!fChain) return;
   delete fChain->GetCurrentFile();
 }
 
-Int_t CombineHistogramDumpster::GetEntry(Long64_t entry)
+Int_t CombineHistogramDumpsterRvec::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
   if (!fChain) return 0;
   return fChain->GetEntry(entry);
 }
-Long64_t CombineHistogramDumpster::LoadTree(Long64_t entry)
+Long64_t CombineHistogramDumpsterRvec::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
   if (!fChain) return -5;
@@ -224,7 +224,7 @@ Long64_t CombineHistogramDumpster::LoadTree(Long64_t entry)
   return centry;
 }
 
-void CombineHistogramDumpster::Init(TChain *tree)
+void CombineHistogramDumpsterRvec::Init(TChain *tree)
 {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
@@ -349,7 +349,7 @@ void CombineHistogramDumpster::Init(TChain *tree)
   Notify();
 }
 
-Bool_t CombineHistogramDumpster::Notify()
+Bool_t CombineHistogramDumpsterRvec::Notify()
 {
   // The Notify() function is called when a new file is opened. This
   // can be either for a new TTree in a TChain or when when a new TTree
@@ -360,18 +360,18 @@ Bool_t CombineHistogramDumpster::Notify()
   return kTRUE;
 }
 
-void CombineHistogramDumpster::Show(Long64_t entry)
+void CombineHistogramDumpsterRvec::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
   if (!fChain) return;
   fChain->Show(entry);
 }
-Int_t CombineHistogramDumpster::Cut(Long64_t entry)
+Int_t CombineHistogramDumpsterRvec::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
   return 1;
 }
-#endif // #ifdef CombineHistogramDumpster_cxx
+#endif // #ifdef CombineHistogramDumpsterRvec_cxx
