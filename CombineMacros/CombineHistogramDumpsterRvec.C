@@ -1,5 +1,5 @@
-#define CombineHistogramDumpster_cxx
-#include "CombineHistogramDumpster.h"
+#define CombineHistogramDumpsterRvec_cxx
+#include "CombineHistogramDumpsterRvec.h"
 #include <TH1.h>
 #include <TH2.h>
 #include <TStyle.h>
@@ -9,11 +9,11 @@
 #include <TMath.h>
 #include <TF1.h>
 #include <cmath>
-#include "Systematics.C"
-#include "BinTables.C"
+//include "Systematics.C"
+//#include "BinTables.C"
 
 //small function to calculate covariance matrix envelope of fit function
-float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
+/*float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
   vector<double> Derivatives;
   if(jetNumber==5) Derivatives = {1./STval/STval, 1./STval, 1., STval, STval*STval};
   else		   Derivatives = {1./STval/STval, 1./STval, 1., STval};
@@ -24,13 +24,13 @@ float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
     }
   }
   return sqrt(FinalEnvelope);
-}
+}*/
 
-void CombineHistogramDumpster::Loop()
+void CombineHistogramDumpsterRvec::Loop()
 {
 //   In a ROOT session, you can do:
-//      root> .L CombineHistogramDumpster.cc.C
-//      root> CombineHistogramDumpster.cc t
+//      root> .L CombineHistogramDumpsterRvec.cc.C
+//      root> CombineHistogramDumpsterRvec.cc t
 //      root> t.GetEntry(12); // Fill t data members with entry number 12
 //      root> t.Show();       // Show values of entry 12
 //      root> t.Show(16);     // Read and show values of entry 16
