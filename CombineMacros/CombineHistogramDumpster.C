@@ -424,11 +424,11 @@ void CombineHistogramDumpster::Loop()
     if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < varSize + varOff; ++i){
       //additional 2017 lepton pT cut
       if(year == 2017){
-        if(RegionIdentifier[0]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
-        if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
+        if(RegionIdentifier[0]/1000 == 1 && LeptonPtVars[0] < 30.) continue;
+        if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 40.) continue;
       }
       else if (year == 2018){
-        if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
+        if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 32.) continue;
       }
       float EvWeight = 1.;
       if     (i == varSize-8)    EvWeight += LumiCorrVal;
