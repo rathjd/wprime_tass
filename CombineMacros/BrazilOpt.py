@@ -4,7 +4,7 @@ from array import array
 
 savefile = TFile("Combination/OptimizedLimit.root","RECREATE");
 
-b2gpath = "/eos/cms/store/group/phys_b2g/wprime/February25_NewSystematics_Combine/" 
+b2gpath = "/eos/cms/store/group/phys_b2g/wprime/June25_FixesApplied_newOpt_Combine/" 
 
 masses = array( 'd' )
 

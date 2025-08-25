@@ -100,8 +100,8 @@ limitNumbers = []
 for mass in range(0,9):
     masses.append(float((3+mass)*100))
     massString = str((3+mass)*100)
-    print("combine -M AsymptoticLimits -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
-    os.system("combine -M AsymptoticLimits -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
+    print("combine -M AsymptoticLimits --run blind -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
+    os.system("combine -M AsymptoticLimits --run blind -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
 
     infile = TFile("higgsCombineTest.AsymptoticLimits.mH"+massString+".root","READ")
 
