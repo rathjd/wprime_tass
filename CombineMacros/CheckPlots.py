@@ -100,8 +100,8 @@ for bgr in backgrounds:
 baseSystematics.extend(extendSystematics)
 
 SRsystematics = [  "CMS_scale_e"            +year,
-                   "CMS_B2G"+B2Gn+"_STfit_"+year+"_"+binString[0:3]+"2",
-                   "CMS_B2G"+B2Gn+"_NLLnonClosure_"+year+"_"+binString[0:3]+"2"]
+                   "CMS_B2G"+B2Gn+"_STfit_"+year+"_"+binString[0:3]+"1",
+                   "CMS_B2G"+B2Gn+"_STfitFunc_"+year+"_"+binString[0:3]+"1"]
 
 #input files
 eospath = "/eos/cms/store/group/phys_b2g/wprime/temp/" 
@@ -111,13 +111,8 @@ inOrigin = TFile(eospath + binS + "1_" + year + "/SimpleShapes_Wprime" + binS + 
 print("origin of correction",binS+"1_"+year+"/SimpleShapes_Wprime"+binS+"1_"+year+".root")
 inSF     = TFile(eospath + binS + "2_" + year + "/SF_Bin" + binS + "1_" + year + ".root","READ")
 print("SF file of origin",binS+"2_"+year+"/SF_Bin"+binS+"1_"+year+".root")
-inSF2    = TFile(eospath + binS + "3_" + year + "/SF_Bin" + binS + "2_" + year + ".root","READ")
-print("SF file of target region",binS+"3_"+year+"/SF_Bin"+binS+"2_"+year+".root")
 inResult = TFile(eospath + binS + "2_" + year + "/SimpleShapes_Wprime" + binS + "2_" + year + ".root","READ")
 print("result file of validation region",binS+"2_"+year+"/SimpleShapes_Wprime"+binS+"2_"+year+".root")
-inTwoD3 = TFile(eospath + binS + "3_" + year + "/TwoD_SimpleShapes_Wprime" + binS + "3_" + year + ".root","READ")
-if JetMult == 6:
-    inTwoD4 = TFile(eospath + binS + "4_" + year + "/TwoD_SimpleShapes_Wprime" + binS + "4_" + year + ".root","READ")
 
 #extract data histograms
 Data1b = inOrigin.Get("ST_data_obs_Wprime"+binS+"1_"+year+"_")
@@ -137,30 +132,25 @@ Stack2braw = THStack("Stackraw_"+binS+"2_"+year,"")
 leg1b    = CMS.cmsLeg(0.51,0.89-0.05*6, 0.8, 0.89, textSize=0.05)
 leg2b    = CMS.cmsLeg(0.51,0.89-0.05*6, 0.8, 0.89, textSize=0.05)
 leg2braw = CMS.cmsLeg(0.51,0.89-0.05*6, 0.8, 0.89, textSize=0.05)
-leg2bNLL = CMS.cmsLeg(0.46,0.59-0.05*9, 0.8, 0.59, textSize=0.05)
 
 if LeptonFlav == 1:
     if JetMult == 5:
         CMS.cmsHeader(leg1b, "#mu + 5 jets and 1 b tag", textSize=0.05)
         CMS.cmsHeader(leg2b, "#mu + 5 jets and 2 b tags rew.", textSize=0.05)
         CMS.cmsHeader(leg2braw, "#mu + 5 jets and 2 b tags", textSize=0.05)
-        CMS.cmsHeader(leg2bNLL, "#mu + 5 jets and 2 b tags", textSize=0.05)
     elif JetMult == 6:
         CMS.cmsHeader(leg1b, "#mu + 6 jets and 1 b tag", textSize=0.05)
         CMS.cmsHeader(leg2b, "#mu + 6 jets and 2 b tags rew.", textSize=0.05)
         CMS.cmsHeader(leg2braw, "#mu + 6 jets and 2 b tags", textSize=0.05)
-        CMS.cmsHeader(leg2bNLL, "#mu + 6 jets and 2 b tags", textSize=0.05)
 elif LeptonFlav == 2:
     if JetMult == 5:
         CMS.cmsHeader(leg1b, "e + 5 jets and 1 b tag", textSize=0.05)
         CMS.cmsHeader(leg2b, "e + 5 jets and 2 b tags rew.", textSize=0.05)
         CMS.cmsHeader(leg2braw, "e + 5 jets and 2 b tags", textSize=0.05)
-        CMS.cmsHeader(leg2bNLL, "e + 5 jets and 2 b tags", textSize=0.05)
     elif JetMult == 6:
         CMS.cmsHeader(leg1b, "e + 6 jets and 1 b tag", textSize=0.05)
         CMS.cmsHeader(leg2b, "e + 6 jets and 2 b tags rew.", textSize=0.05)
         CMS.cmsHeader(leg2braw, "e + 6 jets and 2 b tags", textSize=0.05)
-        CMS.cmsHeader(leg2bNLL, "e + 6 jets and 2 b tags", textSize=0.05)
 
 
 #determine number of bins
@@ -177,7 +167,6 @@ Bgr2bSystDown = [0] * BinOrigin.GetNbinsX()
 Bgr2braw = {}
 Bgr2brawSystUp = [0] * BinOrigin.GetNbinsX()
 Bgr2brawSystDown = [0] * BinOrigin.GetNbinsX()
-NLLresList = []
 
 testHistIn = inResult.Get("ST_ttbar_Wprime"+binS+"2_"+year+"_")
 testHist = testHistIn.Clone("testHist")
@@ -267,37 +256,10 @@ for background in backgrounds:
             Bgr2brawSystDown[bin] += pow(min(Up2braw.GetBinContent(bin+1) - BgrPart2braw.GetBinContent(bin+1),
                                     Down2braw.GetBinContent(bin+1) - BgrPart2braw.GetBinContent(bin+1),
                                     0.), 2)
-    #add special systematic for ttbar
-#    if background[1]==2:
-#        STstr = "STrew_"
-#        Up2b   = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_"+"STfit_"+yearName+"_"+binString[0:3]+"2_STfit"+"Up")
-#        Nom2b  = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_")
-#        Down2b = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_"+"STfit_"+yearName+"_"+binString[0:3]+"2_STfit"+"Down")
-#        Up2b.Scale(1.,"width")
-#        Nom2b.Scale(1.,"width")
-#        Down2b.Scale(1.,"width")
-#        for bin in range(0,Nom1b.GetNbinsX()):
-#            Bgr2bSystUp[bin] += pow(max(Up2b.GetBinContent(bin+1) - Nom2b.GetBinContent(bin+1),
-#                                    Down1b.GetBinContent(bin+1) - Nom2b.GetBinContent(bin+1),
-#                                    0.), 2)
-#            Bgr1bSystDown[bin] += pow(min(Up2b.GetBinContent(bin+1) - Nom2b.GetBinContent(bin+1),
-#                                    Down2b.GetBinContent(bin+1) - Nom2b.GetBinContent(bin+1),
-#                                    0.), 2)
-
 #scale all totals
 BgrTotal1b.Scale(1.,"width")
 BgrTotal2b.Scale(1.,"width")
 BgrTotal2braw.Scale(1.,"width")
-
-#fill NLL variations by mass
-for mass in range(3,12):
-    NLLresPart = inSF2.Get("NLLresidual_"+binS+"2_"+year+"_M"+str(mass*100))
-    NLLresPart.Scale(1.+(mass-3)*0.1) #add a constant offset
-    NLLresPart.SetLineColor(mass-2)
-    NLLresPart.SetMarkerColor(mass-2)
-    NLLresPart.SetMarkerStyle(20)
-    leg2bNLL.AddEntry(NLLresPart,"M"+str(mass*100)+" * "+str("%.1f" % (1.+(mass-3)*0.1)),"lp")
-    NLLresList.append(NLLresPart)
 
 #get all the uncertainty values
 for bin in range(0, len(Bgr1bSystUp)):
@@ -414,10 +376,6 @@ print("max Total =",BgrTotal2b.GetMaximum())
 CMS.fixOverlay()
 
 canv2b.cd(2)
-
-#for bins in range(0, BgrTotal2b.GetNbinsX()+1):
-#    print("content",bins,Data2b.GetBinContent(bins+1),BgrTotal2b.GetBinContent(bins+1),Ratio2b.GetBinContent(bins+1))
-#    print("width",bins,BgrTotal2b.GetBinWidth(bins+1),Data2b.GetBinWidth(bins+1))
 
 grErr2bR = TGraph(len(Err2bX), Err2bX, Err2bR)
 grErr2bR.SetFillColor(17)
@@ -557,377 +515,3 @@ ps1b.SetStatFormat("0.2f")
 canvSF1b.Update()
 
 CMS.SaveCanvas(canvSF1b, "STfit_Wprime"+binS+"1_"+year+".pdf")
-
-#make 2b-tag ST correction fit plot
-SF2 = inSF2.Get("SF_")
-if JetMult == 5:
-  SFfit2 = TF1("SFfit2","[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", STstart, STend)
-  SFfit2.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}","p4*x^{2}")
-else:
-    SFfit2 = TF1("SFfit2","[0]/x/x+[1]/x+[2]+[3]*x", STstart, STend)
-    SFfit2.SetParNames("p0*x^{-2}","p1*x^{-1}","p2*x^{0}","p3*x^{1}")
-fr2 = SF2.Fit(SFfit2,"SRF")
-cov2 = fr2.GetCovarianceMatrix()
-if JetMult == 5:
-  SFfitUp2 = TF1("SFfitUp2", "TMath::Sqrt([0]*pow(x,-4) + [1]*pow(x,-3) + [2]*pow(x,-2) + [3]*pow(x,-1) + [4] + [5]*pow(x,1) + [6]*pow(x,2) + [7]*pow(x,3) + [8]*pow(x,4))+[9]/x/x+[10]/x+[11]+[12]*x+[13]*x*x", STstart, STend)
-  SFfitUpPars2 = array('d',[cov2(0,0), #0: x^-4
-                            cov2(0,1)+cov2(1,0), #1: x^-3
-                            cov2(0,2)+cov2(1,1)+cov2(2,0), #2: x^-2
-                            cov2(0,3)+cov2(1,2)+cov2(2,1)+cov2(3,0), #3: x^-1
-                            cov2(0,4)+cov2(1,3)+cov2(2,2)+cov2(3,1)+cov2(4,0), #4: x^0
-                            cov2(1,4)+cov2(2,3)+cov2(3,2)+cov2(4,1), #5: x^1
-                            cov2(2,4)+cov2(3,3)+cov2(4,2), #6: x^2
-                            cov2(3,4)+cov2(4,3), #7: x^3
-                            cov2(4,4), #8: x^4
-                            SFfit2.GetParameter(0),
-                            SFfit2.GetParameter(1),
-                            SFfit2.GetParameter(2),
-                            SFfit2.GetParameter(3),
-                            SFfit2.GetParameter(4)])
-  SFfitUp2.SetParameters(SFfitUpPars2)
-  SFfitDown2 = TF1("SFfitDown2", "-TMath::Sqrt([0]*pow(x,-4) + [1]*pow(x,-3) + [2]*pow(x,-2) + [3]*pow(x,-1) + [4] + [5]*pow(x,1) + [6]*pow(x,2) + [7]*pow(x,3) + [8]*pow(x,4))+[9]/x/x+[10]/x+[11]+[12]*x+[13]*x*x", STstart, STend)
-  SFfitDownPars2 = array('d', [cov2(0,0), #0: x^-4
-                               cov2(0,1)+cov2(1,0), #1: x^-3
-                               cov2(0,2)+cov2(1,1)+cov2(2,0), #2: x^-2
-                               cov2(0,3)+cov2(1,2)+cov2(2,1)+cov2(3,0), #3: x^-1
-                               cov2(0,4)+cov2(1,3)+cov2(2,2)+cov2(3,1)+cov2(4,0), #4: x^0
-                               cov2(1,4)+cov2(2,3)+cov2(3,2)+cov2(4,1), #5: x^1
-                               cov2(2,4)+cov2(3,3)+cov2(4,2), #6: x^2
-                               cov2(3,4)+cov2(4,3), #7: x^3
-                               cov2(4,4), #8: x^4
-                               SFfit2.GetParameter(0),
-                               SFfit2.GetParameter(1),
-                               SFfit2.GetParameter(2),
-                               SFfit2.GetParameter(3),
-                               SFfit2.GetParameter(4)])
-  SFfitDown2.SetParameters(SFfitDownPars2)
-else:
-  SFfitUp2 = TF1("SFfitUp2", "TMath::Sqrt([0]*pow(x,-4) + [1]*pow(x,-3) + [2]*pow(x,-2) + [3]*pow(x,-1) + [4] + [5]*pow(x,1) + [6]*pow(x,2)) + [7]/x/x+[8]/x+[9]+[10]*x", STstart, STend)
-  SFfitUpPars2 = array('d', [cov2(0,0), #0: x^-4
-                             cov2(0,1)+cov2(1,0), #1: x^-3
-                             cov2(0,2)+cov2(1,1)+cov2(2,0), #2: x^-2
-                             cov2(0,3)+cov2(1,2)+cov2(2,1)+cov2(3,0), #3: x^-1
-                             cov2(1,3)+cov2(2,2)+cov2(3,1), #4: x^0
-                             cov2(2,3)+cov2(3,2), #5: x^1
-                             cov2(3,3), #6: x^2
-                             SFfit2.GetParameter(0),
-                             SFfit2.GetParameter(1),
-                             SFfit2.GetParameter(2),
-                             SFfit2.GetParameter(3)])
-  SFfitUp2.SetParameters(SFfitUpPars2)
-  SFfitDown2 = TF1("SFfitDown2", "-TMath::Sqrt([0]*pow(x,-4) + [1]*pow(x,-3) + [2]*pow(x,-2) + [3]*pow(x,-1) + [4] + [5]*pow(x,1) + [6]*pow(x,2)) + [7]/x/x+[8]/x+[9]+[10]*x", STstart, STend)
-  SFfitDownPars2 = array('d', [cov2(0,0), #0: x^-4
-                               cov2(0,1)+cov2(1,0), #1: x^-3
-                               cov2(0,2)+cov2(1,1)+cov2(2,0), #2: x^-2
-                               cov2(0,3)+cov2(1,2)+cov2(2,1)+cov2(3,0), #3: x^-1
-                               cov2(1,3)+cov2(2,2)+cov2(3,1), #4: x^0
-                               cov2(2,3)+cov2(3,2), #5: x^1
-                               cov2(3,3), #6: x^2
-                               SFfit2.GetParameter(0),
-                               SFfit2.GetParameter(1),
-                               SFfit2.GetParameter(2),
-                               SFfit2.GetParameter(3)])
-  SFfitDown2.SetParameters(SFfitDownPars2)
-
-canvSF2b = CMS.cmsCanvas("STSFfit_"+binS+"_"+year+"_2b", STstart, STend, SFfitDown2.GetMinimum(STstart,STend)*0.8, SFfit2.GetMaximum(STstart,STend)*1.2, "S_{T} [GeV/c]", "(data - MC(w/o t#bar{t}))/t#bar{t}", square=CMS.kSquare, extraSpace = 0.01, iPos = 0)
-canvSF2b.cd(1)
-CMS.cmsDraw(SF2, "P", mcolor=1)
-SFfitUp2.SetLineColor(2)
-SFfitUp2.SetLineStyle(2)
-SFfitUp2.Draw("L,same")
-SFfitDown2.SetLineColor(2)
-SFfitDown2.SetLineStyle(2)
-SFfitDown2.Draw("L,same")
-stat2bfit = SF2.GetListOfFunctions().FindObject("stats")
-stat2bfit.SetX1NDC(0.5)
-stat2bfit.SetX2NDC(0.9)
-stat2bfit.SetY1NDC(0.6)
-stat2bfit.SetY2NDC(0.9)
-ps2b = canvSF2b.GetPrimitive("stats")
-ps2b.SetFillColor(0)
-ps2b.SetFitFormat("0.2f")
-ps2b.SetStatFormat("0.2f")
-canvSF2b.Update()
-
-CMS.SaveCanvas(canvSF2b, "STfit_Wprime"+binS+"2_"+year+".pdf")
-
-#make NLL residual plot
-canvNLL = CMS.cmsCanvas("NLL_"+binS+"_"+year+"_2b",0,30,-1.5,2.5,"-log(L)", "Data/Pred. after S_{T} reweight", square=CMS.kSquare, extraSpace=0.1, iPos=0)
-canvNLL.cd(1)
-
-lines = []
-for mass in range(3,12):
-    lines.append(TLine(0., 1.+(mass-3.)*0.1, 30., 1.+(mass-3.)*0.1))
-    CMS.cmsDrawLine(lines[mass-3], lcolor=mass-2, lstyle=2)
-    NLLresList[mass-3].Draw("E1, same")
-
-leg2bNLL.Draw()
-
-CMS.fixOverlay()
-
-CMS.SaveCanvas(canvNLL, "NLLresiduals_Wprime"+binS+"2_"+year+".pdf")
-
-#make NLL correlation plots per masspoint and background
-for background in backgrounds:
-    for mass in range(3,12):
-        canvNLLcorr = CMS.cmsCanvas("NLL_NLLnoB_"+background[0]+"_"+binS+"3_"+year+"_M"+str(mass*100), 0, 30, 0, 30, "-log(L)_{!b}", "-log(L)", square=CMS.kSquare, extraSpace=0.01, iPos=0, with_z_axis=True, scaleLumi=0.8)
-        canvNLLcorr.cd(1)
-        NLLcorr = inTwoD3.Get("NegLogLnoBvsNegLogL_"+background[0]+"_Wprime"+binS+"3_"+year+"_M"+str(mass*100)+"_")
-        #suppress negative bins
-        for x in range(0, 52):
-            for y in range(0, 52):
-                if NLLcorr.GetBinContent(x+1, y+1) < 0:
-                    NLLcorr.SetBinContent(x+1, y+1, 0.)
-        NLLcorr.GetZaxis().SetTitleOffset(1.4)
-        NLLcorr.Draw("same colz")
-        if NLLcorr.Integral() > 0:
-            CMS.SetAlternative2DColor(NLLcorr, CMS.cmsStyle)
-            CMS.UpdatePalettePosition(NLLcorr, canvNLLcorr)
-
-            CMS.SaveCanvas(canvNLLcorr, "NLL_NLLnoB_"+background[0]+"_"+binS+"3_"+year+"_M"+str(mass*100)+".pdf")
-        else:
-            print("NegLogLnoBvsNegLogL_"+background[0]+"_Wprime"+binS+"3_"+year+"_M"+str(mass*100)+"_","is empty")
-
-        if JetMult==6:
-            canvNLLcorr4 = CMS.cmsCanvas("NLL_NLLnoB_"+background[0]+"_"+binS+"4_"+year+"_M"+str(mass*100), 0, 30, 0, 30, "-log(L)_{!b}", "-log(L)", square=CMS.kSquare, extraSpace=0.01, iPos=0, with_z_axis=True, scaleLumi=0.8)
-            canvNLLcorr4.cd(1)
-            NLLcorr4 = inTwoD4.Get("NegLogLnoBvsNegLogL_"+background[0]+"_Wprime"+binS+"4_"+year+"_M"+str(mass*100)+"_")
-            #suppress negative bins
-            for x in range(0, 23):
-                for y in range(0, 23):
-                    if NLLcorr4.GetBinContent(x+1, y+1) < 0:
-                        NLLcorr4.SetBinContent(x+1, y+1, 0.)
-            NLLcorr4.GetZaxis().SetTitleOffset(1.4)
-            NLLcorr4.Draw("same colz")
-            if NLLcorr4.Integral() > 0:
-                CMS.SetAlternative2DColor(NLLcorr4, CMS.cmsStyle)
-                CMS.UpdatePalettePosition(NLLcorr4, canvNLLcorr4)
-
-                CMS.SaveCanvas(canvNLLcorr4, "NLL_NLLnoB_"+background[0]+"_"+binS+"4_"+year+"_M"+str(mass*100)+".pdf")
-            else:
-                print("NegLogLnoBvsNegLogL_"+background[0]+"_Wprime"+binS+"4_"+year+"_M"+str(mass*100)+"_","is empty")
-
-#make NLL stack plots per masspoint
-
-#maximum number of NLL bins depending on jet multiplicity, directly read from binning input file
-maxNLL5 = 0
-maxNLL6 = 0
-binsFile = open("BinTables.C","r")
-binsLines = binsFile.readlines()
-for line in binsLines:
-    splitLine = line.split()
-    if splitLine[1].find("nNLLlimits53_500") > -1:
-        maxNLL5 = int(splitLine[3][0:len(splitLine[3])-1])
-    if splitLine[1].find("nNLLlimits64_500") > -1:
-        maxNLL6 = int(splitLine[3][0:len(splitLine[3])-1])
-if JetMult == 5:
-    nbinsX = maxNLL5
-elif JetMult == 6:
-    nbinsX = maxNLL6
-
-for bmult in range(3,JetMult-1):
-    for mass in range(3,12):
-        #configure containers
-        Stack = THStack("Stack_"+binS+str(bmult)+"_"+year+"_M"+str(mass*100),"")
-        leg = CMS.cmsLeg(0.45,0.89-7*0.05, 0.8, 0.89, textSize=0.05)
-        
-        if LeptonFlav == 1:
-            lepStr = "#mu "
-        else:
-            lepStr = "e "
-        CMS.cmsHeader(leg, lepStr + str(JetMult) + " jets and "+str(bmult)+" b tags, m_{W'}="+str(mass*100), textSize=0.05)
-
-        #declare background dictionary
-        Bgr = {}
-        BgrSystUp = [0] * nbinsX
-        BgrSystDown = [0] * nbinsX
-        SigSystUp = [0] * nbinsX
-        SigSystDown = [0] * nbinsX
-
-        #loop over backgrounds
-        for background in backgrounds:
-        
-            #load the background histograms
-            if bmult == 3:
-                inBgr2D = inTwoD3.Get("FitMass2D_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_")
-                inBgr = inBgr2D.ProjectionY("NLL_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_")
-            else:
-                inBgr2D = inTwoD4.Get("FitMass2D_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_")
-                inBgr = inBgr2D.ProjectionY("NLL_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_")
-
-            #remove negative bin values
-            for binN in range(0,nbinsX):
-                if inBgr.GetBinContent(binN+1) < 0.:
-                    inBgr.SetBinContent(binN+1, 0.)
-
-            if background[1] == 2:
-                BgrTotal = inBgr.Clone("BgrTotal_"+binS+str(bmult)+"_"+year+"_M"+str(mass*100))
-            else:
-                BgrTotal.Add(inBgr)
-
-            inBgr.Scale(1.,"width")
-
-            Bgr[background[0]] = inBgr
-
-            #stat uncertainty per bin
-            for binN in range(0, nbinsX):
-                BgrSystUp[binN] += pow(inBgr.GetBinError(binN+1), 2)
-                BgrSystDown[binN] += pow(inBgr.GetBinError(binN+1), 2)
-
-            #syst uncertainties
-            for syst in baseSystematics:
-
-                #special dispensation to remove mismatched extended systematics from consideration
-                if syst.find("pdf") > -1 or syst.find("QCDscale") > -1:
-                    if syst.find(background[0]) < 0:
-                        continue
-
-                if bmult == 3:
-                    Up2D = inTwoD3.Get("FitMass2D_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Up")
-                    Down2D = inTwoD3.Get("FitMass2D_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Down")
-                else:
-                    Up2D = inTwoD4.Get("FitMass2D_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Up")
-                    Down2D = inTwoD4.Get("FitMass2D_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Down")
-
-                Up = Up2D.ProjectionY("NLL_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Up")
-                Down = Down2D.ProjectionY("NLL_"+background[0]+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Down")
-
-                #remove negative bin values
-                for binN in range(0,nbinsX):
-                    if Up.GetBinContent(binN+1) < 0.:
-                        Up.SetBinContent(binN+1, 0.)
-                    if Down.GetBinContent(binN+1) < 0.:
-                        Down.SetBinContent(binN+1, 0.)
-
-                Up.Scale(1.,"width")
-                Down.Scale(1.,"width")
-
-                for binN in range(0, nbinsX):
-                    BgrSystUp[binN] += pow(max(Up.GetBinContent(binN+1) - inBgr.GetBinContent(binN+1),
-                                         Down.GetBinContent(binN+1) - inBgr.GetBinContent(binN+1),
-                                         0.), 2)
-                    BgrSystDown[binN] += pow(min(Up.GetBinContent(binN+1) - inBgr.GetBinContent(binN+1),
-                                         Down.GetBinContent(binN+1) - inBgr.GetBinContent(binN+1),
-                                         0.), 2)
-
-        BgrTotal.Scale(1.,"width")
-
-        #load the appropriate signal histogram
-        if bmult == 3:
-            inSig2D = inTwoD3.Get("FitMass2D_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_")
-            inSig = inSig2D.ProjectionY("NLL_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_")
-        else:
-            inSig2D = inTwoD4.Get("FitMass2D_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_")
-            inSig = inSig2D.ProjectionY("NLL_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_")
-        inSig.Scale(1.,"width")
-
-        #stat uncertainty per bin
-        for binN in range(0, nbinsX):
-            SigSystUp[binN] += pow(inSig.GetBinError(binN+1), 2)
-            SigSystDown[binN] += pow(inSig.GetBinError(binN+1), 2)
-
-        #syst uncertainty per bin
-        for syst in baseSystematics:
-
-            #special dispensation to remove non-existing uncertainties for signal
-            if syst.find("pdf") > -1 or syst.find("QCDscale") > -1:
-                continue
-
-            if bmult == 3:
-                    Up2D = inTwoD3.Get("FitMass2D_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Up")
-                    Down2D = inTwoD3.Get("FitMass2D_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Down")
-            else:
-                Up2D = inTwoD4.Get("FitMass2D_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Up")
-                Down2D = inTwoD4.Get("FitMass2D_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Down")
-
-            Up = Up2D.ProjectionY("NLL_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Up")
-            Down = Down2D.ProjectionY("NLL_M"+str(mass*100)+"_Wprime"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+"_"+syst+"Down")
-            Up.Scale(1.,"width")
-            Down.Scale(1.,"width")
-
-            for binN in range(0, nbinsX):
-                SigSystUp[binN] += pow(max(Up.GetBinContent(binN+1) - inSig.GetBinContent(binN+1),
-                                     Down.GetBinContent(binN+1) - inSig.GetBinContent(binN+1),
-                                     0.), 2)
-                SigSystDown[binN] += pow(min(Up.GetBinContent(binN+1) - inSig.GetBinContent(binN+1),
-                                     Down.GetBinContent(binN+1) - inSig.GetBinContent(binN+1),
-                                     0.), 2)
-
-        #get all uncertainty values
-        for binN in range(0, nbinsX):
-            BgrSystUp[binN] = math.sqrt(BgrSystUp[binN])
-            BgrSystDown[binN] = math.sqrt(BgrSystDown[binN])
-            SigSystUp[binN] = math.sqrt(SigSystUp[binN])
-            SigSystDown[binN] = math.sqrt(SigSystDown[binN])
-
-        #fill error bands
-        ErrX, ErrBy, ErrSy, ErrR = array('d'), array('d'), array('d'), array('d')
-        for binN in range(0, nbinsX): #upper band
-            ErrX.append(Up.GetBinLowEdge(binN+1))
-            ErrBy.append(BgrSystUp[binN]+BgrTotal.GetBinContent(binN+1))
-            ErrSy.append(SigSystUp[binN]+inSig.GetBinContent(binN+1))
-            ErrR.append(BgrTotal.GetBinContent(binN+1) and BgrSystUp[binN]/BgrTotal.GetBinContent(binN+1)+1. or 0.)
-
-            ErrX.append(Up.GetBinLowEdge(binN+2))
-            ErrBy.append(BgrSystUp[binN]+BgrTotal.GetBinContent(binN+1))
-            ErrSy.append(SigSystUp[binN]+inSig.GetBinContent(binN+1))
-            ErrR.append(BgrTotal.GetBinContent(binN+1) and BgrSystUp[binN]/BgrTotal.GetBinContent(binN+1)+1. or 0.)
-        for binN in range(nbinsX-1,-1,-1): #lower band
-            ErrX.append(Up.GetBinLowEdge(binN+2))
-            ErrBy.append(-BgrSystDown[binN]+BgrTotal.GetBinContent(binN+1))
-            ErrSy.append(-SigSystDown[binN]+inSig.GetBinContent(binN+1))
-            ErrR.append(BgrTotal.GetBinContent(binN+1) and -BgrSystDown[binN]/BgrTotal.GetBinContent(binN+1)+1. or 0.)
-
-            ErrX.append(Up.GetBinLowEdge(binN+1))
-            ErrBy.append(-BgrSystDown[binN]+BgrTotal.GetBinContent(binN+1))
-            ErrSy.append(-SigSystDown[binN]+inSig.GetBinContent(binN+1))
-            ErrR.append(BgrTotal.GetBinContent(binN+1) and -BgrSystDown[binN]/BgrTotal.GetBinContent(binN+1)+1. or 0.)
-
-        maxVal = max(BgrTotal.GetMaximum()*1.2, inSig.GetMaximum()*1.2)
-        canvNLL = CMS.cmsDiCanvas("NLL_"+binS+str(bmult)+"_"+year+"_M"+str(mass*100),0,30,0,maxVal,0.5,1.5,"-log(L)", "Events/bin width", "Data/Pred.", square=CMS.kSquare, extraSpace=0.1, iPos=0)
-        canvNLL.cd(1)
-
-        #leg.AddEntry(Data2b, "Data", "lp")
-        CMS.cmsDrawStack(Stack, leg, Bgr)
-        grErrBgr = TGraph(len(ErrX), ErrX, ErrBy)
-        grErrBgr.SetFillColor(17)
-        grErrBgr.SetFillStyle(3008)
-        grErrBgr.Draw("F, same")
-        #CMS.cmsDraw(Data2b, "P", mcolor=1)
-        inSig.SetLineColor(8)
-        inSig.SetLineWidth(3)
-        inSig.SetLineStyle(2)
-        inSig.SetFillColor(8)
-        inSig.SetFillStyle(3008)
-        inSig.SetMarkerStyle(1)
-        grErrSig = TGraph(len(ErrX), ErrX, ErrSy)
-        grErrSig.SetFillColor(8)
-        grErrSig.SetFillStyle(3008)
-        grErrSig.Draw("F, same")
-
-        inSig.Draw("p, same")
-
-        leg.AddEntry(inSig,"m_{W'}="+str(mass*100)+" GeV", "pf")
-        leg.AddEntry(grErrBgr, "stat.+syst. unc.", "f")
-
-        leg.Draw()
-
-        CMS.fixOverlay()
-
-        canvNLL.cd(2)
-
-        #Ratio2braw = Data2b.Clone("Ratio2braw")
-        #Ratio2braw.Divide(BgrTotal2braw)
-
-        grErrBgrR = TGraph(len(ErrX), ErrX, ErrR)
-        grErrBgrR.SetFillColor(17)
-        grErrBgrR.SetFillStyle(3008)
-        grErrBgrR.Draw("F")
-
-        #CMS.cmsDraw(Ratio2braw, "P", mcolor=1)
-
-        ref_lineraw = TLine(0, 1, 30, 1)
-        CMS.cmsDrawLine(ref_lineraw, lcolor=1, lstyle=3)
-
-        CMS.SaveCanvas(canvNLL, "NLL_"+binS+str(bmult)+"_"+year+"_M"+str(mass*100)+".pdf")
-
