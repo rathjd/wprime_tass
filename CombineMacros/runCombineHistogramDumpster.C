@@ -34,42 +34,29 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
   //fit SFs and variations for 1 b-tag region
   ScaleFactorTTbarCalc(binMajor+1, year);
   
-  //run 2 b-tag control region with signal samples, add reweighted ST distributions and NLL histograms with 1 b-tag corrections, as well as unreweighted ST distributions
-  for(unsigned i = 0; i < 45; ++i){
-    if(bin/1000 == 1 && i == 0) continue; //skip electron data sample for muon regions
-    if(bin/1000 == 2 && i == 1) continue; //skip muon data sample for electron regions
-    if(i > 1){
-        CombineHistogramDumpster D(0, i, binMajor+2, year, binMajor+1);
-        D.Loop();
-    }
-    else{
-        CombineHistogramDumpsterRvec D(0, i, binMajor+2, year, binMajor+1);
-        D.Loop();
-    }
-  }
-
-  //fit SFs and variations for 2 b-tag region
-  ScaleFactorTTbarCalc(binMajor+2, year);
-
-  //run actual variations and SF'd ttbar for 3- and 4-btag regions
+  //run actual variations and SF'd ttbar for 2-, 3-, and 4-btag regions
   for(unsigned i = 0; i < 45; ++i){
     if(bin/1000 == 1 && i == 0) continue;
     else if(bin/2000 == 1 && i == 1) continue;
       if(i > 1){
-        CombineHistogramDumpster D(0, i, binMajor+3, year, binMajor+2);
+	CombineHistogramDumpster C(0, i, binMajor+2, year, binMajor+1);
+        C.Loop();
+        CombineHistogramDumpster D(0, i, binMajor+3, year, binMajor+1);
         D.Loop();
       }
       else{
-        CombineHistogramDumpsterRvec D(0, i, binMajor+3, year, binMajor+2);
+	CombineHistogramDumpsterRvec C(0, i, binMajor+2, year, binMajor+1);
+        C.Loop();
+        CombineHistogramDumpsterRvec D(0, i, binMajor+3, year, binMajor+1);
         D.Loop();
       }
       if(jetMultiplicity != 5){
 	if(i > 1){
-          CombineHistogramDumpster E(0, i, binMajor+4, year, binMajor+2);
+          CombineHistogramDumpster E(0, i, binMajor+4, year, binMajor+1);
           E.Loop();
         }
         else{
-          CombineHistogramDumpsterRvec E(0, i, binMajor+4, year, binMajor+2);
+          CombineHistogramDumpsterRvec E(0, i, binMajor+4, year, binMajor+1);
           E.Loop();
         }
       }

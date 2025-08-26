@@ -46,13 +46,13 @@ bins = [binString[0:3]+"1", binString[0:3]+"2", binString[0:3]+"3", binString[0:
 
 #assign region name
 if binString[0:3] == "115":
-    regName = "mu5j2b"
+    regName = "mu5j1b"
 elif binString[0:3] == "215":
-    regName = "e5j2b"
+    regName = "e5j1b"
 if binString[0:3] == "116":
-    regName = "mu6j2b"
+    regName = "mu6j1b"
 elif binString[0:3] == "216":
-    regName = "e6j2b"
+    regName = "e6j1b"
 
 #change year name string for 2016_APV to the Sifu-scheme-complian 2016apv for further processing
 if yearName == "2016_APV":
@@ -77,16 +77,16 @@ for binN in bins:
   os.system("hadd -f " + eospath + "/" + fileName + "/HT_SimpleShapes_" + binName + ".root "+eospath+"/HT_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file
   os.system("hadd -f " + eospath + "/" + fileName + "/TwoD_SimpleShapes_" + binName + ".root "+eospath+"/TwoD_SimpleShapes_Bin" + fileName + "_*.root") #hadd all histograms to a convenient combined file 
 
- #transfer SF files where appropriate
+  #transfer SF files where appropriate
   if int(binN) % 10 == 2:
       os.system("cp " + eospath + "/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + eospath + "/" + fileName + "/.")
       print("cp " + eospath + "/SF_Bin"+binString[0:3]+"1_" + yearName + ".root " + eospath + "/" + fileName + "/.")
-  elif int(binN) % 10 > 2:
-      os.system("cp " + eospath + "/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + eospath + "/" + fileName + "/.")
-      print("cp " + eospath + "/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + eospath + "/" + fileName + "/.") 
+  #elif int(binN) % 10 > 2:
+  #    os.system("cp " + eospath + "/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + eospath + "/" + fileName + "/.")
+  #    print("cp " + eospath + "/SF_Bin"+binString[0:3]+"2_" + yearName + ".root " + eospath + "/" + fileName + "/.") 
 
-  #skip making cards for 1- and 2-tag regions
-  if int(binN) % 10 < 3:
+  #skip making cards for 1 tag region
+  if int(binN) % 10 < 2:
       continue
 
   #define correlated entities for usage in card
@@ -138,7 +138,7 @@ for binN in bins:
 
                 #control-region uncertainties
                 ["CMS_B2G"+B2Gn+"_STfit_"+yearName+"_"+regName,         "shape", "-"],
-                ["CMS_B2G"+B2Gn+"_NLLnonClosure_"+yearName+"_"+regName, "lnN",   "-"]]
+                ["CMS_B2G"+B2Gn+"_STfitFunc_"+yearName+"_"+regName,     "shape", "-"]]
 
 
   #write the actual combine cards
@@ -239,26 +239,26 @@ for binN in bins:
           #print(j, systMaster[j])
           if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
             systLines[j] += systMaster[j][2].replace("-","1") #activate ST fit uncertainty for ttbar only in the card
-          elif allNames[i] != signalNames[0] and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
-            NLLresF = ROOT.TFile.Open(eospath + "/" + fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
-            NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100))
-            NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_M" + str(massBin*100) + "_")
-            NLLresH.Multiply(NLLH)
-            if NLLH.Integral() == 0:
-              systLines[j] += systMaster[j][2]
-              continue
-            ratio = str(NLLresH.Integral(0,-1)/NLLH.Integral(0,-1))
-            dot = ratio.find(".")
-            if dot >= 0:
-              systLines[j] += systMaster[j][2].replace("-",ratio[0:dot+3]) #limit precision to keep cards readable
-            else:
-              systLines[j] += systMaster[j][2].replace("-",ratio)
+          #elif allNames[i] != signalNames[0] and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
+          #  NLLresF = ROOT.TFile.Open(eospath + "/" + fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
+          #  NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100))
+          #  NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_M" + str(massBin*100) + "_")
+          #  NLLresH.Multiply(NLLH)
+          #  if NLLH.Integral() == 0:
+          #    systLines[j] += systMaster[j][2]
+          #    continue
+          #  ratio = str(NLLresH.Integral(0,-1)/NLLH.Integral(0,-1))
+          #  dot = ratio.find(".")
+          #  if dot >= 0:
+          #    systLines[j] += systMaster[j][2].replace("-",ratio[0:dot+3]) #limit precision to keep cards readable
+          #  else:
+          #    systLines[j] += systMaster[j][2].replace("-",ratio)
           elif systMaster[j][0].find(allNames[i]) > -1: #activate ISR/FSR and PDF uncertainties only specific background samples
             systLines[j] += systMaster[j][2].replace("-","1")
-          elif allNames[i] == "ttbar" and systLines[j].find("pdf_B2G") > -1:  #activate correlation of PDF uncertainties via ST SF to ttbar estimate
-            systLines[j] += systMaster[j][2].replace("-","1")
-          elif allNames[i] == "ttbar" and systLines[j].find("QCDscale") > -1: #activate correlation of factorization and renormalization uncertainties via ST SF to ttbar estimate
-            systLines[j] += systMaster[j][2].replace("-","1")
+          #elif allNames[i] == "ttbar" and systLines[j].find("pdf_B2G") > -1:  #activate correlation of PDF uncertainties via ST SF to ttbar estimate
+          #  systLines[j] += systMaster[j][2].replace("-","1")
+          #elif allNames[i] == "ttbar" and systLines[j].find("QCDscale") > -1: #activate correlation of factorization and renormalization uncertainties via ST SF to ttbar estimate
+          #  systLines[j] += systMaster[j][2].replace("-","1")
           #elif systMaster[j][0].find("signal") > -1 and allNames[i] == signalNames[0]: #activate ISR/FSR and PDF uncertainties for signal
           #  systLines[j] += systMaster[j][2].replace("-","1") 
           elif systMaster[j][0].find("HLTzvtx") > -1 and binString[0] == "2" and yearName == "2017": #activate HLT Zvtx unvertainties only for electron channels only in 2017

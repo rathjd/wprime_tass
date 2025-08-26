@@ -58,6 +58,7 @@ void CombineHistogramDumpster::Loop()
   //determine the SF functions for ST
   TFile *SFfile;
   vector<TF1> SFs;
+  TF1 SFparDown, SFparUp;
   vector<TMatrixD> SFcovs;
 
   //define luminosity uncertainties depending on the year
@@ -91,16 +92,16 @@ void CombineHistogramDumpster::Loop()
   vector<vector<TH1F*> > FitMass;
   vector<vector<TH1F*> > HT;
   vector<vector<TH2F*> > FitMass_2D, HT_2D;
-  vector<TH2F*> FitMass_2D_STstatUp;
-  vector<TH2F*> FitMass_2D_STstatDown;
-  vector<TH2F*> HT_2D_STstatUp;
-  vector<TH2F*> HT_2D_STstatDown;
-  vector<TH1F*> FitMass_STstatUp;
-  vector<TH1F*> FitMass_STstatDown;
-  vector<TH1F*> HT_STstatUp;
-  vector<TH1F*> HT_STstatDown;
-  TH1F* STrew_STstatUp;
-  TH1F* STrew_STstatDown;
+  vector<TH2F*> FitMass_2D_STstatUp, FitMass_2D_STstatDown;
+  vector<TH2F*> HT_2D_STstatUp, HT_2D_STstatDown;
+  vector<TH1F*> FitMass_STstatUp, FitMass_STstatDown;
+  vector<TH1F*> HT_STstatUp, HT_STstatDown;
+  TH1F* STrew_STstatUp, *STrew_STstatDown;
+  vector<TH2F*> FitMass_2D_STparUp, FitMass_2D_STparDown;
+  vector<TH2F*> HT_2D_STparUp, HT_2D_STparDown;
+  vector<TH1F*> FitMass_STparUp, FitMass_STparDown;
+  vector<TH1F*> HT_STparUp, HT_STparDown;
+  TH1F* STrew_STparUp, *STrew_STparDown;
 
   vector<TH1F*> ST;
   vector<TH1F*> STrew;
@@ -119,7 +120,6 @@ void CombineHistogramDumpster::Loop()
 
   //Declare hardcoded what the size of the systematics variations is:
   unsigned varSize = 53;
-  unsigned varOff  = IsSF_ttbar ? 18 : 0; //prepend offdiagonal uncertainties with special handling, if required
 
   //assemble histograms with variations for Fit mass, HT, 2D Fit mass vs NLL, 2D HT vs NLL, looping over the mass interpretations from 300 GeV to 1.1 TeV
   vector<vector<TString> > variationsName, HTvariationsName, FitMass2Dnames, HT2Dnames;
@@ -136,27 +136,12 @@ void CombineHistogramDumpster::Loop()
       FitMass2Dnames[m-3].push_back("FitMass2D_" + variationsName[m-3][i]);
       HT2Dnames[m-3].push_back("HT2D_" + variationsName[m-3][i]);
     }
-    if(IsSF_ttbar){//case when offdiagronal PDF and QCD scale uncertainties for ttbar need to be taken into account
-      for(unsigned i = 0; i < varOff; ++i){
-        TString variation = Systematics(i, YearS, sampleType, B2Gn, true);
-        variationsName[m-3].push_back(gn + "_" + binS + TString::Format("_M%d_",m*100) + variation);
-        HTvariationsName[m-3].push_back("HT_" + variationsName[m-3][i + varSize]); //take offset into account within the variationsName vector
-        FitMass2Dnames[m-3].push_back("FitMass2D_" + variationsName[m-3][i + varSize]);
-        HT2Dnames[m-3].push_back("HT2D_" + variationsName[m-3][i + varSize]);
-      }
-    }
   }
 
   vector<TString> variationsNamePlain;
   for(unsigned i = 0; i < varSize; ++i){
     TString variation = Systematics(i, YearS, sampleType, B2Gn);
     variationsNamePlain.push_back(gn + "_" + binS + "_" + variation);
-  }
-  if(IsSF_ttbar){
-    for(unsigned i = 0; i < varOff; ++i){
-      TString variation = Systematics(i, YearS, sampleType, B2Gn, true);
-      variationsNamePlain.push_back(gn + "_" + binS + "_" + variation);
-    }
   }
 
   for(unsigned m = 3; m < 12; ++m){
@@ -167,7 +152,7 @@ void CombineHistogramDumpster::Loop()
     FitMass_2D.push_back(dummy2D);
     HT_2D.push_back(dummy2D);
 
-    for(unsigned i = 0; i < varSize+varOff; ++i){
+    for(unsigned i = 0; i < varSize; ++i){
       TString variation = "";
       if(i < varSize) variation = Systematics(i, YearS, sampleType, B2Gn);
       else            variation = Systematics(i-varSize, YearS, sampleType, B2Gn, true);
@@ -216,15 +201,39 @@ void CombineHistogramDumpster::Loop()
 	TString SFloc = TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin%d_",SFreg)+YearS+".root";
         SFfile = new TFile(SFloc);
         TH1F *SF = (TH1F*)SFfile->Get("SF_"+variation);
-        TF1 *SFfit;
-        if(bin % 100 < 60) SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.);
-        else 		   SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x"        , 210., 2000.);
+        TF1 *SFfit, *SFfitParUp, *SFfitParDown;
+        if(bin % 100 < 60){
+	  SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.);
+	  if(i == 0){
+	    SFfitParUp = new TF1(TString::Format("fitFunctionParUp%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 180., 2000.);
+	    SFfitParDown = new TF1(TString::Format("fitFunctionParDown%d",i),"[0]/x/x+[1]/x+[2]+[3]*x", 180., 2000.);
+	  }
+	}
+        else{
+	  SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x"        , 210., 2000.);
+	  if(i == 0){
+	    SFfitParUp = new TF1(TString::Format("fitFunctionParUp%d",i),"[0]/x+[1]+[2]*x"        , 210., 2000.);
+	    SFfitParDown = new TF1(TString::Format("fitFunctionParDown%d",i),"[0]/x/x+[1]/x+[2]"        , 210., 2000.);
+	  }
+	}
+	
+	//variations of fit functions for a systematic
+	if(i == 0){
+	  SF->Fit(SFfitParUp,"RF");
+	  SF->Fit(SFfitParDown,"RF");
+	  SFparUp = *SFfitParUp;
+	  SFparDown = *SFfitParDown;
+	}
+
+	//central ST fit and systematic variations (latter are not necessary anymore)
         TFitResultPtr fr = SF->Fit(SFfit,"SRF");
         TMatrixD cov = fr->GetCovarianceMatrix();
         SFs.push_back(*SFfit);
         SFcovs.push_back(cov);
       }
     }//end variations loop
+
+
 
     //translate SF region identifier to region names for Combine cards
     TString region = "";
@@ -246,6 +255,17 @@ void CombineHistogramDumpster::Loop()
     FitMass_2D_STstatDown.push_back((TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Down"));
     HT_2D_STstatUp.push_back(       (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Up"  ));
     HT_2D_STstatDown.push_back(     (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfit_"+YearS+"_"+region+"Down"));
+
+    //ST fit parameter variations block
+    FitMass_STparUp.push_back(     (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Up"  ));
+    FitMass_STparDown.push_back(   (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Down"));
+    HT_STparUp.push_back(          (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Up"  ));
+    HT_STparDown.push_back(        (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Down"));
+    FitMass_2D_STparUp.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Up"  ));
+    FitMass_2D_STparDown.push_back((TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Down"));
+    HT_2D_STparUp.push_back(       (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Up"  ));
+    HT_2D_STparDown.push_back(     (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Down"));
+
   
     //negative log likelihood block
     TString NLLname = "NegLogLnoB_";
@@ -267,6 +287,8 @@ void CombineHistogramDumpster::Loop()
   //STrew only needs to be done once
   STrew_STstatUp   = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitUp");
   STrew_STstatDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitDown");
+  STrew_STparUp   = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitFuncUp");
+  STrew_STparDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitFuncDown");
 
   //calculate jet multiplicity
   int jetMult = 0;
@@ -284,23 +306,15 @@ void CombineHistogramDumpster::Loop()
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-    //std::cout<<jentry<<std::endl;
-    //
     //blind data in SRs
     if(Iterator < 2 && bin % 10 >= 3) continue;
 
-    //std::cout<<"iterator pass"<<std::endl;
-
     float LeptonPtVars[9] = {LeptonPt, LeptonPt_SU, LeptonPt_SD, LeptonPt_RU, LeptonPt_RD, LeptonPt, LeptonPt, LeptonPt, LeptonPt}; //Lepton pT
 
-    //std::cout<<"lepton pT vals set"<<std::endl
-
-    //int n = 4;
-    //float Vals[9] = {JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt->at(n), JetPt_SU->at(n), JetPt_SD->at(n), JetPt_RU->at(n), JetPt_RD->at(n)}; //Jet pT
-    //float Vals[9] = {METPt, METPt, METPt, METPt, METPt, METPt_SU, METPt_SD, METPt_RU, METPt_RD};
+    //calculate HT variations
     float Vals[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};//HT version
 
-    //calculate ST
+    //calculate ST variations
     float STvals[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
 
     //find the actual jet count per variation
@@ -310,20 +324,12 @@ void CombineHistogramDumpster::Loop()
     //0: default
     float defHT = 0.;
 
-    //std::cout<<"jet collection expected size "<<JetPt->size()<<std::endl;
-    //
+    //calculate central HT
     for(unsigned i = 0; i < JetPt->size(); ++i) if(JetPt->at(i) > 30.){
       defHT += JetPt->at(i);
-      /*JetCounts[0]++;
-      JetCounts[1]++;
-      JetCounts[2]++;
-      JetCounts[3]++;
-      JetCounts[4]++;
-      if(JetbTag->at(i)) bJetMainCount++;*/
     }
 
-    //std::cout<<"HT calculated"<<std::endl;
-
+    //calculate all ibject pT variation STs and HTs
     STvals[0] = LeptonPt + METPt + defHT; Vals[0] = defHT;
     //1: eScaleUp
     STvals[1] = LeptonPt_SU + METPt + defHT; Vals[1] = defHT;
@@ -338,7 +344,7 @@ void CombineHistogramDumpster::Loop()
     for(unsigned i = 0; i < JetPt_SU->size(); ++i){
       if(JetPt_SU->at(i) > 30.){
 	STvals[5] += JetPt_SU->at(i);
-       	Vals[5] += JetPt_SU->at(i);
+       	Vals[5]   += JetPt_SU->at(i);
 	JetCounts[5]++;
       }
     }
@@ -347,7 +353,7 @@ void CombineHistogramDumpster::Loop()
     for(unsigned i = 0; i < JetPt_SD->size(); ++i){
       if(JetPt_SD->at(i) > 30.){
 	STvals[6] += JetPt_SD->at(i);
-	Vals[6] += JetPt_SD->at(i);
+	Vals[6]   += JetPt_SD->at(i);
 	JetCounts[6]++;
       }
     }
@@ -356,7 +362,7 @@ void CombineHistogramDumpster::Loop()
     for(unsigned i = 0; i < JetPt_RU->size(); ++i){
       if(JetPt_RU->at(i) > 30.){
         STvals[7] += JetPt_RU->at(i);
-	Vals[7] += JetPt_RU->at(i);
+	Vals[7]   += JetPt_RU->at(i);
 	JetCounts[7]++;
       }
     }
@@ -365,25 +371,10 @@ void CombineHistogramDumpster::Loop()
     for(unsigned i = 0; i < JetPt_RD->size(); ++i){
       if(JetPt_RD->at(i) > 30.){
 	STvals[8] += JetPt_RD->at(i);
-	Vals[8] += JetPt_RD->at(i);
+	Vals[8]   += JetPt_RD->at(i);
 	JetCounts[8]++;
       }
     }
-
-    //std::cout<<"stage 1"<<std::endl;
-
-    //validate actual region
-    
-    /*int RegionIdents[9];
-    RegionIdents[0] = (RegionIdentifier[0]/1000)*1000 + 100 + JetCounts[0]*10 + bJetMainCount;
-    RegionIdents[1] = (RegionIdentifier[1]/1000)*1000 + 100 + JetCounts[1]*10 + RegionIdentifier[1] % 10;
-    RegionIdents[2] = (RegionIdentifier[2]/1000)*1000 + 100 + JetCounts[2]*10 + RegionIdentifier[2] % 10;
-    RegionIdents[3] = (RegionIdentifier[3]/1000)*1000 + 100 + JetCounts[3]*10 + RegionIdentifier[3] % 10;
-    RegionIdents[4] = (RegionIdentifier[4]/1000)*1000 + 100 + JetCounts[4]*10 + RegionIdentifier[4] % 10;    
-    RegionIdents[5] = (RegionIdentifier[5]/1000)*1000 + 100 + JetCounts[5]*10 + RegionIdentifier[5] % 10;
-    RegionIdents[6] = (RegionIdentifier[6]/1000)*1000 + 100 + JetCounts[6]*10 + RegionIdentifier[6] % 10;    
-    RegionIdents[7] = (RegionIdentifier[7]/1000)*1000 + 100 + JetCounts[7]*10 + RegionIdentifier[7] % 10;
-    RegionIdents[8] = (RegionIdentifier[8]/1000)*1000 + 100 + JetCounts[8]*10 + RegionIdentifier[8] % 10;*/
 
     //mass-interpretation-independent variables
     //variation of selections
@@ -402,9 +393,8 @@ void CombineHistogramDumpster::Loop()
       if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
       
       const float CentralWeight = EvWeight*SampleWeight*EventWeightObjectVariations[i];
-      //std::cout<<i<<": "<<CentralWeight<<" = "<<EventWeight[0]<<" * "<<SampleWeight<<" * "<<EventWeightObjectVariations[i]<<std::endl;
       if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
-	const float STcorr = SFs[i].Eval(STvals[i]);
+	const float STcorr = SFs[0].Eval(STvals[i]);
 	const float STcorrCentralWeight = CentralWeight * STcorr;
 	STrew[i]->Fill(STvals[i], STcorrCentralWeight);
 	if(i == 0){      
@@ -413,6 +403,14 @@ void CombineHistogramDumpster::Loop()
           const float STcorrStatDown = CentralWeight * (STcorr - statSFunc);
           STrew_STstatUp->Fill(STvals[0], STcorrStatUp);
           STrew_STstatDown->Fill(STvals[0], STcorrStatDown);
+
+	  //vary ST function parameters and evaluate impact on ST
+	  const float SFcorrParUp = SFparUp.Eval(STvals[i]);
+	  const float STcorrParUp = CentralWeight * SFcorrParUp;
+	  const float SFcorrParDown = SFparDown.Eval(STvals[i]);
+          const float STcorrParDown = CentralWeight * SFcorrParDown;
+	  STrew_STparUp->Fill(STvals[0], STcorrParUp);
+	  STrew_STparDown->Fill(STvals[0], STcorrParDown);
 	}
       }
       ST[i]->Fill(STvals[i], CentralWeight);
@@ -421,7 +419,7 @@ void CombineHistogramDumpster::Loop()
     //std::cout<<"stage 2"<<std::endl;
 
     //variation of systematic events weights
-    if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < varSize + varOff; ++i){
+    if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < varSize; ++i){
       //additional 2017 lepton pT cut
       if(year == 2017){
         if(RegionIdentifier[0]/1000 == 1 && LeptonPtVars[0] < 30.) continue;
@@ -453,7 +451,7 @@ void CombineHistogramDumpster::Loop()
       const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
 
       if(IsSF_ttbar){
-	const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]);
+	const float CentralWeightSTcorr = CentralWeight * SFs[0].Eval(STvals[0]);
 	STrew[i]->Fill(STvals[0], CentralWeightSTcorr);	
       }
       ST[i]->Fill(STvals[0], CentralWeight);
@@ -510,13 +508,6 @@ void CombineHistogramDumpster::Loop()
           if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
         }
 
-        //FIXME: Additional Lepton cuts
-        /*if(i != 1 && i != 2 && i != 3 && i != 4 && LeptonPt < 40.) continue;
-        else if(i == 1 && LeptonPt_SU < 40.) continue;
-        else if(i == 2 && LeptonPt_SD < 40.) continue;
-        else if(i == 3 && LeptonPt_RU < 40.) continue;
-        else if(i == 4 && LeptonPt_RD < 40.) continue;*/
-
         //determine fill variable
         float fillVar = Vals[i];
         float fillBranch = 0.;
@@ -558,15 +549,15 @@ void CombineHistogramDumpster::Loop()
         string HistName;
         if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
           const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[i];
-	  const float STcorrCentralWeight = CentralWeight * SFs[i].Eval(STvals[i]);
+	  const float STcorrCentralWeight = CentralWeight * SFs[0].Eval(STvals[i]);
 	  FitMass[m-3][i]->Fill(fillBranch, STcorrCentralWeight);
 	  HT[m-3][i]->Fill(fillVar, STcorrCentralWeight);
 
 	  FitMass_2D[m-3][i]->Fill(fillBranch, NLLfill, STcorrCentralWeight);
 	  HT_2D[m-3][i]->Fill(fillVar, NLLfill, STcorrCentralWeight);
 
-	  if(i == 0){//make sure to scale ttbar and get stat. unc. of fit propagated
-            const float STcorr = SFs[i].Eval(STvals[i]);
+	  if(i == 0){//make sure to scale ttbar and get stat. and parameter uncs. of fit propagated
+            const float STcorr = SFs[0].Eval(STvals[i]);
 	    const float statSFunc = CalculateCovError(STvals[0], SFcovs[0], jetMult);
 	    const float STcorrStatUp = CentralWeight * (STcorr + statSFunc);
 	    const float STcorrStatDown = CentralWeight * (STcorr - statSFunc);
@@ -579,6 +570,21 @@ void CombineHistogramDumpster::Loop()
 	    FitMass_2D_STstatDown[m-3]->Fill(fillBranch, NLLfillZero, STcorrStatDown);
 	    HT_2D_STstatUp[m-3]->Fill(fillVar, NLLfillZero, STcorrStatUp);
 	    HT_2D_STstatDown[m-3]->Fill(fillVar, NLLfillZero, STcorrStatDown);
+
+	    const float SFcorrParUp = SFparUp.Eval(STvals[i]);
+            const float STcorrParUp = CentralWeight * SFcorrParUp;
+            const float SFcorrParDown = SFparDown.Eval(STvals[i]);
+            const float STcorrParDown = CentralWeight * SFcorrParDown;
+
+	    FitMass_STparUp[m-3]->Fill(fillBranch, STcorrParUp);
+            FitMass_STparDown[m-3]->Fill(fillBranch, STcorrParDown);
+            HT_STparUp[m-3]->Fill(fillVar, STcorrParUp);
+            HT_STparDown[m-3]->Fill(fillVar, STcorrParDown);
+
+            FitMass_2D_STparUp[m-3]->Fill(fillBranch, NLLfillZero, STcorrParUp);
+            FitMass_2D_STparDown[m-3]->Fill(fillBranch, NLLfillZero, STcorrParDown);
+            HT_2D_STparUp[m-3]->Fill(fillVar, NLLfillZero, STcorrParUp);
+            HT_2D_STparDown[m-3]->Fill(fillVar, NLLfillZero, STcorrParDown);
 
 	    NegLogLnoB[m-3]->Fill(NLLnoBfill, STcorrCentralWeight);
 	    NegLogLnoBvsNegLogL[m-3]->Fill(NLLnoBfillZero, NLLfillZero, STcorrCentralWeight);
@@ -599,8 +605,6 @@ void CombineHistogramDumpster::Loop()
         }
       }
 
-      //std::cout<<"stage 4"<<std::endl;
-
       //Make sure to match default region for default objects with event weight variations
       if(RegionIdentifier[0] == bin){
 	//additional 2017 lepton pT cut
@@ -613,7 +617,7 @@ void CombineHistogramDumpster::Loop()
         }
 
         //EventWeight variations
-        for(unsigned i = 9; i < varSize + varOff; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)
+        for(unsigned i = 9; i < varSize; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)
 	
           string HistName;
 
@@ -641,7 +645,7 @@ void CombineHistogramDumpster::Loop()
 
 	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
           if(IsSF_ttbar){
-	    const float CentralWeightSTcorr = CentralWeight * SFs[i].Eval(STvals[0]); //note that SFs[i] runs the full length of variations = varSize+varOff
+	    const float CentralWeightSTcorr = CentralWeight * SFs[0].Eval(STvals[0]); //note that SFs[i] runs the full length of variations = varSize+varOff
 	    FitMass[m-3][i]->Fill(fillBranchZero, CentralWeightSTcorr);
 	    HT[m-3][i]->Fill(fillVar, CentralWeightSTcorr);
 
@@ -693,6 +697,8 @@ void CombineHistogramDumpster::Loop()
 	  if(j==0){
             STrew_STstatUp->Write();
             STrew_STstatDown->Write();
+	    STrew_STparUp->Write();
+	    STrew_STparDown->Write();
 	  }
         }
       }
@@ -725,6 +731,8 @@ void CombineHistogramDumpster::Loop()
         if(j == 0) { //function to propagate ST-fit SF uncertainty to bin error
 	  HT_STstatUp[i]->Write();
 	  HT_STstatDown[i]->Write();
+	  HT_STparUp[i]->Write();
+          HT_STparDown[i]->Write();
         }
         HT[i][j]->Write();
 	if(i==0) ST[j]->Write();
@@ -760,6 +768,10 @@ void CombineHistogramDumpster::Loop()
 	  FitMass_2D_STstatDown[i]->Write();
 	  HT_2D_STstatUp[i]->Write();
 	  HT_2D_STstatDown[i]->Write();
+	  FitMass_2D_STparUp[i]->Write();
+          FitMass_2D_STparDown[i]->Write();
+          HT_2D_STparUp[i]->Write();
+          HT_2D_STparDown[i]->Write();
         }
         HT_2D[i][j]->Write();
         FitMass_2D[i][j]->Write();
