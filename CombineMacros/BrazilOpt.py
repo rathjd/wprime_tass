@@ -13,7 +13,8 @@ crossSections = [683.8+708.3, 321.7+336.1, 161.1+165.3, 85.92+85.82, 48.84+47.47
 limitNumbers = []
 
 years = ["2016apv", "2016", "2017", "2018"]
-binS  = [["1153", "2153"], ["1163", "2163"], ["1164", "2164"]]
+binS  = [["1152", "2152", "1153", "2153"],
+         ["1162", "2162", "1163", "2163", "1164", "2164"]]
 
 optimization = []
 
@@ -114,18 +115,18 @@ if not compromise:
     #                [[3, 49], [3, 22], [5, 22]], 
     #                [[3, 51], [3, 22], [5, 21]]]
     #new ttbb limits, ps_fsrDown is bust
-    optimization =   [[[13, 61], [7, 24], [11, 24]],
-                      [[ 7, 59], [6, 24], [ 9, 22]],
-                      [[ 8, 65], [5, 24], [ 7, 24]],
-                      [[10, 76], [5, 24], [ 7, 24]],
-                      [[11, 75], [5, 24], [ 7, 24]],
-                      [[12, 67], [5, 24], [ 7, 24]],
-                      [[12, 67], [5, 24], [ 7, 24]],
-                      [[12, 67], [5, 24], [ 7, 24]],
-                      [[12, 74], [5, 24], [ 7, 24]]]
+    optimization =   [[[13, 61], [11, 24]],
+                      [[ 7, 59], [ 9, 22]],
+                      [[ 8, 65], [ 7, 24]],
+                      [[10, 76], [ 7, 24]],
+                      [[11, 75], [ 7, 24]],
+                      [[12, 67], [ 7, 24]],
+                      [[12, 67], [ 7, 24]],
+                      [[12, 67], [ 7, 24]],
+                      [[12, 74], [ 7, 24]]]
 else:
 #compromise version
-    optimization = [[[3, 51], [5, 22], [7, 22]],
+    optimization = [[[3, 51], [7, 22], [7, 22]],
                     [[3, 51], [5, 22], [7, 22]],
                     [[3, 51], [5, 22], [7, 22]],
                     [[3, 51], [5, 22], [7, 22]],
@@ -161,22 +162,32 @@ for mass in range(0,9):
                     os.system("python3 ../SliceHTvsFitMass.py "+year+" "+binX+" "+str(optimization[mass][counterJet][0])+" "+str(optimization[mass][counterJet][1])+" "+massString)#+" direct")
             counterJet+=1
 
-    #combine all cards, first into the optimized subsets across years
-    #os.system("combineCards.py HT_Wprime1154_2016.txt HT_Wprime1154_2017.txt HT_Wprime1154_2018.txt HT_Wprime2154_2016.txt HT_Wprime2154_2017.txt HT_Wprime2154_2018.txt > HT_Wprimex154_all.txt")
-
     #combination cards across years for different bins
-
     AllCards = []
 
-    for i in range(0,3):
+    for i in range(0,2):
         for bins in binS[i]:
             baseStringComb     = "combineCards.py "
             baseStringFitSlice = "combineCards.py "
             baseStringHTslice  = "combineCards.py "
+
+            #assemble naming string
+            name = ""
+            #if bins[0]=="1":
+            #    name+="mu"
+            #elif bins[0]=="2":
+            #    name+="e"
+            #name+="-"+bins[2]+"j-"+bins[3]+"b-"
+            #if bins[3]=="2":
+            #    name+="cr"
+            #else:
+            #    name+="sr"
+            #name+="="
+
             for year in years:
-                baseStringComb     += "CombinationSlices_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-                baseStringFitSlice += "FitSlice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-                baseStringHTslice  += "HTslice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                baseStringComb     += name+"CombinationSlices_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                baseStringFitSlice += name+"FitSlice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                baseStringHTslice  += name+"HTslice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
             baseStringComb     += "> CombinationSlices_Wprime"+bins+"_all_M"+massString+".txt"
             baseStringFitSlice += "> FitSlice_Wprime"+bins+"_all_M"+massString+".txt"
             baseStringHTslice  += "> HTslice_Wprime"+bins+"_all_M"+massString+".txt"
@@ -197,11 +208,24 @@ for mass in range(0,9):
         baseStringComb     = "combineCards.py "
         baseStringFitSlice = "combineCards.py "
         baseStringHTslice  = "combineCards.py "
-        for i in range(0,3):
+        for i in range(0,2):
             for bins in binS[i]:
-                baseStringComb     += "CombinationSlices_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-                baseStringFitSlice += "FitSlice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-                baseStringHTslice  += "HTslice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                #assemble naming string
+                name = ""
+                #if bins[0]=="1":
+                #    name+="mu"
+                #elif bins[0]=="2":
+                #    name+="e"
+                #name+="-"+bins[2]+"j-"+bins[3]+"b-"
+                #if bins[3]=="2":
+                #    name+="cr"
+                #else:
+                #    name+="sr"
+                #name+="="
+
+                baseStringComb     += name+"CombinationSlices_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                baseStringFitSlice += name+"FitSlice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                baseStringHTslice  += name+"HTslice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
         baseStringComb     += "> CombinationSlices_WprimeAll_"+year+"_M"+massString+".txt"
         baseStringFitSlice += "> FitSlice_WprimeAll_"+year+"_M"+massString+".txt"
         baseStringHTslice  += "> HTslice_WprimeAll_"+year+"_M"+massString+".txt"
@@ -226,38 +250,38 @@ for mass in range(0,9):
     
     #full combination
     if not skipSlicing:
-        os.system("combineCards.py CombinationSlices_WprimeAll_2016_M"+massString+".txt CombinationSlices_WprimeAll_2017_M"+massString+".txt CombinationSlices_WprimeAll_2018_M"+massString+".txt > Optimized_WprimeAll_all_M"+massString+".txt")
+        os.system("combineCards.py CombinationSlices_WprimeAll_2016_M"+massString+".txt CombinationSlices_WprimeAll_2016apv_M"+massString+".txt CombinationSlices_WprimeAll_2017_M"+massString+".txt CombinationSlices_WprimeAll_2018_M"+massString+".txt > Optimized_WprimeAll_all_M"+massString+".txt")
 
         #make a folder to copy this masspoints interpretation files to in totality
-        if not os.path.isdir(b2gpath+folder+"/"+massString):
-            os.system("mkdir "+b2gpath+folder+"/"+massString)
-        else:
-            os.system("rm -rf "+b2gpath+folder+"/"+massString)
-            os.system("mkdir "+b2gpath+folder+"/"+massString)
+        #if not os.path.isdir(b2gpath+folder+"/"+massString):
+        #    os.system("mkdir "+b2gpath+folder+"/"+massString)
+        #else:
+        #    os.system("rm -rf "+b2gpath+folder+"/"+massString)
+        #    os.system("mkdir "+b2gpath+folder+"/"+massString)
 
-        print("card ",os.path.exists("Optimized_WprimeAll_all_M"+massString+".txt"))
-        card = open("Optimized_WprimeAll_all_M"+massString+".txt","r")
-        lines = card.readlines()
-        rootfiles = []
-        for line in lines:
-            lineSplit = line.split()
-            for lineS in lineSplit:
-                if lineS.find(".root") > -1:
-                    rootfiles.append(lineS)
+        #print("card ",os.path.exists("Optimized_WprimeAll_all_M"+massString+".txt"))
+        #card = open("Optimized_WprimeAll_all_M"+massString+".txt","r")
+        #lines = card.readlines()
+        #rootfiles = []
+        #for line in lines:
+        #    lineSplit = line.split()
+        #    for lineS in lineSplit:
+        #        if lineS.find(".root") > -1:
+        #            rootfiles.append(lineS)
 
         #copy all root files in final card
-        for rootfile in rootfiles:
-            print(rootfile,os.path.exists(rootfile))
-            print("cp "+rootfile+" "+b2gpath+folder+"/"+massString+"/.")
-            os.system("cp "+rootfile+" "+b2gpath+folder+"/"+massString+"/.")
-            print(os.path.exists(b2gpath+folder+"/"+massString+"/"+rootfile))
+        #for rootfile in rootfiles:
+        #    print(rootfile,os.path.exists(rootfile))
+        #    print("cp "+rootfile+" "+b2gpath+folder+"/"+massString+"/.")
+        #    os.system("cp "+rootfile+" "+b2gpath+folder+"/"+massString+"/.")
+        #    print(os.path.exists(b2gpath+folder+"/"+massString+"/"+rootfile))
 
         #copy current cards and final card
-        copyString = "cp "
-        for card in AllCards:
-            copyString += card
-        print(copyString +b2gpath+folder+"/"+massString+"/.")
-        os.system(copyString +b2gpath+folder+"/"+massString+"/.")
+        #copyString = "cp "
+        #for card in AllCards:
+        #    copyString += card
+        #print(copyString +b2gpath+folder+"/"+massString+"/.")
+        #os.system(copyString +b2gpath+folder+"/"+massString+"/.")
     #print("cp CombinationSlices_Wprime1153_2016_M"+massString+".txt CombinationSlices_Wprime1153_2017_M"+massString+".txt CombinationSlices_Wprime1153_2018_M"+massString+".txt CombinationSlices_Wprime2153_2016_M"+massString+".txt CombinationSlices_Wprime2153_2017_M"+massString+".txt CombinationSlices_Wprime2153_2018_M"+massString+".txt CombinationSlices_Wprimex153_all_M"+massString+".txt CombinationSlices_Wprime1163_2016_M"+massString+".txt CombinationSlices_Wprime1163_2017_M"+massString+".txt CombinationSlices_Wprime1163_2018_M"+massString+".txt CombinationSlices_Wprime2163_2016_M"+massString+".txt CombinationSlices_Wprime2163_2017_M"+massString+".txt CombinationSlices_Wprime2163_2018_M"+massString+".txt CombinationSlices_Wprimex163_all_M"+massString+".txt CombinationSlices_Wprime1164_2016_M"+massString+".txt CombinationSlices_Wprime1164_2017_M"+massString+".txt CombinationSlices_Wprime1164_2018_M"+massString+".txt CombinationSlices_Wprime2164_2016_M"+massString+".txt CombinationSlices_Wprime2164_2017_M"+massString+".txt CombinationSlices_Wprime2164_2018_M"+massString+".txt CombinationSlices_Wprimex164_all_M"+massString+".txt Optimized_WprimeAll_all_M"+massString+".txt "+b2gpath+folder+"/"+massString+"/.")
     #os.system("cp CombinationSlices_Wprime1153_2016_M"+massString+".txt CombinationSlices_Wprime1153_2017_M"+massString+".txt CombinationSlices_Wprime1153_2018_M"+massString+".txt CombinationSlices_Wprime2153_2016_M"+massString+".txt CombinationSlices_Wprime2153_2017_M"+massString+".txt CombinationSlices_Wprime2153_2018_M"+massString+".txt CombinationSlices_Wprimex153_all_M"+massString+".txt CombinationSlices_Wprime1163_2016_M"+massString+".txt CombinationSlices_Wprime1163_2017_M"+massString+".txt CombinationSlices_Wprime1163_2018_M"+massString+".txt CombinationSlices_Wprime2163_2016_M"+massString+".txt CombinationSlices_Wprime2163_2017_M"+massString+".txt CombinationSlices_Wprime2163_2018_M"+massString+".txt CombinationSlices_Wprimex163_all_M"+massString+".txt CombinationSlices_Wprime1164_2016_M"+massString+".txt CombinationSlices_Wprime1164_2017_M"+massString+".txt CombinationSlices_Wprime1164_2018_M"+massString+".txt CombinationSlices_Wprime2164_2016_M"+massString+".txt CombinationSlices_Wprime2164_2017_M"+massString+".txt CombinationSlices_Wprime2164_2018_M"+massString+".txt CombinationSlices_Wprimex164_all_M"+massString+".txt Optimized_WprimeAll_all_M"+massString+".txt "+b2gpath+folder+"/"+massString+"/.")
 
@@ -285,8 +309,8 @@ yearsToProduce.append("all")
 
 binsToProduce = []
 for entry in binS:
-    binsToProduce.append(entry[0])
-    binsToProduce.append(entry[1])
+    for ent in entry:
+        binsToProduce.append(ent)
 binsToProduce.append("All")
 
 CardNamesToProduce = ["CombinationSlices", "FitSlice", "HTslice"]

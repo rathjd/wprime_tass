@@ -76,8 +76,10 @@ NLLvals = [["ttbar",      0., 0., 1., 1.],
            ["single_top", 0., 0., 1., 1.],
            ["diboson",    0., 0., 1., 1.]]
 
+HTnorm = 0
+FitNorm = 0
+
 #load file with 2D distributions and get filenames
-inFileSF = TFile(directory+"Combination/SF_Bin"+binNr[0:3]+"2_"+year+".root","READ")
 inFile = TFile(directory+"Combination/TwoD_SimpleShapes_"+"Wprime"+binNr+"_"+year+".root","READ")
 
 FileContent = [key.GetName() for key in gDirectory.GetListOfKeys()]
@@ -119,6 +121,7 @@ for content in FileContent:
       ProjHT = HT.ProjectionX(keyname, binSplit+1, binEnd)
       outFileHT.cd()
       ProjHT = SuppressNegBins(ProjHT)
+      HTnorm = ProjHT.Integral()
       ProjHT.Write()
   elif content.find("FitMass_data_obs_") > -1:
       Fit = inFile.Get(content)
@@ -127,23 +130,8 @@ for content in FileContent:
       ProjFit = Fit.ProjectionX(keyname, 0, binSplit)
       outFileFit.cd()
       ProjFit = SuppressNegBins(ProjFit)
+      FitNorm = ProjFit.Integral()
       ProjFit.Write()
-  elif content.find("NegLogLnoBvsNegLogL_") > -1: #calculate the NLL nonclosure uncertainty by cutting on -log(L), getting the corresponding -log(L)!b values, then multiply with the residuals
-      NLL = inFile.Get(content)
-      ProjNLLFit = NLL.ProjectionX("NLLFit", 0,          binSplit)
-      NLLFitVal = ProjNLLFit.Integral()
-      ProjNLLHT  = NLL.ProjectionX("NLLHT",  binSplit+1, binEnd)
-      NLLHTval = ProjNLLHT.Integral()
-      for bgr in NLLvals:
-          if content.find(bgr[0]) > -1:
-              NLLres = inFileSF.Get("NLLresidual_"+binNr[0:3]+"2_"+year+"_M"+mass)
-              ProjNLLFit.Multiply(NLLres)
-              if NLLFitVal > 0:
-                  bgr[1] = ProjNLLFit.Integral()/NLLFitVal
-              ProjNLLHT.Multiply(NLLres)
-              if NLLHTval > 0:
-                  bgr[2] = ProjNLLHT.Integral()/NLLHTval
-
 
 #close files
 outFileHT.Close()
@@ -165,6 +153,8 @@ for FitLine in FitLines:
       FitLine = FitLine.replace("SimpleShapes","FitSlices")
       FitLine = FitLine.replace("$PROCESS","Fit_$PROCESS")
       FitLine = FitLine.replace(year+".root",year+"_M"+mass+".root")
+  if FitLine.find("observation") > -1:
+      FitLine = "observation "+str(FitNorm)+"\n"
   if FitLine.find("bin") > -1: #give it an exclusive bin name
       FitLine = FitLine.replace("Wprime", "WprimeFit")
   if FitLine.find("rate") > -1: #deactivate empty backgrounds
@@ -186,30 +176,6 @@ for FitLine in FitLines:
                   FitLine = FitLine[0:currentPos] + FitLine[currentPos:currentPos+2].replace(val,newString) + FitLine[currentPos+2:]
               bgrIt += 1
               startPos = newStartPos
-  if FitLine.find("NLLnonClosure") > -1:
-      vals = FitLine.split()
-      startPos = 0
-      bgrIt = 0
-      for val in vals:
-          try:
-              float(val)
-          except:
-              continue
-          if startPos == 0: #case of signal point, no unc., so ignore
-              startPos = FitLine.find(val)+1
-          else: #all backgrounds, in order
-              newStartPos = FitLine[startPos:].find(val)+len(val)+1+startPos
-              currentPos = FitLine[startPos:].find(val)+startPos
-              newString = str(NLLvals[bgrIt][1])
-              if float(newString) < 0: #except negative values, defaulting this to no uncertainty
-                  newString = "-"
-              if len(newString) > 4:
-                  newString = newString[0:4]
-              while len(newString) < len(val):
-                  newString += " "
-              FitLine = FitLine[0:currentPos] + FitLine[currentPos:currentPos+len(newString)].replace(val,newString) + FitLine[currentPos+len(newString):]
-              bgrIt += 1
-              startPos = newStartPos
   newFitLines += FitLine
 
 FitCardOut.writelines(newFitLines)
@@ -223,6 +189,8 @@ for HTline in HTlines:
   if HTline.find("SimpleShapes") > -1: #make it find the right input files and histograms
       HTline = HTline.replace("HT_SimpleShapes","HTslices")
       HTline = HTline.replace(year+".root",year+"_M"+mass+".root")
+  if HTline.find("observation") > -1:
+      HTline = "observation "+str(HTnorm)+"\n"
   if HTline.find("bin") > -1: #give it an exclusive bin name
       HTline = HTline.replace("Wprime", "WprimeHT")
   if HTline.find("rate") > -1: #deactivate empty backgrounds
@@ -244,30 +212,6 @@ for HTline in HTlines:
                   HTline = HTline[0:currentPos] + HTline[currentPos:currentPos+2].replace(val,newString) + HTline[currentPos+2:]
               bgrIt += 1
               startPos = newStartPos
-  if HTline.find("NLLnonClosure") > -1:
-      vals = HTline.split()
-      startPos = 0
-      bgrIt = 0
-      for val in vals:
-          try:
-              float(val)
-          except:
-              continue
-          if startPos == 0: #case of signal point, no unc., so ignore
-              startPos = HTline.find(val)+1
-          else: #all backgrounds, in order
-              newStartPos = HTline[startPos:].find(val)+len(val)+1+startPos
-              currentPos = HTline[startPos:].find(val)+startPos
-              newString = str(NLLvals[bgrIt][2])
-              if float(newString) < 0: #except negative values, defaulting this to no uncertainty
-                  newString = "-"
-              if len(newString) > 4:
-                  newString = newString[0:4]
-              while len(newString) < len(val):
-                  newString += " "
-              HTline = HTline[0:currentPos] + HTline[currentPos:currentPos+len(newString)].replace(val,newString) + HTline[currentPos+len(newString):]
-              bgrIt += 1
-              startPos = newStartPos
   newHTlines += HTline
 
 HTcardOut.writelines(newHTlines)
@@ -279,4 +223,3 @@ os.system("combineCards.py "+directory+"Combination/FitSlice_Wprime"+binNr+"_"+y
 
 #close input files
 inFile.Close()
-inFileSF.Close()

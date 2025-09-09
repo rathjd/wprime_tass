@@ -5,9 +5,9 @@ import cmsstyle as CMS
 
 binS = "All"
 
-year = "2017"
+year = "all"
 
-cardName = "Combination"
+cardName = "Optimized"
 
 cardNameOptions = ["FitMass", "HT", "Combination", "FitSlice", "HTslice", "Optimized", "CombinationSlices"]
 
@@ -75,7 +75,7 @@ else:
     Lepton = ""
 
 if binS == "All":
-    Lepton = "e/#mu, 5-6j, and 3-4b tags"
+    Lepton = "e/#mu, 5-6j, and 2-4b tags"
     YearS = year
 else:
     Jets  = binS[2]+"j and "
