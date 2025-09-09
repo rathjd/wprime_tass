@@ -1,0 +1,15 @@
+executable   = SubmitImpactsCRsOnly.sh
+arguments    = $(ProcID)
+max_retries  = 1
+batch_name   = SubmitImpactsCRsOnly_$(ProcID)
+output       = SubmitImpactsCRsOnly_$(ProcID).out
+error        = SubmitImpactsCRsOnly_$(ProcID).err
+log          = SubmitImpactsCRsOnly_$(ProcID).log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "testmatch"
+RequestCpus  = 8
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 9
+
