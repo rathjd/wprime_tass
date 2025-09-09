@@ -1,0 +1,15 @@
+executable   = SubmitGoFtestCRsOnly.sh
+arguments    = $(ProcID)
+max_retries  = 1
+batch_name   = SubmitGoFtestCRsOnly_$(ProcID)
+output       = SubmitGoFtestCRsOnly_$(ProcID).out
+error        = SubmitGoFtestCRsOnly_$(ProcID).err
+log          = SubmitGoFtestCRsOnly_$(ProcID).log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "testmatch"
+RequestCpus  = 8
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 9
+

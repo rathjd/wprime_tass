@@ -1,0 +1,15 @@
+executable   = SubmitGoFtestMasked.sh
+arguments    = $(ProcID)
+max_retries  = 1
+batch_name   = SubmitGoFtestMasked_$(ProcID)
+output       = SubmitGoFtestMasked_$(ProcID).out
+error        = SubmitGoFtestMasked_$(ProcID).err
+log          = SubmitGoFtestMasked_$(ProcID).log
+universe     = vanilla
+Requirements = (OpSysAndVer =?= "AlmaLinux9")
++JobFlavour  = "testmatch"
+RequestCpus  = 8
+stream_error = True
+periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
+queue 9
+
