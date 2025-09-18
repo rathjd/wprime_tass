@@ -17,16 +17,16 @@ print("text2workspace.py Combination/CRslices_WprimeAll2tag_all_M"+str(mass)+".t
 os.system("text2workspace.py Combination/CRslices_WprimeAll2tag_all_M"+str(mass)+".txt -o workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root")
 
 #run initial fit, blinded by using Asimov datasets (-t -1)
-print("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -t -1 -m "+str(mass)+" --doInitialFit --expectSignal 0 --robustFit 1 --parallel 8")
-os.system("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -t -1 -m "+str(mass)+" --doInitialFit --expectSignal 0 --robustFit 1 --parallel 8")
+print("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -t -1 -m "+str(mass)+" --doInitialFit --rMin -10 --rMax 10 --robustFit 1 --parallel 8 --cminDefaultMinimizerStrategy 0")
+os.system("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -t -1 -m "+str(mass)+" --doInitialFit --rMin -10 --rMax 10 --robustFit 1 --parallel 8 --cminDefaultMinimizerStrategy 0")
 
 #run full fits with 500 toys, blinded by using Asimov datasets (-t -1)
-print("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -t -1 -m "+str(mass)+" --doFits --robustFit 1 --expectSignal 0 --parallel 8")
-os.system("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -t -1 -m "+str(mass)+" --doFits --robustFit 1 --expectSignal 0 --parallel 8")
+print("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -t -1 -m "+str(mass)+" --doFits --rMin -10 --rMax 10 --robustFit 1 --parallel 8 --cminDefaultMinimizerStrategy 0")
+os.system("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -t -1 -m "+str(mass)+" --doFits --rMin -10 --rMax 10 --robustFit 1 --parallel 8 --cminDefaultMinimizerStrategy 0")
 
 #produce impact outputs
-print("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -m "+str(mass)+" --output impacts_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".json")
-os.system("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -m "+str(mass)+" --output impacts_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".json")
+print("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -m "+str(mass)+" --rMin -10 --rMax 10 --output impacts_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".json")
+os.system("combineTool.py -M Impacts -d workspace_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".root -m "+str(mass)+" --rMin -10 --rMax 10 --output impacts_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".json")
 
 #produce actual plots
 print("plotImpacts.py -i impacts_CRsOnly_WprimeAll2tag_all_M"+str(mass)+".json -o impacts_CRsOnly_WprimeAll2tag_all_M"+str(mass))

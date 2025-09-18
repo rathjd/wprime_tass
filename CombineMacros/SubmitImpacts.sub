@@ -7,9 +7,9 @@ error        = SubmitImpacts_$(ProcID).err
 log          = SubmitImpacts_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour  = "testmatch"
++JobFlavour  = "tomorrow"
 RequestCpus  = 8
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
-queue 9
+queue 1
 
