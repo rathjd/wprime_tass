@@ -211,9 +211,9 @@ legend2.Draw()
 canvas.Update()
 
 savefile.cd()
-TwoSigmaGraph.Write()
-OneSigmaGraph.Write()
-CentralGraph.Write()
+TwoSigmaGraph.Write("TwoSigmaBand")
+OneSigmaGraph.Write("OneSigmaBand")
+CentralGraph.Write("Expected")
 
 CMS.SaveCanvas(canvas, "Limit_"+cardName+"_Wprime"+binS+"_"+year+".pdf")
 #canvas.SaveAs(cardName+"_"+binS+"_"+year+".pdf")
