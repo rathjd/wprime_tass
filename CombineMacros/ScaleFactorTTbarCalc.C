@@ -33,7 +33,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   }
 
   //set variation size
-  unsigned varSize = 53; //note that this is hardcoded as a crosscheck
+  unsigned varSize = 45; //note that this is hardcoded as a crosscheck
 
   //loop over samples, organizing data, ttbar, and non-ttbar with variations
   for(unsigned sam = 0; sam < 27; ++sam){
