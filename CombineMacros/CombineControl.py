@@ -54,9 +54,13 @@ if binString[0:3] == "116":
 elif binString[0:3] == "216":
     regName = "e6j1b"
 
+#deal with 2016apv uncertainties being 2016 in type very often
+simpYearName = yearName
+
 #change year name string for 2016_APV to the Sifu-scheme-complian 2016apv for further processing
 if yearName == "2016_APV":
     yearName = "2016apv"
+    simpYearName = "2016"
 
 print(bins)
 
@@ -92,17 +96,26 @@ for binN in bins:
   #define correlated entities for usage in card
   #https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun2#Combination_and_correlations is now a shape uncertainty built into histograms in the file
 
+  #define nested lnN uncertainty dictionary
+  lnNdict = {"lumi_13TeV_correlated": {"2016": "1.006", "2016apv": "1.006", "2017": "1.009", "2018": "1.02"},
+             "lumi_13TeV_1718":       {"2016": "-",     "2016apv": "-",     "2017": "1.006", "2018": "1.002"},
+             "lumi_2016":             {"2016": "1.01",  "2016apv": "1.01",  "2017": "-",     "2018": "-"},
+             "lumi_2017":             {"2016": "-",     "2016apv": "-",     "2017": "1.02",  "2018": "-"},
+             "lumi_2018":             {"2016": "-",     "2016apv": "-",     "2017": "-",     "2018": "1.015"},
+             "CMS_eff_e_HLTzvtx_17":  {"2016": "-",     "2016apv": "-",     "2017": "1.001", "2018": "-"}
+            }
+
   B2Gn = "xxyyy" #FIXME: tbd once cadi line number is assigned
   systMaster = [#lumi and generic normalization uncertainties
-                ["lumi_13TeV_correlated",                               "shape", "1"],
-                ["lumi_13TeV_1718",                                     "shape", "-"],
-                ["lumi_"+yearName       ,                               "shape", "1"],
-                ["CMS_eff_e_HLTzvtx_17",                                "shape", "-"],
+                ["lumi_13TeV_correlated",                               "lnN", "-"],
+                ["lumi_13TeV_1718",                                     "lnN", "-"],
+                ["lumi_"+simpYearName       ,                           "lnN", "-"],
+                ["CMS_eff_e_HLTzvtx_17",                                "lnN", "-"],
 
                 #event weight variation uncertainties
-                ["CMS_eff_e_trigger_"+yearName,                         "shape", "1"],
-                ["CMS_eff_e_reco_"+yearName,                            "shape", "1"],
-                ["CMS_eff_e_"+yearName,                                 "shape", "1"],
+                ["CMS_eff_e_trigger",                                   "shape", "1"],
+                ["CMS_eff_e_reco",                                      "shape", "1"],
+                ["CMS_eff_e",                                           "shape", "1"],
                 ["CMS_eff_m_trigger_"+yearName,                         "shape", "1"],
                 ["CMS_eff_m_id_"+yearName,                              "shape", "1"],
                 ["CMS_eff_m_iso_"+yearName,                             "shape", "1"],
@@ -131,8 +144,8 @@ for binN in bins:
                 #["QCDscale_signal",                                     "shape", "-"],
                 
                 #object pT variation uncertainties
-                ["CMS_scale_e_"+yearName,                               "lnN",   "1"],
-                ["CMS_res_e_"+yearName,                                 "shape", "1"],
+                ["CMS_scale_e",                                         "lnN",   "1"],
+                ["CMS_res_e",                                           "shape", "1"],
                 ["CMS_scale_j_"+yearName,                               "shape", "1"],
                 ["CMS_res_j_"+yearName,                                 "shape", "1"],
 
@@ -239,32 +252,10 @@ for binN in bins:
           #print(j, systMaster[j])
           if allNames[i] == "ttbar" and systLines[j].find("STfit") > -1:
             systLines[j] += systMaster[j][2].replace("-","1") #activate ST fit uncertainty for ttbar only in the card
-          #elif allNames[i] != signalNames[0] and systLines[j].find("NLLnonClosure") > -1: #NLL non-closure systematic for all backgrounds
-          #  NLLresF = ROOT.TFile.Open(eospath + "/" + fileName + "/SF_Bin" + binName[6:9] + "2" + binName[10:] + ".root", "read")
-          #  NLLresH = NLLresF.Get("NLLresidual_" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100))
-          #  NLLH    = r.Get("NegLogLnoB_" + allNames[i] + "_" + binName + "_M" + str(massBin*100) + "_")
-          #  NLLresH.Multiply(NLLH)
-          #  if NLLH.Integral() == 0:
-          #    systLines[j] += systMaster[j][2]
-          #    continue
-          #  ratio = str(NLLresH.Integral(0,-1)/NLLH.Integral(0,-1))
-          #  dot = ratio.find(".")
-          #  if dot >= 0:
-          #    systLines[j] += systMaster[j][2].replace("-",ratio[0:dot+3]) #limit precision to keep cards readable
-          #  else:
-          #    systLines[j] += systMaster[j][2].replace("-",ratio)
           elif systMaster[j][0].find(allNames[i]) > -1: #activate ISR/FSR and PDF uncertainties only specific background samples
             systLines[j] += systMaster[j][2].replace("-","1")
-          #elif allNames[i] == "ttbar" and systLines[j].find("pdf_B2G") > -1:  #activate correlation of PDF uncertainties via ST SF to ttbar estimate
-          #  systLines[j] += systMaster[j][2].replace("-","1")
-          #elif allNames[i] == "ttbar" and systLines[j].find("QCDscale") > -1: #activate correlation of factorization and renormalization uncertainties via ST SF to ttbar estimate
-          #  systLines[j] += systMaster[j][2].replace("-","1")
-          #elif systMaster[j][0].find("signal") > -1 and allNames[i] == signalNames[0]: #activate ISR/FSR and PDF uncertainties for signal
-          #  systLines[j] += systMaster[j][2].replace("-","1") 
-          elif systMaster[j][0].find("HLTzvtx") > -1 and binString[0] == "2" and yearName == "2017": #activate HLT Zvtx unvertainties only for electron channels only in 2017
-            systLines[j] += systMaster[j][2].replace("-","1")
-          elif systMaster[j][0].find("_1718") > -1 and (yearName == "2017" or yearName == "2018"): #activate the correlated luminosity uncertainty in 2017/2018 only in the relevant cards
-            systLines[j] += systMaster[j][2].replace("-","1")
+          elif systMaster[j][0] in lnNdict:
+            systLines[j] += systMaster[j][2].replace("-",lnNdict[systMaster[j][0]][yearName])
           else:
             systLines[j] += systMaster[j][2]
           currentLength = max(currentLength, len(systLines[j]))

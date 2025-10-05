@@ -118,7 +118,7 @@ void CombineHistogramDumpsterRvec::Loop()
   bool IsSF_ttbar = Iterator >= 2 && Iterator <= 7 && SFreg != 0;
 
   //Declare hardcoded what the size of the systematics variations is:
-  unsigned varSize = 53;
+  unsigned varSize = 45;
   unsigned varOff  = IsSF_ttbar ? 18 : 0; //prepend offdiagonal uncertainties with special handling, if required
 
   //assemble histograms with variations for Fit mass, HT, 2D Fit mass vs NLL, 2D HT vs NLL, looping over the mass interpretations from 300 GeV to 1.1 TeV
@@ -397,6 +397,8 @@ void CombineHistogramDumpsterRvec::Loop()
       else if (year == 2018){
         if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
       }
+      //additional ST cut test
+      if(STvals[i] < 400.) continue;
 
       float EvWeight = EventWeight[0];
       if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
@@ -430,6 +432,9 @@ void CombineHistogramDumpsterRvec::Loop()
       else if (year == 2018){
         if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 32.) continue;
       }
+      //additional ST cut test
+      if(STvals[0] < 400.) continue;
+
       float EvWeight = 1.;
       if     (i == varSize-8)    EvWeight += LumiCorrVal;
       else if(i == varSize-7)    EvWeight -= LumiCorrVal;
@@ -509,6 +514,8 @@ void CombineHistogramDumpsterRvec::Loop()
 	else if (year == 2018){
           if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
         }
+	//additional ST cut test
+        if(STvals[i] < 400.) continue;
 
         //FIXME: Additional Lepton cuts
         /*if(i != 1 && i != 2 && i != 3 && i != 4 && LeptonPt < 40.) continue;
@@ -611,6 +618,8 @@ void CombineHistogramDumpsterRvec::Loop()
 	else if (year == 2018){
           if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 32. ) continue;
         }
+	//additional ST cut test
+        if(STvals[0] < 400.) continue;
 
         //EventWeight variations
         for(unsigned i = 9; i < varSize + varOff; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)

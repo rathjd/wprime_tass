@@ -7,15 +7,15 @@
 TString Systematics(unsigned index, TString YearS, TString sampleType, TString B2Gn, bool offdiagonal = false){
   vector<TString> variations = {"", //0: nominal
           //object pT variation uncertainties
-          TString("CMS_scale_e_")                  +YearS+"Up", TString("CMS_scale_e_")                  +YearS+"Down",  //1-2:   electron energy scale pT variation (on data)
-          TString("CMS_res_e_")                    +YearS+"Up", TString("CMS_res_e_")                    +YearS+"Down",  //3-4:   electron energy resolution pT variation
+          TString("CMS_scale_e_")                        +"Up", TString("CMS_scale_e_")                        +"Down",  //1-2:   electron energy scale pT variation (on data)
+          TString("CMS_res_e_")                          +"Up", TString("CMS_res_e_")                          +"Down",  //3-4:   electron energy resolution pT variation
           TString("CMS_scale_j_")                  +YearS+"Up", TString("CMS_scale_j_")                  +YearS+"Down",  //5-6:   jet energy scale pT variation
           TString("CMS_res_j_")                    +YearS+"Up", TString("CMS_res_j_")                    +YearS+"Down",  //7-8:   jet energy resolution pT variation
 
           //event weight variation uncertainties
-          TString("CMS_eff_e_trigger_")            +YearS+"Up", TString("CMS_eff_e_trigger_")            +YearS+"Down",  //9-10:  electron trigger efficiency variation, including HLT Zvtx for 2017
-          TString("CMS_eff_e_reco_")               +YearS+"Up", TString("CMS_eff_e_reco_")               +YearS+"Down",  //11-12: electron reconstruction efficiency variation
-          TString("CMS_eff_e_")                    +YearS+"Up", TString("CMS_eff_e_")                    +YearS+"Down",  //13-14: electron ID (including ISO) variation
+          TString("CMS_eff_e_trigger_")                  +"Up", TString("CMS_eff_e_trigger_")                  +"Down",  //9-10:  electron trigger efficiency variation, including HLT Zvtx for 2017
+          TString("CMS_eff_e_reco_")                     +"Up", TString("CMS_eff_e_reco_")                     +"Down",  //11-12: electron reconstruction efficiency variation
+          TString("CMS_eff_e_")                          +"Up", TString("CMS_eff_e_")                          +"Down",  //13-14: electron ID (including ISO) variation
           TString("CMS_eff_m_trigger_")            +YearS+"Up", TString("CMS_eff_m_trigger_")            +YearS+"Down",  //15-16: muon trigger efficiency variation
           TString("CMS_eff_m_id_")                 +YearS+"Up", TString("CMS_eff_m_id_")                 +YearS+"Down",  //17-18: muon ID efficiency variation
           TString("CMS_eff_m_iso_")                +YearS+"Up", TString("CMS_eff_m_iso_")                +YearS+"Down",  //19-20: muon ISO efficiency variation
@@ -33,10 +33,10 @@ TString Systematics(unsigned index, TString YearS, TString sampleType, TString B
           TString("ps_fsr")                              +"Up", TString("ps_fsr")                              +"Down",  //43-44: PS FSR uncertainty
 
           //uncertainties CombineHistogramDumpster takes care of, since they are hardcoded numbers
-          TString("lumi_13TeV_correlated")               +"Up", TString("lumi_13TeV_correlated")               +"Down",  //45-46: correlated luminosity variation for 13 TeV
+          /*TString("lumi_13TeV_correlated")               +"Up", TString("lumi_13TeV_correlated")               +"Down",  //45-46: correlated luminosity variation for 13 TeV
           TString("lumi_13TeV_1718")                     +"Up", TString("lumi_13TeV_1718")                     +"Down",  //47-48: correlation luminosity variation for 2017 and 2018
           TString("lumi_")                         +YearS+"Up", TString("lumi_")                         +YearS+"Down",  //49-50: uncorrelated luminosity variation by year
-          TString("CMS_eff_e_HLTzvtx_17")                +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //51-52: 2017 only electron Z vtx window of HLT inefficiency uncertainty
+          TString("CMS_eff_e_HLTzvtx_17")                +"Up", TString("CMS_eff_e_HLTzvtx_17")                +"Down"   //51-52: 2017 only electron Z vtx window of HLT inefficiency uncertainty*/
   };
 
   vector<TString> offvariations = {

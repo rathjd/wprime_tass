@@ -61,23 +61,20 @@ void CombineHistogramDumpster::Loop()
   TF1 SFparDown, SFparUp;
   vector<TMatrixD> SFcovs;
 
-  //define luminosity uncertainties depending on the year
-  float LumiCorrVal = 0.0;
-  float LumiStatVal = 0.0;
-  float Lumi1718Val = 0.0;
-
   //define electron HLT inefficiency Zvtx uncertainty
   float EleHLTzvtx = 1.;
-  float EleHLTzvtxUnc = 0.0;
+
+  //define size of pT systematics block
+  unsigned sizePtSysts = 8;
 
   //set sample weight
   int Year = 0;
   int year = 0;
   float Lumi = 0.;
-  if(YearType == "2016_APV")  {Year = 0; year = 2016; Lumi = 19.52; LumiCorrVal = 0.006; LumiStatVal = 0.01;}
-  else if(YearType == "2016") {Year = 1; year = 2016; Lumi = 16.81; LumiCorrVal = 0.006; LumiStatVal = 0.01;}
-  else if(YearType == "2017") {Year = 2; year = 2017; Lumi = 41.48; LumiCorrVal = 0.009; LumiStatVal = 0.02;  EleHLTzvtx = 0.991; EleHLTzvtxUnc = 0.001;  Lumi1718Val = 0.006;}
-  else if(YearType == "2018") {Year = 3; year = 2018; Lumi = 59.83; LumiCorrVal = 0.02;  LumiStatVal = 0.015; Lumi1718Val = 0.002;}
+  if(YearType == "2016_APV")  {Year = 0; year = 2016; Lumi = 19.52;}
+  else if(YearType == "2016") {Year = 1; year = 2016; Lumi = 16.81;}
+  else if(YearType == "2017") {Year = 2; year = 2017; Lumi = 41.48; EleHLTzvtx = 0.991;}
+  else if(YearType == "2018") {Year = 3; year = 2018; Lumi = 59.83;}
   float SampleWeight = 1.;
   if(dset.Type != 0){
     SampleWeight = Lumi * dset.CrossSection / dset.Size[Year];
@@ -119,7 +116,7 @@ void CombineHistogramDumpster::Loop()
   bool IsSF_ttbar = Iterator >= 2 && Iterator <= 7 && SFreg != 0;
 
   //Declare hardcoded what the size of the systematics variations is:
-  unsigned varSize = 53;
+  unsigned varSize = 45;
 
   //assemble histograms with variations for Fit mass, HT, 2D Fit mass vs NLL, 2D HT vs NLL, looping over the mass interpretations from 300 GeV to 1.1 TeV
   vector<vector<TString> > variationsName, HTvariationsName, FitMass2Dnames, HT2Dnames;
@@ -378,7 +375,7 @@ void CombineHistogramDumpster::Loop()
 
     //mass-interpretation-independent variables
     //variation of selections
-    for(unsigned i = 0; i < 9; ++ i){
+    for(unsigned i = 0; i < sizePtSysts + 1; ++ i){
       if(RegionIdentifier[i] != bin) continue;
       //additional 2017 lepton pT cut
       if(year == 2017){
@@ -388,6 +385,8 @@ void CombineHistogramDumpster::Loop()
       else if (year == 2018){
         if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
       }
+      //additional ST cut test
+      if(STvals[i] < 400.) continue;
 
       float EvWeight = EventWeight[0];
       if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
@@ -419,7 +418,7 @@ void CombineHistogramDumpster::Loop()
     //std::cout<<"stage 2"<<std::endl;
 
     //variation of systematic events weights
-    if(RegionIdentifier[0] == bin) for(unsigned i = 9; i < varSize; ++i){
+    if(RegionIdentifier[0] == bin) for(unsigned i = sizePtSysts+1; i < varSize; ++i){
       //additional 2017 lepton pT cut
       if(year == 2017){
         if(RegionIdentifier[0]/1000 == 1 && LeptonPtVars[0] < 30.) continue;
@@ -428,25 +427,19 @@ void CombineHistogramDumpster::Loop()
       else if (year == 2018){
         if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 32.) continue;
       }
+      //additional ST cut test
+      if(STvals[0] < 400.) continue;
+
       float EvWeight = 1.;
-      if     (i == varSize-8)    EvWeight += LumiCorrVal;
-      else if(i == varSize-7)    EvWeight -= LumiCorrVal;
-      else if(i == varSize-6)    EvWeight += Lumi1718Val;
-      else if(i == varSize-5)    EvWeight -= Lumi1718Val;
-      else if(i == varSize-4)    EvWeight += LumiStatVal;
-      else if(i == varSize-3)    EvWeight -= LumiStatVal;
 
-
-      //block for HLT z vtx inefficiency correction and variation in 2017 only for electron channel only
+      //block for HLT z vtx inefficiency correction in 2017 only for electron channel only
       if(YearS == "2017" && bin/1000 == 2){
-	if     (i == varSize-2)  EvWeight *= EleHLTzvtx+EleHLTzvtxUnc;
-        else if(i == varSize-1)  EvWeight *= EleHLTzvtx-EleHLTzvtxUnc;
-	else                     EvWeight *= EleHLTzvtx;
+	EvWeight *= EleHLTzvtx;
       }
 
       //make sure to get the correct event weight, either a variation or the central
-      if(i < varSize-8)	EvWeight *= EventWeight[i-8];// >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
-      else		EvWeight *= EventWeight[0]; //normalization variation normal
+      if(i < varSize-sizePtSysts)	EvWeight *= EventWeight[i-sizePtSysts];// >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
+      else				EvWeight *= EventWeight[0]; //normalization variation normal
       
       const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
 
@@ -497,7 +490,7 @@ void CombineHistogramDumpster::Loop()
       else if(m==11) NLLnoBfillZero = NLLfillZero >= 0 ? -log(Best_Likelihood_1100->at(0)/Best_PbTag_1100->at(0)) : -1.;
 
       //variations of selections
-      for(unsigned i = 0; i < 9; ++ i){
+      for(unsigned i = 0; i < sizePtSysts+1; ++ i){
         if(RegionIdentifier[i] != bin) continue;
 	//additional 2017 lepton pT cut
         if(year == 2017){
@@ -507,6 +500,8 @@ void CombineHistogramDumpster::Loop()
 	else if (year == 2018){
           if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
         }
+	//additional ST cut test
+        if(STvals[i] < 400.) continue;
 
         //determine fill variable
         float fillVar = Vals[i];
@@ -615,9 +610,11 @@ void CombineHistogramDumpster::Loop()
 	else if (year == 2018){
           if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 32. ) continue;
         }
+	//additional ST cut test
+        if(STvals[0] < 400.) continue;
 
         //EventWeight variations
-        for(unsigned i = 9; i < varSize; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)
+        for(unsigned i = sizePtSysts+1; i < varSize; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)
 	
           string HistName;
 
@@ -625,23 +622,15 @@ void CombineHistogramDumpster::Loop()
 	  float fillVar = Vals[0];
 
 	  float EvWeight = 1.;
-      	  if     (i == varSize-8)    EvWeight += LumiCorrVal;
-      	  else if(i == varSize-7)    EvWeight -= LumiCorrVal;
-      	  else if(i == varSize-6)    EvWeight += Lumi1718Val;
-      	  else if(i == varSize-5)    EvWeight -= Lumi1718Val;
-      	  else if(i == varSize-4)    EvWeight += LumiStatVal;
-      	  else if(i == varSize-3)    EvWeight -= LumiStatVal;
 
-      	  //block for HLT z vtx inefficiency correction and variation in 2017 only for electron channel only
+      	  //block for HLT z vtx inefficiency correction in 2017 only for electron channel only
 	  if(YearS == "2017" && bin/1000 == 2){
-            if     (i == varSize-2)  EvWeight *= EleHLTzvtx+EleHLTzvtxUnc;
-            else if(i == varSize-1)  EvWeight *= EleHLTzvtx-EleHLTzvtxUnc;
-	    else		     EvWeight *= EleHLTzvtx;
+	    EvWeight *= EleHLTzvtx;
           }
 
           //make sure to get the correct event weight, either a variation or the central
-	  if(i < varSize-8)  EvWeight *= EventWeight[i-8];// >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
-          else               EvWeight *= EventWeight[0]; //normalization variation normal
+	  if(i < varSize-sizePtSysts)   EvWeight *= EventWeight[i-sizePtSysts];// >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
+          else               		EvWeight *= EventWeight[0]; //normalization variation normal
 
 	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
           if(IsSF_ttbar){
