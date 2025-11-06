@@ -63,14 +63,14 @@ signals = [["M300", 6],
 B2Gn = "xxyyy" #FIXME: This is a placeholder
 baseSystematics = [
                    #uncertainties on object variations other than electron scale
-                   "CMS_res_e_"             +year,
+                   "CMS_res_e"             ,
                    "CMS_scale_j_"           +year,
                    "CMS_res_j_"             +year,
 
                    #event weight variations
-                   "CMS_eff_e_trigger_"     +year,
-                   "CMS_eff_e_reco_"        +year,
-                   "CMS_eff_e_"             +year,
+                   "CMS_eff_e_trigger"     ,
+                   "CMS_eff_e_reco"        ,
+                   "CMS_eff_e"             ,
                    "CMS_eff_m_trigger_"     +year,
                    "CMS_eff_m_id_"          +year,
                    "CMS_eff_m_iso_"         +year,
@@ -85,10 +85,11 @@ baseSystematics = [
                    "ps_fsr"                      ,
 
                    #uncertainties on normalization
-                   "lumi_13TeV_correlated"       ,
-                   "lumi_13TeV_1718"             ,
-                   "lumi_"                  +year,
-                   "CMS_eff_e_HLTzvtx_17"]
+                   #"lumi_13TeV_correlated"       ,
+                   #"lumi_13TeV_1718"             ,
+                   #"lumi_"                  +year,
+                   #"CMS_eff_e_HLTzvtx_17"
+                   ]
 
 #make list of sample-dependent systematics
 extendSystematics = []
@@ -99,7 +100,7 @@ for bgr in backgrounds:
     extendSystematics.append("QCDscale_fac_"+bgr[0])
 baseSystematics.extend(extendSystematics)
 
-SRsystematics = [  "CMS_scale_e"            +year,
+SRsystematics = [  "CMS_scale_e"            ,
                    "CMS_B2G"+B2Gn+"_STfit_"+year+"_"+binString[0:3]+"1",
                    "CMS_B2G"+B2Gn+"_STfitFunc_"+year+"_"+binString[0:3]+"1"]
 
