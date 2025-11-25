@@ -13,10 +13,10 @@ def SuppressNegBins(hist):
 Years = ["2016apv","2016","2017","2018"]
 
 #configure bin
-year = "2018"
-binNr = "1153"
-binSplit = 8
-binEnd = -1
+year = "2016apv"
+binNr = "2152"
+binSplit = 7
+binEnd = 20
 mass = "300"
 
 try:
@@ -114,7 +114,7 @@ for content in FileContent:
       for bgr in NLLvals: #check for empty variations
           if content.find(bgr[0]) > -1:
               bgr[3] = min(bgr[3], ProjFit.Integral())
-  elif content.find("HT_data_obs_") > -1:
+  elif content.find("HT_data_obs_") > -1 and content.find("CMS") < 0:
       HT = inFile.Get(content)
       keyname = content.replace("HT_", "HT_")
       keyname = keyname.replace("Wprime"+binNr,"WprimeHT"+binNr)
@@ -123,7 +123,7 @@ for content in FileContent:
       ProjHT = SuppressNegBins(ProjHT)
       HTnorm = ProjHT.Integral()
       ProjHT.Write()
-  elif content.find("FitMass_data_obs_") > -1:
+  elif content.find("FitMass_data_obs_") > -1 and content.find("CMS") < 0:
       Fit = inFile.Get(content)
       keyname = content.replace("FitMass_", "Fit_")
       keyname = keyname.replace("Wprime"+binNr,"WprimeFit"+binNr)
