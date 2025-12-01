@@ -7,15 +7,15 @@
 TString Systematics(unsigned index, TString YearS, TString sampleType, TString B2Gn, bool offdiagonal = false){
   vector<TString> variations = {"", //0: nominal
           //object pT variation uncertainties
-          TString("CMS_scale_e_")                        +"Up", TString("CMS_scale_e_")                        +"Down",  //1-2:   electron energy scale pT variation (on data)
-          TString("CMS_res_e_")                          +"Up", TString("CMS_res_e_")                          +"Down",  //3-4:   electron energy resolution pT variation
+          TString("CMS_scale_e")                         +"Up", TString("CMS_scale_e")                         +"Down",  //1-2:   electron energy scale pT variation (on data)
+          TString("CMS_res_e")                           +"Up", TString("CMS_res_e")                           +"Down",  //3-4:   electron energy resolution pT variation
           TString("CMS_scale_j_")                  +YearS+"Up", TString("CMS_scale_j_")                  +YearS+"Down",  //5-6:   jet energy scale pT variation
           TString("CMS_res_j_")                    +YearS+"Up", TString("CMS_res_j_")                    +YearS+"Down",  //7-8:   jet energy resolution pT variation
 
           //event weight variation uncertainties
-          TString("CMS_eff_e_trigger_")                  +"Up", TString("CMS_eff_e_trigger_")                  +"Down",  //9-10:  electron trigger efficiency variation, including HLT Zvtx for 2017
-          TString("CMS_eff_e_reco_")                     +"Up", TString("CMS_eff_e_reco_")                     +"Down",  //11-12: electron reconstruction efficiency variation
-          TString("CMS_eff_e_")                          +"Up", TString("CMS_eff_e_")                          +"Down",  //13-14: electron ID (including ISO) variation
+          TString("CMS_eff_e_trigger")                   +"Up", TString("CMS_eff_e_trigger")                   +"Down",  //9-10:  electron trigger efficiency variation, including HLT Zvtx for 2017
+          TString("CMS_eff_e_reco")                      +"Up", TString("CMS_eff_e_reco")                      +"Down",  //11-12: electron reconstruction efficiency variation
+          TString("CMS_eff_e")                           +"Up", TString("CMS_eff_e")                           +"Down",  //13-14: electron ID (including ISO) variation
           TString("CMS_eff_m_trigger_")            +YearS+"Up", TString("CMS_eff_m_trigger_")            +YearS+"Down",  //15-16: muon trigger efficiency variation
           TString("CMS_eff_m_id_")                 +YearS+"Up", TString("CMS_eff_m_id_")                 +YearS+"Down",  //17-18: muon ID efficiency variation
           TString("CMS_eff_m_iso_")                +YearS+"Up", TString("CMS_eff_m_iso_")                +YearS+"Down",  //19-20: muon ISO efficiency variation
