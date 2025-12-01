@@ -1,8 +1,9 @@
 import os,sys
 
-from ROOT import TH1F, TFile, THStack, TRatioPlot, TCanvas, TLegend, TLine, TF1, TMatrixD, TFitResultPtr, TGraph, TColor, TPaveStats
+from ROOT import TH1F, TH2F, TFile, THStack, TRatioPlot, TCanvas, TLegend, TLine, TF1, TMatrixD, TFitResultPtr, TGraph, TColor, TPaveStats
 import cmsstyle as CMS
 import math
+from array import array
 
 jbBins = ["53", "63", "64"]
 
@@ -10,10 +11,10 @@ inFile = TFile("LegoOptimization.root","READ")
 
 CMS.SetLumi("138")
 CMS.SetEnergy("13")
-
 #maximum number of NLL bins depending on jet multiplicity, directly read from binning input file
 maxNLL5 = 0
 maxNLL6 = 0
+NLLlist = array('d')
 binsFile = open("BinTables.C","r")
 binsLines = binsFile.readlines()
 for line in binsLines:
@@ -22,6 +23,14 @@ for line in binsLines:
         maxNLL5 = int(splitLine[3][0:len(splitLine[3])-1])
     if splitLine[1].find("nNLLlimits64_500") > -1:
         maxNLL6 = int(splitLine[3][0:len(splitLine[3])-1])
+    #extract the exact NLL binning, unified coarse version
+    if line.find("double NLLlimits53_500["+str(maxNLL5+1)+"] = {") > -1:
+        start = line.find("{")
+        end   = line.find("}")
+        valStr = line[start+1:end]
+        vals = valStr.split()
+        for val in vals:
+            NLLlist.append(float(val.rstrip(",")))
 
 for j in range(5,7):
     for mass in range(3,12):
@@ -33,6 +42,10 @@ for j in range(5,7):
                     BinN = maxNLL6
 
                 hist = inFile.Get("Lego"+str(j)+"j_Wp"+str(mass*100)+"_11"+jbBin+"_21"+jbBin)
+                hist2 = TH2F("LegoClone"+str(mass)+"_"+str(j)+"_"+jbBin, "", maxNLL5, NLLlist, maxNLL5, NLLlist)
+                for k in range(1, maxNLL5+2):
+                    for l in range(1, maxNLL5+2):
+                        hist2.SetBinContent(k, l, hist.GetBinContent(k, l))
                 leg = CMS.cmsLeg(0.2,0.89-0.05*1,0.6,0.89,textSize=0.05)
                 if jbBin == "53":
                     CMS.cmsHeader(leg, "#mu/e + 5 jets and 3 b tags", textSize=0.05)
@@ -41,13 +54,14 @@ for j in range(5,7):
                 elif jbBin == "64":
                     CMS.cmsHeader(leg, "#mu/e + 6 jets and 4 b tags", textSize=0.05)
 
-                canv = CMS.cmsCanvas("canv_Lego"+str(j)+"j_Wp"+str(mass*100)+"_11"+jbBin+"_21"+jbBin, -0.5, BinN+0.5, -0.5, BinN+0.5, "last bin of medium conf.", "last bin of high conf.", square=CMS.kSquare, extraSpace=0.01, iPos=0, with_z_axis=True, scaleLumi=0.8)
+                #canv = CMS.cmsCanvas("canv_Lego"+str(j)+"j_Wp"+str(mass*100)+"_11"+jbBin+"_21"+jbBin, -0.5, BinN+0.5, -0.5, BinN+0.5, "last bin of medium conf.", "last bin of high conf.", square=CMS.kSquare, extraSpace=0.01, iPos=0, with_z_axis=True, scaleLumi=0.8)
+                canv = CMS.cmsCanvas("canv_Lego"+str(j)+"j_Wp"+str(mass*100)+"_11"+jbBin+"_21"+jbBin, 0., 30., 0., 30., "last NLL bin of medium conf.", "last NLL bin of high conf.", square=CMS.kSquare, extraSpace=0.01, iPos=0, with_z_axis=True, scaleLumi=0.8)
                 canv.cd(1)
-                hist.GetZaxis().SetTitle("median 95% CL asymptotic exp. limit")
-                hist.GetZaxis().SetTitleOffset(1.4)
-                hist.Draw("same colz")
-                CMS.SetAlternative2DColor(hist, CMS.cmsStyle)
-                CMS.UpdatePalettePosition(hist, canv)
+                hist2.GetZaxis().SetTitle("median 95% CL asymptotic exp. limit")
+                hist2.GetZaxis().SetTitleOffset(1.4)
+                hist2.Draw("same colz")
+                CMS.SetAlternative2DColor(hist2, CMS.cmsStyle)
+                CMS.UpdatePalettePosition(hist2, canv)
 
                 leg.Draw()
 
