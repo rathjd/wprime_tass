@@ -401,7 +401,7 @@ void CombineHistogramDumpsterRvec::Loop()
       if(STvals[i] < 400.) continue;
 
       float EvWeight = EventWeight[0];
-      if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
+      if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0) EvWeight *= EleHLTzvtx;
       
       const float CentralWeight = EvWeight*SampleWeight*EventWeightObjectVariations[i];
       //std::cout<<i<<": "<<CentralWeight<<" = "<<EventWeight[0]<<" * "<<SampleWeight<<" * "<<EventWeightObjectVariations[i]<<std::endl;
@@ -445,7 +445,7 @@ void CombineHistogramDumpsterRvec::Loop()
 
 
       //block for HLT z vtx inefficiency correction and variation in 2017 only for electron channel only
-      if(YearS == "2017" && bin/1000 == 2){
+      if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0){
 	if     (i == varSize-2)  EvWeight *= EleHLTzvtx+EleHLTzvtxUnc;
         else if(i == varSize-1)  EvWeight *= EleHLTzvtx-EleHLTzvtxUnc;
 	else                     EvWeight *= EleHLTzvtx;
@@ -560,7 +560,7 @@ void CombineHistogramDumpsterRvec::Loop()
 	else if(m==11) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_1100->at(i)/Best_PbTag_1100->at(i)) : -1.;
 
 	float EvWeight = EventWeight[0];
-        if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
+        if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0) EvWeight *= EleHLTzvtx;
 
         string HistName;
         if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
@@ -638,7 +638,7 @@ void CombineHistogramDumpsterRvec::Loop()
       	  else if(i == varSize-3)    EvWeight -= LumiStatVal;
 
       	  //block for HLT z vtx inefficiency correction and variation in 2017 only for electron channel only
-	  if(YearS == "2017" && bin/1000 == 2){
+	  if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0){
             if     (i == varSize-2)  EvWeight *= EleHLTzvtx+EleHLTzvtxUnc;
             else if(i == varSize-1)  EvWeight *= EleHLTzvtx-EleHLTzvtxUnc;
 	    else		     EvWeight *= EleHLTzvtx;
