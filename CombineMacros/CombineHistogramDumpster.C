@@ -389,7 +389,7 @@ void CombineHistogramDumpster::Loop()
       if(STvals[i] < 400.) continue;
 
       float EvWeight = EventWeight[0];
-      if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
+      if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0) EvWeight *= EleHLTzvtx;
       
       const float CentralWeight = EvWeight*SampleWeight*EventWeightObjectVariations[i];
       if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
@@ -433,7 +433,7 @@ void CombineHistogramDumpster::Loop()
       float EvWeight = 1.;
 
       //block for HLT z vtx inefficiency correction in 2017 only for electron channel only
-      if(YearS == "2017" && bin/1000 == 2){
+      if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0){
 	EvWeight *= EleHLTzvtx;
       }
 
@@ -539,7 +539,7 @@ void CombineHistogramDumpster::Loop()
 	else if(m==11) NLLnoBfill = NLLfill >= 0 ? -log(Best_Likelihood_1100->at(i)/Best_PbTag_1100->at(i)) : -1.;
 
 	float EvWeight = EventWeight[0];
-        if(YearS == "2017" && bin/1000 == 2) EvWeight *= EleHLTzvtx;
+        if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0) EvWeight *= EleHLTzvtx;
 
         string HistName;
         if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
@@ -624,7 +624,7 @@ void CombineHistogramDumpster::Loop()
 	  float EvWeight = 1.;
 
       	  //block for HLT z vtx inefficiency correction in 2017 only for electron channel only
-	  if(YearS == "2017" && bin/1000 == 2){
+	  if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0){
 	    EvWeight *= EleHLTzvtx;
           }
 
@@ -677,6 +677,8 @@ void CombineHistogramDumpster::Loop()
         if(j == 0) { //function to propagate ST-fit SF uncertainty to bin error
 	  FitMass_STstatUp[i]->Write();
 	  FitMass_STstatDown[i]->Write();
+	  FitMass_STparUp[i]->Write();
+	  FitMass_STparDown[i]->Write();
         }	
         FitMass[i][j]->Write();
         if(i==0){
