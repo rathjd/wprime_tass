@@ -115,26 +115,45 @@ if not compromise:
     #                [[3, 49], [3, 22], [5, 22]], 
     #                [[3, 51], [3, 22], [5, 21]]]
     #new ttbb limits, ps_fsrDown is bust
-    optimization =   [[[13, 61], [11, 24]],
-                      [[ 7, 59], [ 9, 22]],
-                      [[ 8, 65], [ 7, 24]],
-                      [[10, 76], [ 7, 24]],
-                      [[11, 75], [ 7, 24]],
-                      [[12, 67], [ 7, 24]],
-                      [[12, 67], [ 7, 24]],
-                      [[12, 67], [ 7, 24]],
-                      [[12, 74], [ 7, 24]]]
+    #optimization =   [[[13, 61], [11, 24]],
+    #                  [[ 7, 59], [ 9, 22]],
+    #                  [[ 8, 65], [ 7, 24]],
+    #                  [[10, 76], [ 7, 24]],
+    #                  [[11, 75], [ 7, 24]],
+    #                  [[12, 67], [ 7, 24]],
+    #                  [[12, 67], [ 7, 24]],
+    #                  [[12, 67], [ 7, 24]],
+    #                  [[12, 74], [ 7, 24]]]
+    #rebinning November 11 long scan, too many NLL bins, many inputs missing
+    #optimization =  [[[21, 90], [2, 10], [1, 10]],
+    #                 [[18, 99], [1, 10], [1, 10]],
+    #                 [[25, 105], [1, 10], [1, 10]],
+    #                 [[15, 106], [2, 10], [1, 10]],
+    #                 [[15, 106], [4, 10], [1, 10]],
+    #                 [[21, 106], [4, 9], [1, 10]],
+    #                 [[22, 106], [1, 5], [1, 10]],
+    #                 [[22, 106], [2, 7], [1, 10]],
+    #                 [[19, 107], [1, 6], [1, 10]]]
+    optimization = [[[6, 20], [5, 20], [2,  9]],
+                    [[6, 20], [7, 20], [2,  9]],
+                    [[6, 20], [6, 20], [2,  9]],
+                    [[8, 20], [5, 20], [2, 11]],
+                    [[8, 20], [4,  9], [2,  9]],
+                    [[8, 19], [2,  9], [2, 10]],
+                    [[8, 19], [3, 20], [2, 20]],
+                    [[8, 20], [3, 20], [2, 20]],
+                    [[6, 20], [4, 20], [2, 20]]]
 else:
 #compromise version
-    optimization = [[[3, 51], [7, 22], [7, 22]],
-                    [[3, 51], [5, 22], [7, 22]],
-                    [[3, 51], [5, 22], [7, 22]],
-                    [[3, 51], [5, 22], [7, 22]],
-                    [[3, 51], [5, 22], [7, 22]],
-                    [[3, 51], [5, 22], [7, 22]],
-                    [[3, 51], [5, 22], [7, 22]],
-                    [[3, 51], [5, 22], [7, 22]],
-                    [[3, 51], [5, 22], [7, 22]]]
+    optimization = [[[7, 20], [4, 16]],
+                    [[7, 20], [4, 16]],
+                    [[7, 20], [4, 16]],
+                    [[7, 20], [4, 16]],
+                    [[7, 20], [4, 16]],
+                    [[7, 20], [4, 16]],
+                    [[7, 20], [4, 16]],
+                    [[7, 20], [4, 16]],
+                    [[7, 20], [4, 16]]]
     folder = "allYears_CompromiseSlices"
 
 print(compromise)
@@ -159,8 +178,14 @@ for mass in range(0,9):
                     #print(str(optimization[mass][counterJet][0]))
                     #print(str(optimization[mass][counterJet][1]))
                     #print(massString)
-                    os.system("python3 ../SliceHTvsFitMass.py "+year+" "+binX+" "+str(optimization[mass][counterJet][0])+" "+str(optimization[mass][counterJet][1])+" "+massString)#+" direct")
-            counterJet+=1
+                    if binX.find("15") > -1: #5 jets 2-3 tags case
+                        counterJet=0
+                    elif binX.find("164") > -1: #6 jets 4 tags exception (coarser NLL binning)
+                        counterJet=2
+                    else: #leftover 6 jets 2-3 tags cases
+                        counterJet=1 
+                    if not counterJet=2: #except 6j4b which isn't sliced
+                        os.system("python3 ../SliceHTvsFitMass.py "+year+" "+binX+" "+str(optimization[mass][counterJet][0])+" "+str(optimization[mass][counterJet][1])+" "+massString)#+" direct")
 
     #combination cards across years for different bins
     AllCards = []
@@ -183,24 +208,38 @@ for mass in range(0,9):
             #else:
             #    name+="sr"
             #name+="="
-
-            for year in years:
-                baseStringComb     += name+"CombinationSlices_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-                baseStringFitSlice += name+"FitSlice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-                baseStringHTslice  += name+"HTslice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-            baseStringComb     += "> CombinationSlices_Wprime"+bins+"_all_M"+massString+".txt"
-            baseStringFitSlice += "> FitSlice_Wprime"+bins+"_all_M"+massString+".txt"
-            baseStringHTslice  += "> HTslice_Wprime"+bins+"_all_M"+massString+".txt"
-            AllCards.append("CombinationSlices_Wprime"+bins+"_all_M"+massString+".txt ")
-            AllCards.append("FitSlice_Wprime"+bins+"_all_M"+massString+".txt ")
-            AllCards.append("HTslice_Wprime"+bins+"_all_M"+massString+".txt ")
-            if not skipSlicing:
-                print(baseStringComb)
-                os.system(baseStringComb)
-                print(baseStringFitSlice)
-                os.system(baseStringFitSlice)
-                print(baseStringHTslice)
-                os.system(baseStringHTslice)
+            
+            if not bins.find("164") > -1:
+                for year in years:
+                    baseStringComb     += name+"CombinationSlices_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                    baseStringFitSlice += name+"FitSlice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                    baseStringHTslice  += name+"HTslice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                baseStringComb     += "> CombinationSlices_Wprime"+bins+"_all_M"+massString+".txt"
+                baseStringFitSlice += "> FitSlice_Wprime"+bins+"_all_M"+massString+".txt"
+                baseStringHTslice  += "> HTslice_Wprime"+bins+"_all_M"+massString+".txt"
+                AllCards.append("CombinationSlices_Wprime"+bins+"_all_M"+massString+".txt ")
+                AllCards.append("FitSlice_Wprime"+bins+"_all_M"+massString+".txt ")
+                AllCards.append("HTslice_Wprime"+bins+"_all_M"+massString+".txt ")
+                if not skipSlicing:
+                    print(baseStringComb)
+                    os.system(baseStringComb)
+                    print(baseStringFitSlice)
+                    os.system(baseStringFitSlice)
+                    print(baseStringHTslice)
+                    os.system(baseStringHTslice)
+            else: #exception to process only the HT 1D version for the 6j4b case
+                for year in years:
+                    baseStringComb    += name+"HT_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                    baseStringHTslice += name+"HT_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                baseStringComb     += "> CombinationSlices_Wprime"+bins+"_all_M"+massString+".txt"
+                baseStringHTslice  += "> HTslice_Wprime"+bins+"_all_M"+massString+".txt"
+                AllCards.append("CombinationSlices_Wprime"+bins+"_all_M"+massString+".txt ")
+                AllCards.append("HTslice_Wprime"+bins+"_all_M"+massString+".txt ")
+                if not skipSlicing:
+                    print(baseStringComb)
+                    os.system(baseStringComb)
+                    print(baseStringHTslice)
+                    os.system(baseStringHTslice)
             
 
     #combination cards across bins for different years
@@ -222,10 +261,13 @@ for mass in range(0,9):
                 #else:
                 #    name+="sr"
                 #name+="="
-
-                baseStringComb     += name+"CombinationSlices_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-                baseStringFitSlice += name+"FitSlice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
-                baseStringHTslice  += name+"HTslice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                if not bins.find("164") > -1:
+                    baseStringComb     += name+"CombinationSlices_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                    baseStringFitSlice += name+"FitSlice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                    baseStringHTslice  += name+"HTslice_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                else:
+                    baseStringComb    += name+"HT_Wprime"+bins+"_"+year+"_M"+massString+".txt "
+                    baseStringHTslice += name+"HT_Wprime"+bins+"_"+year+"_M"+massString+".txt "
         baseStringComb     += "> CombinationSlices_WprimeAll_"+year+"_M"+massString+".txt"
         baseStringFitSlice += "> FitSlice_WprimeAll_"+year+"_M"+massString+".txt"
         baseStringHTslice  += "> HTslice_WprimeAll_"+year+"_M"+massString+".txt"
@@ -318,8 +360,9 @@ CardNamesToProduce = ["CombinationSlices", "FitSlice", "HTslice"]
 for binN in binsToProduce:
     for yearN in yearsToProduce:
         for cardN in CardNamesToProduce:
-            print("python3 Brazil.py "+binN+" "+yearN+" "+cardN)
-            os.system("python3 Brazil.py "+binN+" "+yearN+" "+cardN)
+            if not cardN.find("Fit") > -1 and binN.Find("164") > -1: #except fit slices for 64 channel only runs
+                print("python3 Brazil.py "+binN+" "+yearN+" "+cardN)
+                os.system("python3 Brazil.py "+binN+" "+yearN+" "+cardN)
     
 #produce final limit plot
 print("python3 Brazil.py All all Optimized")
