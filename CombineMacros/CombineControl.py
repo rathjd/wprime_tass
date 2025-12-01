@@ -227,14 +227,14 @@ for binN in bins:
       #estimate electron scale uncertainty
       ESF    = ROOT.TFile.Open(eospath + "/" + binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", "read")
       print("open file", eospath + "/" + binName[6:9] + "2" + binName[10:] + "/SimpleShapes_Wprime" + binName[6:9] + "2" + binName[10:] + ".root", ESF)
-      ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Up")
-      ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Down")
+      ESFHu  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e" + "Up")
+      ESFHd  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e" + "Down")
       ESFHn  = ESF.Get("data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_")
-      print("estimate e scale uncertainty with","data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e_" + yearName + "Up",ESFHu)
+      print("estimate e scale uncertainty with","data_obs_Wprime" + binName[6:9] + "2" + binName[10:] + "_M" + str(massBin*100) + "_CMS_scale_e" + "Up",ESFHu)
       ESFvar = str(max(math.fabs(ESFHu.Integral()/ESFHn.Integral()-1.), math.fabs(ESFHd.Integral()/ESFHn.Integral()-1.))+1.)
       #find the electron scale uncertainty and replace the value with the corresponding estimate
       for i in range(0, len(systMaster)):
-          if systMaster[i][0].find("CMS_scale_e_") > -1:
+          if systMaster[i][0].find("CMS_scale_e") > -1:
               systMaster[i][2] = ESFvar[0:4]
               break
       ESF.Close()
