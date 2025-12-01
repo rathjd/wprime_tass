@@ -182,7 +182,7 @@ CombineHistogramDumpsterRvec::CombineHistogramDumpsterRvec(TChain *tree, unsigne
 // used to generate this class and read the Tree.
   if (tree == 0) {
     dset = dlib.GetDataset(it_);
-    TString   FilePath = "/eos/cms/store/group/phys_b2g/wprime/analyzeroutputlatest";//"/eos/cms/store/group/phys_b2g/wprime/analyzeroutputjune2025/";
+    TString   FilePath = "/eos/cms/store/group/phys_b2g/wprime/analyzeroutputlatest/";//"/eos/cms/store/group/phys_b2g/wprime/analyzeroutputjune2025/";
     //if(it_ > 1) FilePath = "/eos/cms/store/group/phys_b2g/wprime/analyzeroutputaugust2025/";
     FilePath.Append(year_);
     FilePath.Append("_");
