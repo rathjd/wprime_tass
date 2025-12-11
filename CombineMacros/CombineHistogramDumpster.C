@@ -438,8 +438,9 @@ void CombineHistogramDumpster::Loop()
       }
 
       //make sure to get the correct event weight, either a variation or the central
-      if(i < varSize-sizePtSysts)	EvWeight *= EventWeight[i-sizePtSysts];// >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
-      else				EvWeight *= EventWeight[0]; //normalization variation normal
+      /*if(i < varSize-sizePtSysts)	EvWeight *= EventWeight[i-sizePtSysts];// >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
+      else				EvWeight *= EventWeight[0]; //normalization variation normal*/
+      EvWeight *= EventWeight[i-sizePtSysts];
       
       const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
 
@@ -629,8 +630,9 @@ void CombineHistogramDumpster::Loop()
           }
 
           //make sure to get the correct event weight, either a variation or the central
-	  if(i < varSize-sizePtSysts)   EvWeight *= EventWeight[i-sizePtSysts];// >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
-          else               		EvWeight *= EventWeight[0]; //normalization variation normal
+	  /*if(i < varSize-sizePtSysts)   EvWeight *= EventWeight[i-sizePtSysts];// >= 0. ? EventWeight[i-8] : EventWeight[0]; //catch negative weights
+          else               		EvWeight *= EventWeight[0]; //normalization variation normal*/
+	  EvWeight *= EventWeight[i-sizePtSysts];
 
 	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
           if(IsSF_ttbar){
