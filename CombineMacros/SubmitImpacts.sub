@@ -2,8 +2,6 @@ executable   = SubmitImpacts.sh
 arguments    = $(ProcID)
 max_retries  = 1
 batch_name   = SubmitImpacts_$(ProcID)
-output       = SubmitImpacts_$(ProcID).out
-error        = SubmitImpacts_$(ProcID).err
 log          = SubmitImpacts_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")

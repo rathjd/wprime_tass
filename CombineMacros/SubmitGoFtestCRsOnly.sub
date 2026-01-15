@@ -2,8 +2,6 @@ executable   = SubmitGoFtestCRsOnly.sh
 arguments    = $(ProcID)
 max_retries  = 0
 batch_name   = SubmitGoFtestCRsOnly_$(ProcID)
-output       = SubmitGoFtestCRsOnly_$(ProcID).out
-error        = SubmitGoFtestCRsOnly_$(ProcID).err
 log          = SubmitGoFtestCRsOnly_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")

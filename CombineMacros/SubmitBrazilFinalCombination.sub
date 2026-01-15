@@ -1,8 +1,6 @@
 executable   = SubmitBrazilFinalCombination.sh
 max_retries  = 1
 batch_name   = SubmitBrazilFinalCombination
-output       = SubmitBrazilFinalCombination.out
-error        = SubmitBrazilFinalCombination.err
 log          = SubmitBrazilFinalCombination.log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")

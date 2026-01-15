@@ -2,8 +2,6 @@ executable   = SubmitImpactsCRsOnly.sh
 arguments    = $(ProcID)
 max_retries  = 0
 batch_name   = SubmitImpactsCRsOnly_$(ProcID)
-output       = SubmitImpactsCRsOnly_$(ProcID).out
-error        = SubmitImpactsCRsOnly_$(ProcID).err
 log          = SubmitImpactsCRsOnly_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")

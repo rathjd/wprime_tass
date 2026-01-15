@@ -6,4 +6,7 @@ cd /afs/cern.ch/user/r/rathjd/work/private/NewCombine/CMSSW_14_1_0_pre4/src/
 cmsenv
 
 cd /afs/cern.ch/user/r/rathjd/work/private/TakeOverWprime/wprime/CombineMacros/
-python3 BrazilOpt.py False True
+python3 Brazil.py All 2017 FitSlice
+python3 Brazil.py All 2017 HTslice
+python3 Brazil.py All 2017 CombinationSlices
+
