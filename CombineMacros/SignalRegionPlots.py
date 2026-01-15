@@ -29,7 +29,7 @@ for yearName in Years:
         CMS.SetLumi("59.8")
     CMS.SetEnergy("13")
 
-    B2Gn = "xxyyy" #FIXME: This is a placeholder
+    B2Gn = "25008"
     baseSystematics = [
                    #uncertainties on object variations other than electron scale
                    "CMS_res_e_"             +yearName,

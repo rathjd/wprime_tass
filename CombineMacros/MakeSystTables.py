@@ -80,7 +80,7 @@ infile = TFile("Combination/"+fileprefix+"_Wprime"+binS+"_"+year+"_M"+mass+".roo
 incard = open("Combination/"+varName+"_Wprime"+binS+"_"+year+"_M"+mass+".txt","r")
 
 #define categories and systematics
-B2Gn = "xxyyy" #FIXME
+B2Gn = "25008"
 colNames = [["M"+mass, True],
             ["ttbar", True],
             ["wjets", True],
