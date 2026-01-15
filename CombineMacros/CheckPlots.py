@@ -56,11 +56,14 @@ backgrounds = [["ttbar", 2],
                ["single_top", 4],
                ["diboson", 5]]
 
+backgroundsExt = backgrounds
+backgroundsExt.append(["qcd", 6])
+
 signals = [["M300", 6],
            ["M600", 7],
            ["M900", 8]]
 
-B2Gn = "xxyyy" #FIXME: This is a placeholder
+B2Gn = "25008"
 baseSystematics = [
                    #uncertainties on object variations other than electron scale
                    "CMS_res_e"             ,
@@ -102,7 +105,8 @@ baseSystematics.extend(extendSystematics)
 
 SRsystematics = [  "CMS_scale_e"            ,
                    "CMS_B2G"+B2Gn+"_STfit_"+year+"_"+binString[0:3]+"1",
-                   "CMS_B2G"+B2Gn+"_STfitFunc_"+year+"_"+binString[0:3]+"1"]
+                   "CMS_B2G"+B2Gn+"_STfitFunc_"+year+"_"+binString[0:3]+"1",
+                   "CMS_B2G"+B2Gn+"_STfitQCD"]
 
 #input files
 eospath = "/eos/cms/store/group/phys_b2g/wprime/temp/" 
@@ -130,7 +134,7 @@ Stack2b    = THStack("Stack_"+binS+"2_"+year,"")
 Stack2braw = THStack("Stackraw_"+binS+"2_"+year,"")
 
 #configure legends
-leg1b    = CMS.cmsLeg(0.51,0.89-0.05*6, 0.8, 0.89, textSize=0.05)
+leg1b    = CMS.cmsLeg(0.51,0.89-0.05*7, 0.8, 0.89, textSize=0.05)
 leg2b    = CMS.cmsLeg(0.51,0.89-0.05*6, 0.8, 0.89, textSize=0.05)
 leg2braw = CMS.cmsLeg(0.51,0.89-0.05*6, 0.8, 0.89, textSize=0.05)
 
@@ -173,12 +177,13 @@ testHistIn = inResult.Get("ST_ttbar_Wprime"+binS+"2_"+year+"_")
 testHist = testHistIn.Clone("testHist")
 testHist.Scale(0.)
 
-for background in backgrounds:
+for background in backgroundsExt:
     BgrPart1b = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_")
     print("Background part for 1b","ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_")
 
-    BgrPart2braw = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
-    print("Background part for 2b raw","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
+    if background in backgrounds:
+        BgrPart2braw = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
+        print("Background part for 2b raw","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
 
     if background[1]==2:
         BgrPart2b = inResult.Get("STrew_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
@@ -187,29 +192,36 @@ for background in backgrounds:
         BgrTotal2b    = BgrPart2b.Clone("BgrTotal2b")
         BgrTotal2braw = BgrPart2braw.Clone("BgrTotal2braw")
     else:
-        BgrPart2b = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
-        print("Background part for 2b","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
+        if background in backgrounds:
+            BgrPart2b = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
+            print("Background part for 2b","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
+            BgrTotal2b.Add(BgrPart2b)
+            BgrTotal2braw.Add(BgrPart2braw)
         BgrTotal1b.Add(BgrPart1b)
-        BgrTotal2b.Add(BgrPart2b)
-        BgrTotal2braw.Add(BgrPart2braw)
 
     BgrPart1b.Scale(1.,"width")
-    BgrPart2b.Scale(1.,"width")
-    if not BgrPart2b.GetName() == BgrPart2braw.GetName():
-        BgrPart2braw.Scale(1.,"width")
+
+    if background in backgrounds:
+        BgrPart2b.Scale(1.,"width")
+        if not BgrPart2b.GetName() == BgrPart2braw.GetName():
+            BgrPart2braw.Scale(1.,"width")
 
     Bgr1b[background[0]] = BgrPart1b
-    Bgr2b[background[0]] = BgrPart2b
-    Bgr2braw[background[0]] = BgrPart2braw
+
+    if background in backgrounds:
+        Bgr2b[background[0]] = BgrPart2b
+        Bgr2braw[background[0]] = BgrPart2braw
 
     #statistical uncertainty of a background per bin
     for bin in range(0,BgrPart1b.GetNbinsX()):
         Bgr1bSystUp[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
         Bgr1bSystDown[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
-        Bgr2bSystUp[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
-        Bgr2bSystDown[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
-        Bgr2brawSystUp[bin] += pow(BgrPart2braw.GetBinError(bin+1),2)
-        Bgr2brawSystDown[bin] += pow(BgrPart2braw.GetBinError(bin+1),2)
+
+        if background in backgrounds:
+            Bgr2bSystUp[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
+            Bgr2bSystDown[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
+            Bgr2brawSystUp[bin] += pow(BgrPart2braw.GetBinError(bin+1),2)
+            Bgr2brawSystDown[bin] += pow(BgrPart2braw.GetBinError(bin+1),2)
 
     #determine the uncertainties per bin
     for syst in baseSystematics:
@@ -225,18 +237,22 @@ for background in backgrounds:
             STstr = "STrew_"
         Up1b      = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_"+syst+"Up")
         Down1b    = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_"+syst+"Down")
-        Up2b      = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Up")
-        Down2b    = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Down")
-        Up2braw   = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Up")
-        Down2braw = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Down")
+
+        if background in backgrounds:
+            Up2b      = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Up")
+            Down2b    = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Down")
+            Up2braw   = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Up")
+            Down2braw = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Down")
         print("ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_"+syst+"Up")
         Up1b.Scale(1.,"width")
         Down1b.Scale(1.,"width")
-        Up2b.Scale(1.,"width")
-        Down2b.Scale(1.,"width")
-        if not Up2b.GetName() == Up2braw.GetName():
-            Up2braw.Scale(1.,"width")
-            Down2braw.Scale(1.,"width")
+
+        if background in backgrounds:
+            Up2b.Scale(1.,"width")
+            Down2b.Scale(1.,"width")
+            if not Up2b.GetName() == Up2braw.GetName():
+                Up2braw.Scale(1.,"width")
+                Down2braw.Scale(1.,"width")
 
         for bin in range(0,BgrPart1b.GetNbinsX()):
             Bgr1bSystUp[bin] += pow(max(Up1b.GetBinContent(bin+1) - BgrPart1b.GetBinContent(bin+1),
@@ -245,16 +261,17 @@ for background in backgrounds:
             Bgr1bSystDown[bin] += pow(min(Up1b.GetBinContent(bin+1) - BgrPart1b.GetBinContent(bin+1),
                                     Down1b.GetBinContent(bin+1) - BgrPart1b.GetBinContent(bin+1),
                                     0.), 2)
-            Bgr2bSystUp[bin] += pow(max(Up2b.GetBinContent(bin+1) - BgrPart2b.GetBinContent(bin+1),
+            if background in backgrounds:
+                Bgr2bSystUp[bin] += pow(max(Up2b.GetBinContent(bin+1) - BgrPart2b.GetBinContent(bin+1),
                                     Down2b.GetBinContent(bin+1) - BgrPart2b.GetBinContent(bin+1),
                                     0.), 2)
-            Bgr2bSystDown[bin] += pow(min(Up2b.GetBinContent(bin+1) - BgrPart2b.GetBinContent(bin+1),
+                Bgr2bSystDown[bin] += pow(min(Up2b.GetBinContent(bin+1) - BgrPart2b.GetBinContent(bin+1),
                                     Down2b.GetBinContent(bin+1) - BgrPart2b.GetBinContent(bin+1),
                                     0.), 2)
-            Bgr2brawSystUp[bin] += pow(max(Up2braw.GetBinContent(bin+1) - BgrPart2braw.GetBinContent(bin+1),
+                Bgr2brawSystUp[bin] += pow(max(Up2braw.GetBinContent(bin+1) - BgrPart2braw.GetBinContent(bin+1),
                                     Down2braw.GetBinContent(bin+1) - BgrPart2braw.GetBinContent(bin+1),
                                     0.), 2)
-            Bgr2brawSystDown[bin] += pow(min(Up2braw.GetBinContent(bin+1) - BgrPart2braw.GetBinContent(bin+1),
+                Bgr2brawSystDown[bin] += pow(min(Up2braw.GetBinContent(bin+1) - BgrPart2braw.GetBinContent(bin+1),
                                     Down2braw.GetBinContent(bin+1) - BgrPart2braw.GetBinContent(bin+1),
                                     0.), 2)
 #scale all totals

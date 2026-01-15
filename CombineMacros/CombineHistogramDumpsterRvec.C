@@ -108,7 +108,7 @@ void CombineHistogramDumpsterRvec::Loop()
   vector<TH1F*> NegLogLnoB;
   vector<TH2F*> NegLogLnoBvsNegLogL;
 
-  TString B2Gn = "xxyyy"; //placeholder, until we get a cadi line number
+  TString B2Gn = "25008"; //placeholder, until we get a cadi line number
   TString sampleType = gn;
   if(dset.Type == 2) sampleType = "signal";
 

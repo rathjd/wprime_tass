@@ -5,7 +5,7 @@ import math
 
 #define the input names
 signalNames = ["M$MASS"] #$MASS gets replaced by runing combine with -m option, supports only 1 signal mass at a time
-bgrNames = ["ttbar", "wjets", "single_top", "diboson"]
+bgrNames = ["ttbar", "wjets", "single_top", "diboson", "qcd"]
 binNumber = 1153 #this needs to be set, valid entries are 1150, 1160, 2150, 2160
 yearName = "2018"
 
@@ -105,7 +105,7 @@ for binN in bins:
              "CMS_eff_e_HLTzvtx_17":  {"2016": "-",     "2016apv": "-",     "2017": "1.001", "2018": "-"}
             }
 
-  B2Gn = "xxyyy" #FIXME: tbd once cadi line number is assigned
+  B2Gn = "25008"
   systMaster = [#lumi and generic normalization uncertainties
                 ["lumi_13TeV_correlated",                               "lnN", "-"],
                 ["lumi_13TeV_1718",                                     "lnN", "-"],
@@ -151,7 +151,8 @@ for binN in bins:
 
                 #control-region uncertainties
                 ["CMS_B2G"+B2Gn+"_STfit_"+yearName+"_"+regName,         "shape", "-"],
-                ["CMS_B2G"+B2Gn+"_STfitFunc_"+yearName+"_"+regName,     "shape", "-"]]
+                ["CMS_B2G"+B2Gn+"_STfitFunc_"+yearName+"_"+regName,     "shape", "-"],
+                ["CMS_B2G"+B2Gn+"_STfitQCD",                            "shape", "-"]]
 
 
   #write the actual combine cards
@@ -243,7 +244,10 @@ for binN in bins:
         binLine += binName
         processLine1 += allNames[i]
         processLine2 += str(allNumbers[i])
-        rateLine += "-1" #this option makes Combine read the rate from the histogram integrals
+        if not allNames[i] == "qcd":
+            rateLine += "-1" #this option makes Combine read the rate from the histogram integrals
+        else:
+            rateLine += " 0"
 
         currentLength = max(len(binLine), len(processLine1), len(processLine2), len(rateLine))
 

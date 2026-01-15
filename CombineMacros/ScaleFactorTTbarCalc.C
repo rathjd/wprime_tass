@@ -13,7 +13,7 @@
 //derive ttbar SF from 2-tag regions of same multiplicity and lepton flavour, then propagate stat uncertainty envelope bin-by-bin and do syst variation histograms
 void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
  
-  TString B2Gn = "xxyyy"; //placeholder, until we get a cadi line number
+  TString B2Gn = "25008"; //placeholder, until we get a cadi line number
   TString YearS = year;
   if(year == "2016_APV") YearS="2016apv";
  
@@ -25,7 +25,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   vector<vector<TH1F> > SimHistsNLL;
 
   //sample-type-specific variations need special treatment
-  vector<TString> SampleTypes = {"ttbar", "wjets", "single_top", "diboson"}; //list of background sample types
+  vector<TString> SampleTypes = {"ttbar", "wjets", "single_top", "diboson", "qcd"}; //list of background sample types
   for(unsigned s = 0; s < SampleTypes.size(); ++s){
     vector<TH1F> dummy;
     SimHists.push_back(dummy);
@@ -34,9 +34,11 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
   //set variation size
   unsigned varSize = 45; //note that this is hardcoded as a crosscheck
+  unsigned qcdExtra = 2; //two more added to produce QCD systematic variations
 
   //loop over samples, organizing data, ttbar, and non-ttbar with variations
-  for(unsigned sam = 0; sam < 27; ++sam){
+  //for(unsigned sam = 0; sam < 27; ++sam){//FIXME
+  for(unsigned sam = 0; sam < 34; ++sam){
     if(bin/1000 == 1 && sam == 0) continue;
     if(bin/2000 == 1 && sam == 1) continue;
 
@@ -60,7 +62,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 	dataHistNLL.push_back( *(TH1F*)(infile->Get(MassDataName))->Clone(TString::Format("dataHistNLL_M%d",mass)));
       }
     }
-    else if(sam==2 || sam==8 || sam==16 || sam==21){//first sample in each sample set
+    else if(sam==2 || sam==8 || sam==16 || sam==21 || sam==27){//first sample in each sample set
       for(unsigned var = 0; var < varSize; ++var){
 	TString variation = Systematics(var, YearS, sampleType, B2Gn);
         TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variation;
@@ -88,7 +90,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
   //use variations gathered to calculate central SF histogram and variation SF histograms
   vector<TH1F> SFhists, SFs;
-  for(unsigned var = 0; var < varSize; ++var){
+  for(unsigned var = 0; var < varSize + qcdExtra; ++var){
 
     //except sample-dependent uncertainties for extra logic
     //at this stage, variation i departs from being concurrent with SF histogram iterator, so we just keep appending each different variation
@@ -114,8 +116,33 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
       SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variation));
     }
+    else if(var >= varSize){ //QCD normalization variations special case
+      if(var == varSize) SFhists.push_back(*(TH1F*)dataHist.Clone("SF_STfitQCDUp"));
+      else		 SFhists.push_back(*(TH1F*)dataHist.Clone("SF_STfitQCDDown"));
+      unsigned currentPos = SFhists.size()-1;
+      for(unsigned sh = 1; sh < SimHists.size(); ++sh){
+	double multiplier = -1.;
+	if(sh == SimHists.size()-1 ){//only vary QCD contribution size
+	  if(var==varSize) multiplier = -1.25 ; //QCD up
+	  else		   multiplier = -0.75;  //QCD down
+	} 
+	SFhists[currentPos].Add(&SimHists[sh][0], multiplier); //substract non-ttbar simulation
+      }
+      SFhists[currentPos].Divide(&SimHists[0][0]); //divide by nominal ttbar
+
+      //cleaning function for bins with no data or negative values
+      for(unsigned x = 0; x < dataHist.GetNbinsX(); ++x){
+        if(dataHist.GetBinContent(x+1) < 10. || SFhists[currentPos].GetBinContent(x+1) < 0.){
+          SFhists[currentPos].SetBinContent(x+1,0.);
+          SFhists[currentPos].SetBinError(x+1,0.);
+        }
+      }
+
+      if(var == varSize) SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_STfitQCDUp"));
+      else               SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_STfitQCDDown"));
+    }
     else{//standard case
-      TString variation = Systematics(var, YearS, "", B2Gn);//sampleType is empty, because no sample-dependent uncertainties are covered here
+      TString variation = Systematics(var, YearS, "", B2Gn);//sampleType is empty, because no sample-dependent uncertainties are covered her
       SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variation));
       unsigned currentPos = SFhists.size()-1;
       for(unsigned sh = 1; sh < SimHists.size(); ++sh) SFhists[currentPos].Add(&SimHists[sh][var],-1); //substract non-ttbar simulation

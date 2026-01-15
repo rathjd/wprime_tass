@@ -58,7 +58,7 @@ void CombineHistogramDumpster::Loop()
   //determine the SF functions for ST
   TFile *SFfile;
   vector<TF1> SFs;
-  TF1 SFparDown, SFparUp;
+  TF1 SFparDown, SFparUp, SFQCDDown, SFQCDUp;
   vector<TMatrixD> SFcovs;
 
   //define electron HLT inefficiency Zvtx uncertainty
@@ -99,6 +99,7 @@ void CombineHistogramDumpster::Loop()
   vector<TH1F*> FitMass_STparUp, FitMass_STparDown;
   vector<TH1F*> HT_STparUp, HT_STparDown;
   TH1F* STrew_STparUp, *STrew_STparDown;
+  TH1F* STrew_STQCDUp, *STrew_STQCDDown;
 
   vector<TH1F*> ST;
   vector<TH1F*> STrew;
@@ -106,7 +107,7 @@ void CombineHistogramDumpster::Loop()
   vector<TH1F*> NegLogLnoB;
   vector<TH2F*> NegLogLnoBvsNegLogL;
 
-  TString B2Gn = "xxyyy"; //placeholder, until we get a cadi line number
+  TString B2Gn = "25008"; //placeholder, until we get a cadi line number
   TString sampleType = gn;
   if(dset.Type == 2) sampleType = "signal";
 
@@ -198,19 +199,23 @@ void CombineHistogramDumpster::Loop()
 	TString SFloc = TString::Format("/eos/cms/store/group/phys_b2g/wprime/temp/SF_Bin%d_",SFreg)+YearS+".root";
         SFfile = new TFile(SFloc);
         TH1F *SF = (TH1F*)SFfile->Get("SF_"+variation);
-        TF1 *SFfit, *SFfitParUp, *SFfitParDown;
+        TF1 *SFfit, *SFfitParUp, *SFfitParDown, *SFfitQCDUp, *SFfitQCDDown;
         if(bin % 100 < 60){
 	  SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.);
 	  if(i == 0){
-	    SFfitParUp = new TF1(TString::Format("fitFunctionParUp%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 180., 2000.);
+	    SFfitParUp   = new TF1(TString::Format("fitFunctionParUp%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 180., 2000.);
 	    SFfitParDown = new TF1(TString::Format("fitFunctionParDown%d",i),"[0]/x/x+[1]/x+[2]+[3]*x", 180., 2000.);
+	    SFfitQCDUp   = new TF1(TString::Format("fitFunctionQCDUp%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 180., 2000.);
+	    SFfitQCDDown = new TF1(TString::Format("fitFunctionQCDDown%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 180., 2000.);
 	  }
 	}
         else{
 	  SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x"        , 210., 2000.);
 	  if(i == 0){
-	    SFfitParUp = new TF1(TString::Format("fitFunctionParUp%d",i),"[0]/x+[1]+[2]*x"        , 210., 2000.);
+	    SFfitParUp   = new TF1(TString::Format("fitFunctionParUp%d",i),"[0]/x+[1]+[2]*x"        , 210., 2000.);
 	    SFfitParDown = new TF1(TString::Format("fitFunctionParDown%d",i),"[0]/x/x+[1]/x+[2]"        , 210., 2000.);
+	    SFfitQCDUp   = new TF1(TString::Format("fitFunctionQCDUp%d",i),"[0]/x+[1]+[2]*x"        , 210., 2000.);
+            SFfitQCDDown = new TF1(TString::Format("fitFunctionQCDDown%d",i),"[0]/x/x+[1]/x+[2]"        , 210., 2000.);
 	  }
 	}
 	
@@ -218,8 +223,14 @@ void CombineHistogramDumpster::Loop()
 	if(i == 0){
 	  SF->Fit(SFfitParUp,"RF");
 	  SF->Fit(SFfitParDown,"RF");
+	  TH1F *SF_QCDUp = (TH1F*)SFfile->Get("SF_STfitQCDUp");
+	  SF_QCDUp->Fit(SFfitQCDUp,"RF");
+	  TH1F *SF_QCDDown = (TH1F*)SFfile->Get("SF_STfitQCDDown");
+	  SF_QCDDown->Fit(SFfitQCDDown,"RF");
 	  SFparUp = *SFfitParUp;
 	  SFparDown = *SFfitParDown;
+	  SFQCDUp = *SFfitQCDUp;
+	  SFQCDDown = *SFfitQCDDown;
 	}
 
 	//central ST fit and systematic variations (latter are not necessary anymore)
@@ -263,6 +274,16 @@ void CombineHistogramDumpster::Loop()
     HT_2D_STparUp.push_back(       (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Up"  ));
     HT_2D_STparDown.push_back(     (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Down"));
 
+    //ST QCD variations block
+    FitMass_STstatUp.push_back(     (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
+    FitMass_STstatDown.push_back(   (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
+    HT_STstatUp.push_back(          (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
+    HT_STstatDown.push_back(        (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfitQCDDown"));
+    FitMass_2D_STstatUp.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
+    FitMass_2D_STstatDown.push_back((TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
+    HT_2D_STstatUp.push_back(       (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
+    HT_2D_STstatDown.push_back(     (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
+
   
     //negative log likelihood block
     TString NLLname = "NegLogLnoB_";
@@ -286,6 +307,8 @@ void CombineHistogramDumpster::Loop()
   STrew_STstatDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitDown");
   STrew_STparUp   = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitFuncUp");
   STrew_STparDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitFuncDown");
+  STrew_STQCDUp   = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitQCDUp");
+  STrew_STQCDDown = (TH1F*) STrew[0]->Clone("STrew_" + gn + "_STfit_" + YearS + "_" + binS + "_" + "STfitQCDDown");
 
   //calculate jet multiplicity
   int jetMult = 0;
@@ -410,6 +433,14 @@ void CombineHistogramDumpster::Loop()
           const float STcorrParDown = CentralWeight * SFcorrParDown;
 	  STrew_STparUp->Fill(STvals[0], STcorrParUp);
 	  STrew_STparDown->Fill(STvals[0], STcorrParDown);
+
+	  //vary QCD contamination in 1b regions and evaluate impact on ST
+	  const float SFcorrQCDUp = SFQCDUp.Eval(STvals[i]);
+          const float STcorrQCDUp = CentralWeight * SFcorrQCDUp;
+          const float SFcorrQCDDown = SFQCDDown.Eval(STvals[i]);
+          const float STcorrQCDDown = CentralWeight * SFcorrQCDDown;
+          STrew_STQCDUp->Fill(STvals[0], STcorrQCDUp);
+          STrew_STQCDDown->Fill(STvals[0], STcorrQCDDown);
 	}
       }
       ST[i]->Fill(STvals[i], CentralWeight);
@@ -692,6 +723,8 @@ void CombineHistogramDumpster::Loop()
             STrew_STstatDown->Write();
 	    STrew_STparUp->Write();
 	    STrew_STparDown->Write();
+	    STrew_STQCDUp->Write();
+            STrew_STQCDDown->Write();
 	  }
         }
       }
