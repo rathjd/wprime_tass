@@ -1,9 +1,7 @@
 executable   = SubmitSplit1163_2016apv.sh
 arguments    = $(ProcID)
-max_retries  = 1
+max_retries  = 0
 batch_name   = SplitScan1163_2016apv
-output       = SplitScan2016apv_1163_$(ProcID).out
-error        = SplitScan2016apv_1163_$(ProcID).err
 log          = SplitScan2016apv_1163_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")

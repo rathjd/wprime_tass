@@ -1,8 +1,6 @@
 executable   = Submit1163_2016apv.sh
 max_retries  = 1
 batch_name   = Comb1163_2016apv
-output       = 2016apv_1163.out
-error        = 2016apv_1163.err
 log          = 2016apv_1163.log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")

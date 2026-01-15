@@ -1,13 +1,11 @@
 executable   = SubmitSplit1153_2017.sh
 arguments    = $(ProcID)
-max_retries  = 1
+max_retries  = 0
 batch_name   = SplitScan1153_2017
-output       = SplitScan2017_1153_$(ProcID).out
-error        = SplitScan2017_1153_$(ProcID).err
 log          = SplitScan2017_1153_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour  = "nextweek"
++JobFlavour  = "testmatch"
 RequestCpus  = 2
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))

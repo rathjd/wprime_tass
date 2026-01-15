@@ -1,8 +1,6 @@
 executable   = Submit1163_2018.sh
 max_retries  = 1
 batch_name   = Comb1163_2018
-output       = 2018_1163.out
-error        = 2018_1163.err
 log          = 2018_1163.log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")

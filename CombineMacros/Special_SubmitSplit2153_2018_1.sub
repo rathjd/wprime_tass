@@ -1,11 +1,13 @@
-executable   = Submit1153_2017.sh
+executable   = Special_SubmitSplit2153_2018_1.sh
+arguments    = $(ProcID)
 max_retries  = 1
-batch_name   = Comb1153_2017
-log          = 2017_1153.log
+batch_name   = SplitScan2153_2018
+log          = SplitScan2018_2153_1.log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour  = "tomorrow"
++JobFlavour  = "nextweek"
 RequestCpus  = 2
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
 queue 1
+

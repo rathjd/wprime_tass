@@ -1,11 +1,12 @@
-executable   = Submit1153_2017.sh
+executable   = SubmitBrazil2016apvCombination.sh
 max_retries  = 1
-batch_name   = Comb1153_2017
-log          = 2017_1153.log
+batch_name   = SubmitBrazil2016apvCombination
+log          = SubmitBrazil2016apvCombination.log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour  = "tomorrow"
++JobFlavour  = "testmatch"
 RequestCpus  = 2
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
 queue 1
+

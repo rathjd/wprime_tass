@@ -1,9 +1,7 @@
 executable   = SubmitSplit1163_2017.sh
 arguments    = $(ProcID)
-max_retries  = 1
+max_retries  = 0
 batch_name   = SplitScan1163_2017
-output       = SplitScan2017_1163_$(ProcID).out
-error        = SplitScan2017_1163_$(ProcID).err
 log          = SplitScan2017_1163_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
