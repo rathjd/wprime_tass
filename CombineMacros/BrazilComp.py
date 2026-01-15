@@ -26,9 +26,9 @@ ConfigHTvsFit6j3b = [["1163", "HTslice",  "all", 1, "H_{T} #mu 6j 3b Run2"],
 
 #configuration to compare all slices in 6j4b regions
 ConfigHTvsFit6j4b = [["1164", "HTslice",  "all", 1, "H_{T} #mu 6j 4b Run2"],
-                     ["2164", "HTslice",  "all", 2, "H_{T} e 6j 4b Run2"],
-                     ["1164", "FitSlice", "all", 3, "m_{fit} #mu 6j 4b Run2"],
-                     ["2164", "FitSlice", "all", 4, "m_{fit} e 6j 4b Run2"]]
+                     ["2164", "HTslice",  "all", 2, "H_{T} e 6j 4b Run2"]]
+                     #["1164", "FitSlice", "all", 3, "m_{fit} #mu 6j 4b Run2"],
+                     #["2164", "FitSlice", "all", 4, "m_{fit} e 6j 4b Run2"]]
 
 #configuration to compare slice combinations for each era
 ConfigEraComparison = [["All", "CombinationSlices", "2016",    1, "H_{T}/m_{fit} #mu/e 5-6j 3-4b 2016"],

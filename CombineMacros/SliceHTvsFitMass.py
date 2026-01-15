@@ -76,6 +76,9 @@ NLLvals = [["ttbar",      0., 0., 1., 1.],
            ["single_top", 0., 0., 1., 1.],
            ["diboson",    0., 0., 1., 1.]]
 
+if year == "2018":
+    NLLvals.append(["qcd", 0., 0., 1., 1.])
+
 HTnorm = 0
 FitNorm = 0
 

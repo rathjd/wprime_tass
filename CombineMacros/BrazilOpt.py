@@ -21,6 +21,7 @@ optimization = []
 compromise = True
 folder = "test"
 skipSlicing = True
+skipLimits = False
 
 #accept shell inputs
 
@@ -38,7 +39,12 @@ try:
 except:
     print("compromise optimization option defaults to",compromise)
 
-
+try:
+    if sys.argv[3] == "True":
+        skipLimits = True
+        print("skipping limits set to",skipLimits)
+except:
+    print("skipping limits defaults to",skipLimits)
 
 #set up the optimized working points for each masspoint
 #order is 1153, 2153; 1163, 2163; 1164, 2164
@@ -184,7 +190,7 @@ for mass in range(0,9):
                         counterJet=2
                     else: #leftover 6 jets 2-3 tags cases
                         counterJet=1 
-                    if not counterJet=2: #except 6j4b which isn't sliced
+                    if not counterJet==2: #except 6j4b which isn't sliced
                         os.system("python3 ../SliceHTvsFitMass.py "+year+" "+binX+" "+str(optimization[mass][counterJet][0])+" "+str(optimization[mass][counterJet][1])+" "+massString)#+" direct")
 
     #combination cards across years for different bins
@@ -357,16 +363,17 @@ binsToProduce.append("All")
 
 CardNamesToProduce = ["CombinationSlices", "FitSlice", "HTslice"]
 
-for binN in binsToProduce:
-    for yearN in yearsToProduce:
-        for cardN in CardNamesToProduce:
-            if not cardN.find("Fit") > -1 and binN.Find("164") > -1: #except fit slices for 64 channel only runs
-                print("python3 Brazil.py "+binN+" "+yearN+" "+cardN)
-                os.system("python3 Brazil.py "+binN+" "+yearN+" "+cardN)
+if not skipLimits:
+    for binN in binsToProduce:
+        for yearN in yearsToProduce:
+            for cardN in CardNamesToProduce:
+                if not (cardN.find("fit") > -1 and binN.find("164") > -1): #except fit slices for 64 channel only runs
+                    print("python3 Brazil.py "+binN+" "+yearN+" "+cardN)
+                    os.system("python3 Brazil.py "+binN+" "+yearN+" "+cardN)
     
-#produce final limit plot
-print("python3 Brazil.py All all Optimized")
-os.system("python3 Brazil.py All all Optimized")
+    #produce final limit plot
+    print("python3 Brazil.py All all Optimized")
+    os.system("python3 Brazil.py All all Optimized")
 
 #order this for TGraph
 #TwoSigmaBand = array( 'd' )
