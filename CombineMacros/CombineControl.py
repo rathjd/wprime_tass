@@ -97,19 +97,17 @@ for binN in bins:
   #https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun2#Combination_and_correlations is now a shape uncertainty built into histograms in the file
 
   #define nested lnN uncertainty dictionary
-  lnNdict = {"lumi_13TeV_correlated": {"2016": "1.006", "2016apv": "1.006", "2017": "1.009", "2018": "1.02"},
-             "lumi_13TeV_1718":       {"2016": "-",     "2016apv": "-",     "2017": "1.006", "2018": "1.002"},
-             "lumi_2016":             {"2016": "1.01",  "2016apv": "1.01",  "2017": "-",     "2018": "-"},
-             "lumi_2017":             {"2016": "-",     "2016apv": "-",     "2017": "1.02",  "2018": "-"},
-             "lumi_2018":             {"2016": "-",     "2016apv": "-",     "2017": "-",     "2018": "1.015"},
+  lnNdict = {"lumi_13TeV_1516_l":     {"2016": "1.0118","2016apv": "1.0118","2017": "-",     "2018": "-"},
+             "lumi_13TeV_151617_l":   {"2016": "1.0004","2016apv": "1.0004","2017": "1.0055","2018": "-"},
+             "lumi_13TeV_15161718_l": {"2016": "1.0035","2016apv": "1.0035","2017": "1.0061","2018": "1.0084"},
              "CMS_eff_e_HLTzvtx_17":  {"2016": "-",     "2016apv": "-",     "2017": "1.001", "2018": "-"}
             }
 
   B2Gn = "25008"
   systMaster = [#lumi and generic normalization uncertainties
-                ["lumi_13TeV_correlated",                               "lnN", "-"],
-                ["lumi_13TeV_1718",                                     "lnN", "-"],
-                ["lumi_"+simpYearName       ,                           "lnN", "-"],
+                ["lumi_13TeV_1516_l",                                   "lnN", "-"],
+                ["lumi_13TeV_151617_l",                                 "lnN", "-"],
+                ["lumi_15161718_l",                                     "lnN", "-"],
                 ["CMS_eff_e_HLTzvtx_17",                                "lnN", "-"],
 
                 #event weight variation uncertainties
