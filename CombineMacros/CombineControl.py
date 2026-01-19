@@ -107,7 +107,7 @@ for binN in bins:
   systMaster = [#lumi and generic normalization uncertainties
                 ["lumi_13TeV_1516_l",                                   "lnN", "-"],
                 ["lumi_13TeV_151617_l",                                 "lnN", "-"],
-                ["lumi_15161718_l",                                     "lnN", "-"],
+                ["lumi_13TeV_15161718_l",                               "lnN", "-"],
                 ["CMS_eff_e_HLTzvtx_17",                                "lnN", "-"],
 
                 #event weight variation uncertainties
