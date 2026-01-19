@@ -99,6 +99,10 @@ void CombineHistogramDumpster::Loop()
   vector<TH1F*> FitMass_STparUp, FitMass_STparDown;
   vector<TH1F*> HT_STparUp, HT_STparDown;
   TH1F* STrew_STparUp, *STrew_STparDown;
+  vector<TH2F*> FitMass_2D_STQCDUp, FitMass_2D_STQCDDown;
+  vector<TH2F*> HT_2D_STQCDUp, HT_2D_STQCDDown;
+  vector<TH1F*> FitMass_STQCDUp, FitMass_STQCDDown;
+  vector<TH1F*> HT_STQCDUp, HT_STQCDDown;
   TH1F* STrew_STQCDUp, *STrew_STQCDDown;
 
   vector<TH1F*> ST;
@@ -275,14 +279,14 @@ void CombineHistogramDumpster::Loop()
     HT_2D_STparDown.push_back(     (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitFunc_"+YearS+"_"+region+"Down"));
 
     //ST QCD variations block
-    FitMass_STstatUp.push_back(     (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
-    FitMass_STstatDown.push_back(   (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
-    HT_STstatUp.push_back(          (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
-    HT_STstatDown.push_back(        (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfitQCDDown"));
-    FitMass_2D_STstatUp.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
-    FitMass_2D_STstatDown.push_back((TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
-    HT_2D_STstatUp.push_back(       (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
-    HT_2D_STstatDown.push_back(     (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
+    FitMass_STQCDUp.push_back(     (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
+    FitMass_STQCDDown.push_back(   (TH1F*) FitMass[m-3][0]->Clone(   variationsName[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
+    HT_STQCDUp.push_back(          (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
+    HT_STQCDDown.push_back(        (TH1F*) HT[m-3][0]->Clone(        HTvariationsName[m-3][0]+"CMS_B2G"+B2Gn+"_STfitQCDDown"));
+    FitMass_2D_STQCDUp.push_back(  (TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
+    FitMass_2D_STQCDDown.push_back((TH2F*) FitMass_2D[m-3][0]->Clone(FitMass2Dnames[m-3][0]  +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
+    HT_2D_STQCDUp.push_back(       (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitQCDUp"  ));
+    HT_2D_STQCDDown.push_back(     (TH2F*) HT_2D[m-3][0]->Clone(     HT2Dnames[m-3][0]       +"CMS_B2G"+B2Gn+"_STfitQCDDown"));
 
   
     //negative log likelihood block
@@ -613,6 +617,21 @@ void CombineHistogramDumpster::Loop()
             HT_2D_STparUp[m-3]->Fill(fillVar, NLLfillZero, STcorrParUp);
             HT_2D_STparDown[m-3]->Fill(fillVar, NLLfillZero, STcorrParDown);
 
+	    const float SFcorrQCDUp = SFQCDUp.Eval(STvals[i]);
+            const float STcorrQCDUp = CentralWeight * SFcorrQCDUp;
+            const float SFcorrQCDDown = SFQCDDown.Eval(STvals[i]);
+            const float STcorrQCDDown = CentralWeight * SFcorrQCDDown;
+
+            FitMass_STQCDUp[m-3]->Fill(fillBranch, STcorrQCDUp);
+            FitMass_STQCDDown[m-3]->Fill(fillBranch, STcorrQCDDown);
+            HT_STQCDUp[m-3]->Fill(fillVar, STcorrQCDUp);
+            HT_STQCDDown[m-3]->Fill(fillVar, STcorrQCDDown);
+
+            FitMass_2D_STQCDUp[m-3]->Fill(fillBranch, NLLfillZero, STcorrQCDUp);
+            FitMass_2D_STQCDDown[m-3]->Fill(fillBranch, NLLfillZero, STcorrQCDDown);
+            HT_2D_STQCDUp[m-3]->Fill(fillVar, NLLfillZero, STcorrQCDUp);
+            HT_2D_STQCDDown[m-3]->Fill(fillVar, NLLfillZero, STcorrQCDDown);
+
 	    NegLogLnoB[m-3]->Fill(NLLnoBfill, STcorrCentralWeight);
 	    NegLogLnoBvsNegLogL[m-3]->Fill(NLLnoBfillZero, NLLfillZero, STcorrCentralWeight);
           }
@@ -712,6 +731,8 @@ void CombineHistogramDumpster::Loop()
 	  FitMass_STstatDown[i]->Write();
 	  FitMass_STparUp[i]->Write();
 	  FitMass_STparDown[i]->Write();
+	  FitMass_STQCDUp[i]->Write();
+          FitMass_STQCDDown[i]->Write();
         }	
         FitMass[i][j]->Write();
         if(i==0){
@@ -759,6 +780,8 @@ void CombineHistogramDumpster::Loop()
 	  HT_STstatDown[i]->Write();
 	  HT_STparUp[i]->Write();
           HT_STparDown[i]->Write();
+	  HT_STQCDUp[i]->Write();
+          HT_STQCDDown[i]->Write();
         }
         HT[i][j]->Write();
 	if(i==0) ST[j]->Write();
@@ -798,6 +821,10 @@ void CombineHistogramDumpster::Loop()
           FitMass_2D_STparDown[i]->Write();
           HT_2D_STparUp[i]->Write();
           HT_2D_STparDown[i]->Write();
+	  FitMass_2D_STQCDUp[i]->Write();
+          FitMass_2D_STQCDDown[i]->Write();
+          HT_2D_STQCDUp[i]->Write();
+          HT_2D_STQCDDown[i]->Write();
         }
         HT_2D[i][j]->Write();
         FitMass_2D[i][j]->Write();
