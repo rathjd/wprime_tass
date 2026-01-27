@@ -314,12 +314,6 @@ void CombineHistogramDumpsterRvec::Loop()
     //
     for(unsigned i = 0; i < JetPt->size(); ++i) if(JetPt->at(i) > 30.){
       defHT += JetPt->at(i);
-      /*JetCounts[0]++;
-      JetCounts[1]++;
-      JetCounts[2]++;
-      JetCounts[3]++;
-      JetCounts[4]++;
-      if(JetbTag->at(i)) bJetMainCount++;*/
     }
 
     //std::cout<<"HT calculated"<<std::endl;

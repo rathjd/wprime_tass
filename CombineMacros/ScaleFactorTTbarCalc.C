@@ -38,7 +38,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
   //loop over samples, organizing data, ttbar, and non-ttbar with variations
   //for(unsigned sam = 0; sam < 27; ++sam){//FIXME
-  for(unsigned sam = 0; sam < 34; ++sam){
+  for(unsigned sam = 0; sam < 33; ++sam){
     if(bin/1000 == 1 && sam == 0) continue;
     if(bin/2000 == 1 && sam == 1) continue;
 
