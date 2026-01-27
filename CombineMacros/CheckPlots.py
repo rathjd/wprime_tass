@@ -181,7 +181,7 @@ for background in backgroundsExt:
     BgrPart1b = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_")
     print("Background part for 1b","ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_")
 
-    if background in backgrounds:
+    if not background[1]==6:
         BgrPart2braw = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
         print("Background part for 2b raw","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
 
@@ -192,7 +192,7 @@ for background in backgroundsExt:
         BgrTotal2b    = BgrPart2b.Clone("BgrTotal2b")
         BgrTotal2braw = BgrPart2braw.Clone("BgrTotal2braw")
     else:
-        if background in backgrounds:
+        if not background[1]==6:
             BgrPart2b = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
             print("Background part for 2b","ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_")
             BgrTotal2b.Add(BgrPart2b)
@@ -201,14 +201,14 @@ for background in backgroundsExt:
 
     BgrPart1b.Scale(1.,"width")
 
-    if background in backgrounds:
+    if not background[1]==6:
         BgrPart2b.Scale(1.,"width")
         if not BgrPart2b.GetName() == BgrPart2braw.GetName():
             BgrPart2braw.Scale(1.,"width")
 
     Bgr1b[background[0]] = BgrPart1b
 
-    if background in backgrounds:
+    if not background[1]==6:
         Bgr2b[background[0]] = BgrPart2b
         Bgr2braw[background[0]] = BgrPart2braw
 
@@ -217,7 +217,7 @@ for background in backgroundsExt:
         Bgr1bSystUp[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
         Bgr1bSystDown[bin] += pow(BgrPart1b.GetBinError(bin+1),2)
 
-        if background in backgrounds:
+        if not background[1]==6:
             Bgr2bSystUp[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
             Bgr2bSystDown[bin] += pow(BgrPart2b.GetBinError(bin+1),2)
             Bgr2brawSystUp[bin] += pow(BgrPart2braw.GetBinError(bin+1),2)
@@ -238,7 +238,7 @@ for background in backgroundsExt:
         Up1b      = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_"+syst+"Up")
         Down1b    = inOrigin.Get("ST_"+background[0]+"_Wprime"+binS+"1_"+year+"_"+syst+"Down")
 
-        if background in backgrounds:
+        if not background[1]==6:
             Up2b      = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Up")
             Down2b    = inResult.Get(STstr+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Down")
             Up2braw   = inResult.Get("ST_"+background[0]+"_Wprime"+binS+"2_"+year+"_"+syst+"Up")
@@ -247,7 +247,7 @@ for background in backgroundsExt:
         Up1b.Scale(1.,"width")
         Down1b.Scale(1.,"width")
 
-        if background in backgrounds:
+        if not background[1]==6:
             Up2b.Scale(1.,"width")
             Down2b.Scale(1.,"width")
             if not Up2b.GetName() == Up2braw.GetName():
@@ -261,7 +261,7 @@ for background in backgroundsExt:
             Bgr1bSystDown[bin] += pow(min(Up1b.GetBinContent(bin+1) - BgrPart1b.GetBinContent(bin+1),
                                     Down1b.GetBinContent(bin+1) - BgrPart1b.GetBinContent(bin+1),
                                     0.), 2)
-            if background in backgrounds:
+            if not background[1]==6:
                 Bgr2bSystUp[bin] += pow(max(Up2b.GetBinContent(bin+1) - BgrPart2b.GetBinContent(bin+1),
                                     Down2b.GetBinContent(bin+1) - BgrPart2b.GetBinContent(bin+1),
                                     0.), 2)
