@@ -19,7 +19,7 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
   std::cout<<"binMajor = "<<binMajor<<" in year "<<year<<" with jet multiplicity "<<jetMultiplicity<<std::endl;
 
   //run 1 b-tag control region with signal samples
-  for(unsigned i = 0; i < 52; ++i){
+  for(unsigned i = 0; i < 51; ++i){
     if(bin/1000 == 1 && i == 0) continue; //skip electron data sample for muon regions
     if(bin/1000 == 2 && i == 1) continue; //skip muon data sample for electron regions
     if(i > 1 || (year == "2016" || year == "2017")){
@@ -35,8 +35,7 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
   ScaleFactorTTbarCalc(binMajor+1, year);
   
   //run actual variations and SF'd ttbar for 2-, 3-, and 4-btag regions
-  //for(unsigned i = 0; i < 45; ++i){//FIXME
-  for(unsigned i = 0; i < 52; ++i){
+  for(unsigned i = 0; i < 51; ++i){
     if(bin/1000 == 1 && i == 0) continue;
     else if(bin/2000 == 1 && i == 1) continue;
       if(i > 1 || (year == "2016" || year == "2017")){
