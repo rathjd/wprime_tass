@@ -8,9 +8,9 @@ import ctypes
 ConfigSigComb = [["1153", "CombinationSlices", "all", 1, "H_{T}/m_{fit} #mu 5j 3b Run2"],
                  ["2153", "CombinationSlices", "all", 2, "H_{T}/m_{fit} e 5j 3b Run2"],
                  ["1163", "CombinationSlices", "all", 3, "H_{T}/m_{fit} #mu 6j 3b Run2"],
-                 ["1164", "CombinationSlices", "all", 4, "H_{T}/m_{fit} #mu 6j 4b Run2"],
+                 ["1164", "CombinationSlices", "all", 4, "H_{T} #mu 6j 4b Run2"],
                  ["2163", "CombinationSlices", "all", 5, "H_{T}/m_{fit} e 6j 3b Run2"],
-                 ["2164", "CombinationSlices", "all", 6, "H_{T}/m_{fit} e 6j 4b Run2"]]
+                 ["2164", "CombinationSlices", "all", 6, "H_{T} e 6j 4b Run2"]]
 
 #configuration to compare all slices in 5j3b regions
 ConfigHTvsFit5j = [["1153", "HTslice",  "all", 1, "H_{T} #mu 5j 3b Run2"],
