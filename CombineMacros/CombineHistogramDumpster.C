@@ -14,9 +14,7 @@
 
 //small function to calculate covariance matrix envelope of fit function
 float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
-  vector<double> Derivatives;
-  if(jetNumber==5) Derivatives = {1./STval/STval, 1./STval, 1., STval, STval*STval};
-  else		   Derivatives = {1./STval/STval, 1./STval, 1., STval};
+  vector<double> Derivatives = {1./STval/STval, 1./STval, 1., STval};
   float FinalEnvelope = 0.;
   for(unsigned x = 0; x < Derivatives.size(); ++x){
     for(unsigned y = 0; y < Derivatives.size(); ++y){
@@ -204,27 +202,13 @@ void CombineHistogramDumpster::Loop()
         SFfile = new TFile(SFloc);
         TH1F *SF = (TH1F*)SFfile->Get("SF_"+variation);
         TF1 *SFfit, *SFfitParUp, *SFfitParDown, *SFfitQCDUp, *SFfitQCDDown;
-        if(bin % 100 < 60){
-	  SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x+[4]*x*x", 180., 2000.);
-	  if(i == 0){
-	    SFfitParUp   = new TF1(TString::Format("fitFunctionParUp%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 180., 2000.);
-	    SFfitParDown = new TF1(TString::Format("fitFunctionParDown%d",i),"[0]/x/x+[1]/x+[2]+[3]*x", 180., 2000.);
-	    SFfitQCDUp   = new TF1(TString::Format("fitFunctionQCDUp%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 180., 2000.);
-	    SFfitQCDDown = new TF1(TString::Format("fitFunctionQCDDown%d",i),"[0]/x+[1]+[2]*x+[3]*x*x", 180., 2000.);
-	  }
-	}
-        else{
-	  SFfit = new TF1(TString::Format("fitFunction%d",i),"[0]/x/x+[1]/x+[2]+[3]*x"        , 210., 2000.);
-	  if(i == 0){
-	    SFfitParUp   = new TF1(TString::Format("fitFunctionParUp%d",i),"[0]/x+[1]+[2]*x"        , 210., 2000.);
-	    SFfitParDown = new TF1(TString::Format("fitFunctionParDown%d",i),"[0]/x/x+[1]/x+[2]"        , 210., 2000.);
-	    SFfitQCDUp   = new TF1(TString::Format("fitFunctionQCDUp%d",i),"[0]/x+[1]+[2]*x"        , 210., 2000.);
-            SFfitQCDDown = new TF1(TString::Format("fitFunctionQCDDown%d",i),"[0]/x/x+[1]/x+[2]"        , 210., 2000.);
-	  }
-	}
-	
+	SFfit = new TF1(TString::Format("fitFunction%d",i),			"[0]/x/x+[1]/x+[2]+[3]*x", 	400., 2000.);
 	//variations of fit functions for a systematic
 	if(i == 0){
+	  SFfitParUp   = new TF1(TString::Format("fitFunctionParUp%d",i),	"[0]/x+[1]+[2]*x", 		400., 2000.);
+	  SFfitParDown = new TF1(TString::Format("fitFunctionParDown%d",i),	"[0]/x/x+[1]/x+[2]", 		400., 2000.);
+	  SFfitQCDUp   = new TF1(TString::Format("fitFunctionQCDUp%d",i),	"[0]/x/x+[1]/x+[2]+[3]*x", 	400., 2000.);
+	  SFfitQCDDown = new TF1(TString::Format("fitFunctionQCDDown%d",i),	"[0]/x/x+[1]/x+[2]+[3]*x", 	400., 2000.);
 	  SF->Fit(SFfitParUp,"RF");
 	  SF->Fit(SFfitParDown,"RF");
 	  TH1F *SF_QCDUp = (TH1F*)SFfile->Get("SF_STfitQCDUp");
