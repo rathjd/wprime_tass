@@ -52,9 +52,9 @@ if   year == "2016apv":
 elif year == "2016":
     CMS.SetLumi("16.8") 
 elif year == "2017":
-    CMS.SetLumi("41.5")
+    CMS.SetLumi("42.1")
 elif year == "2018":
-    CMS.SetLumi("59.8")
+    CMS.SetLumi("59.6")
 elif year == "all":
     CMS.SetLumi("138")
 CMS.SetEnergy("13")

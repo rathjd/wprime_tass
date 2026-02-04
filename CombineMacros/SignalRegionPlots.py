@@ -22,43 +22,35 @@ for yearName in Years:
     if yearName == '2016':
         CMS.SetLumi("36.3")
     elif yearName == "2016apv":
-        CMS.SetLumi("19.52")
+        CMS.SetLumi("19.5")
     elif yearName == '2017':
-        CMS.SetLumi("41.5")
+        CMS.SetLumi("42.1")
     elif yearName == '2018':
-        CMS.SetLumi("59.8")
+        CMS.SetLumi("59.6")
     CMS.SetEnergy("13")
 
     B2Gn = "25008"
     baseSystematics = [
-                   #uncertainties on object variations other than electron scale
-                   "CMS_res_e_"             +yearName,
-                   "CMS_scale_j_"           +yearName,
-                   "CMS_res_j_"             +yearName,
+                   "CMS_res_e"             ,
+                   "CMS_scale_j_"           +year,
+                   "CMS_res_j_"             +year,
 
                    #event weight variations
-                   "CMS_eff_e_trigger_"     +yearName,
-                   "CMS_eff_e_reco_"        +yearName,
-                   "CMS_eff_e_"             +yearName,
-                   "CMS_eff_m_trigger_"     +yearName,
-                   "CMS_eff_m_id_"          +yearName,
-                   "CMS_eff_m_iso_"         +yearName,
+                   "CMS_eff_e_trigger"     ,
+                   "CMS_eff_e_reco"        ,
+                   "CMS_eff_e"             ,
+                   "CMS_eff_m_trigger_"     +year,
+                   "CMS_eff_m_id_"          +year,
+                   "CMS_eff_m_iso_"         +year,
                    "CMS_btag_light"              ,
                    "CMS_btag_heavy"              ,
-                   "CMS_btag_light_"        +yearName,
-                   "CMS_btag_heavy_"        +yearName,
-                   "CMS_eff_j_PUJET_id_"    +yearName,
-                   "CMS_l1_ecal_prefiring_" +yearName,
+                   "CMS_btag_light_"        +year,
+                   "CMS_btag_heavy_"        +year,
+                   "CMS_eff_j_PUJET_id_"    +year,
+                   "CMS_l1_ecal_prefiring_" +year,
                    "CMS_pileup"                  ,
                    "ps_isr"                      ,
-                   "ps_fsr"                      ,
-
-                   #uncertainties on normalization
-                   "lumi_13TeV_correlated"       ,
-                   "lumi_13TeV_1718"             ,
-                   "lumi_"                  +yearName,
-                   "CMS_eff_e_HLTzvtx_17"]
-
+                   "ps_fsr"                      ]
     #make list of sample-dependent systematics
     extendSystematics = []
     for bgr in backgrounds:

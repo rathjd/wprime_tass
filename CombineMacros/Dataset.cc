@@ -308,7 +308,7 @@ public:
 
   bool Debug;
   const vector<TString> SampleYears{"2016apv","2016","2017","2018"};
-  const vector<double> CMSLumiYears{19.52, 16.81, 41.48, 59.83};
+  const vector<double> CMSLumiYears{19.5, 16.8, 42.1, 59.6};
   vector<TString> DatasetNames, GroupNames;
   map<TString,DatasetGroup> Groups;
   map<TString,Dataset> Datasets;
