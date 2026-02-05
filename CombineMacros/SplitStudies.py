@@ -43,14 +43,20 @@ binsLines = binsFile.readlines()
 if binNr[2] == "5":
     for line in binsLines:
         splitLine = line.split()
+        if len(splitLine) < 4:
+            continue
         if splitLine[1].find("nNLLlimits53_500") > -1:
-            maxNLL = int(splitLine[3][0:len(splitLine[3])-1])
+            splitLine[3] = splitLine[3].rstrip(";")
+            maxNLL = int(splitLine[3])
             break
 elif binNr[2] == "6":
     for line in binsLines:
         splitLine = line.split()
+        if len(splitLine) < 4:
+            continue
         if splitLine[1].find("nNLLlimits64_500") > -1:
-            maxNLL = int(splitLine[3][0:len(splitLine[3])-1])
+            splitLine[3] = splitLine[3].rstrip(";")
+            maxNLL = int(splitLine[3])
             break
 
 massString = str(mass)
