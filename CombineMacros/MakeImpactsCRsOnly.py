@@ -18,7 +18,7 @@ era = "all"
 path = "Impacts_"+str(mass)
 
 if os.path.isdir(path):
-  print(fileName," directory already exists, removing it")
+  print(path," directory already exists, removing it")
   os.system("rm -rf " + path)
 os.system("mkdir " + path)
 
