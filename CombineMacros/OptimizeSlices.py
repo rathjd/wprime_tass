@@ -7,8 +7,8 @@ import math
 crossSections = [683.8+708.3, 321.7+336.1, 161.1+165.3, 85.92+85.82, 48.84+47.47, 29.81+27.73, 18.33+16.49, 11.73+10.25, 7.683+6.546]
 
 OptimiBins = [[[1153, 2153], ["2016", "2016apv", "2017", "2018"]],
-              [[1163, 2163], ["2016", "2016apv", "2017", "2018"]],
-              [[1164, 2164], ["2016", "2016apv", "2017", "2018"]]]
+              [[1163, 2163], ["2016", "2016apv", "2017", "2018"]]]
+              #[[1164, 2164], ["2016", "2016apv", "2017", "2018"]]]
 
 saveFile = TFile("LegoOptimization.root","RECREATE")
 
@@ -21,10 +21,14 @@ binsFile = open("BinTables.C","r")
 binsLines = binsFile.readlines()
 for line in binsLines:
     splitLine = line.split()
+    if len(splitLine) < 2:
+        continue
     if splitLine[1].find("nNLLlimits53_500") > -1:
-        maxNLL5 = int(splitLine[3][0:len(splitLine[3])-1])
+        splitLine[3]=splitLine[3].rstrip(";")
+        maxNLL5 = int(splitLine[3])
     if splitLine[1].find("nNLLlimits64_500") > -1:
-        maxNLL6 = int(splitLine[3][0:len(splitLine[3])-1])
+        splitLine[3]=splitLine[3].rstrip(";")
+        maxNLL6 = int(splitLine[3])
 
 print("number of NLL bins 5:",maxNLL5,"; 6:",maxNLL6)
 

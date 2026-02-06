@@ -5,7 +5,7 @@ import cmsstyle as CMS
 import math
 from array import array
 
-jbBins = ["53", "63", "64"]
+jbBins = ["53", "63"]
 
 inFile = TFile("LegoOptimization.root","READ")
 
@@ -19,10 +19,14 @@ binsFile = open("BinTables.C","r")
 binsLines = binsFile.readlines()
 for line in binsLines:
     splitLine = line.split()
+    if len(splitLine) < 2:
+        continue
     if splitLine[1].find("nNLLlimits53_500") > -1:
-        maxNLL5 = int(splitLine[3][0:len(splitLine[3])-1])
+        splitLine[3]=splitLine[3].rstrip(";")
+        maxNLL5 = int(splitLine[3])
     if splitLine[1].find("nNLLlimits64_500") > -1:
-        maxNLL6 = int(splitLine[3][0:len(splitLine[3])-1])
+        splitLine[3]=splitLine[3].rstrip(";")
+        maxNLL6 = int(splitLine[3])
     #extract the exact NLL binning, unified coarse version
     if line.find("double NLLlimits53_500["+str(maxNLL5+1)+"] = {") > -1:
         start = line.find("{")
