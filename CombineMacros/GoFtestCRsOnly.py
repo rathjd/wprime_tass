@@ -41,16 +41,16 @@ print("text2workspace.py Combination/CRslices_"+cardname+".txt -o workspaceGoFCR
 os.system("text2workspace.py Combination/CRslices_"+cardname+".txt -o workspaceGoFCRsOnly_"+cardname+".root")
 
 #run data GoF test
-print("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _data --freezeParameters r --setParameters r=0")
-os.system("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _data --freezeParameters r --setParameters r=0")
+print("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _data_"+cardname+" --freezeParameters r --setParameters r=0")
+os.system("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _data_"+cardname+" --freezeParameters r --setParameters r=0")
 
 #run GoF test toys
-print("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _toys --toysFrequentist -t "+str(ntoys)+" --freezeParameters r --setParameters r=0")
-os.system("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _toys --toysFrequentist -t "+str(ntoys)+" --freezeParameters r --setParameters r=0")
+print("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _toys_"+cardname+" --toysFrequentist -t "+str(ntoys)+" --freezeParameters r --setParameters r=0")
+os.system("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _toys_"+cardname+" --toysFrequentist -t "+str(ntoys)+" --freezeParameters r --setParameters r=0")
 
 #make GoF plots #TBD
-print("combineTool.py -M CollectGoodnessOfFit --input higgsCombine_data.GoodnessOfFit.mH120.root higgsCombine_toys.GoodnessOfFit.mH120.123456.root -m 120 -o GoF_CRsOnly_"+cardname+".json")
-os.system("combineTool.py -M CollectGoodnessOfFit --input higgsCombine_data.GoodnessOfFit.mH120.root higgsCombine_toys.GoodnessOfFit.mH120.123456.root -m 120 -o GoF_CRsOnly_"+cardname+".json")
+print("combineTool.py -M CollectGoodnessOfFit --input higgsCombine_data_"+cardname+".GoodnessOfFit.mH120.root higgsCombine_toys_"+cardname+".GoodnessOfFit.mH120.123456.root -m 120 -o GoF_CRsOnly_"+cardname+".json")
+os.system("combineTool.py -M CollectGoodnessOfFit --input higgsCombine_data_"+cardname+".GoodnessOfFit.mH120.root higgsCombine_toys_"+cardname+".GoodnessOfFit.mH120.123456.root -m 120 -o GoF_CRsOnly_"+cardname+".json")
 
 title = ""
 

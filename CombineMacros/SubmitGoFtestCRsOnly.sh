@@ -6,4 +6,4 @@ cd /afs/cern.ch/user/r/rathjd/work/private/NewCombine/CMSSW_14_1_0_pre4/src/
 cmsenv
 
 cd /afs/cern.ch/user/r/rathjd/work/private/TakeOverWprime/wprime/CombineMacros/
-python3 GoFtestCRsOnly.py 2
+python3 GoFtestCRsOnly.py $1 WprimeAll2tag_all 250

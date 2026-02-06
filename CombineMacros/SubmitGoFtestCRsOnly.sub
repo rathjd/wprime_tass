@@ -5,9 +5,9 @@ batch_name   = SubmitGoFtestCRsOnly_$(ProcID)
 log          = SubmitGoFtestCRsOnly_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour  = "tomorrow"
++JobFlavour  = "workday"
 RequestCpus  = 1
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
-queue 1
+queue 9
 
