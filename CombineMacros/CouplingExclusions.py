@@ -5,40 +5,65 @@ import cmsstyle as CMS
 import math
 import numpy as np
 
+#generate dictionaries for theoretical preferences from RD and RD* values with uncertainties
+#from HFLAV CKM2025 version
+
+RD_SM    = 0.296
+RDsig_SM = 0.004
+RDs_SM   = 0.254
+RDsSig_SM= 0.005
+
+RD_NP    = 0.358
+RDsig_NP = 0.024
+RDs_NP   = 0.281
+RDsSig_NP= 0.011
+
+RDconfig = {}
+RDsConfig = {}
+
+for m in range(3,12):
+    couplingProductRD    = (math.sqrt(RD_NP/RD_SM) - 1.) / 761969 * (m*100)**2
+    couplingProductRDsig = (m*100)**2 * math.sqrt(RDsig_NP**2 / (2 * 761969 * math.sqrt(RD_SM * RD_NP))**2 + RDsig_SM**2 * (math.sqrt(RD_NP / RD_SM**3) / (2 * 761969))**2)
+    RDconfig[m*100]      = [couplingProductRD, couplingProductRDsig]
+
+    couplingProductRDs    = (math.sqrt(RDs_NP/RDs_SM) - 1.) / 761969 * (m*100)**2
+    couplingProductRDsSig = (m*100)**2 * math.sqrt(RDsSig_NP**2 / (2 * 761969 * math.sqrt(RDs_SM * RDs_NP))**2 + RDsSig_SM**2 * (math.sqrt(RDs_NP / RDs_SM**3) / (2 * 761969))**2)
+    RDsConfig[m*100]      = [couplingProductRDs, couplingProductRDsSig]
+
 #dictionary holding the theoretical preferences for RD
 #           mWp: [RD central, RD unc.]
-RDconfig = {300: [0.0098,   0.0047],
-            400: [0.017,    0.008],
-            500: [0.027,    0.013],
-            600: [0.039,    0.053],
-            700: [0.053,    0.026],
-            800: [0.069,    0.033],
-            900: [0.088,    0.042],
-            1000:[0.11,     0.05],
-            1100:[0.13,     0.06]}
+#RDconfig = {300: [0.0098,   0.0047],
+#            400: [0.017,    0.008],
+#            500: [0.027,    0.013],
+#            600: [0.039,    0.053],
+#            700: [0.053,    0.026],
+#            800: [0.069,    0.033],
+#            900: [0.088,    0.042],
+#            1000:[0.11,     0.05],
+#            1100:[0.13,     0.06]}
 
 #dictionary holding the theoretical preferences for RD*
 #           mWp: [RD* central, RD* unc.]
-RDsConfig = {300: [0.0077,   0.0029],
-             400: [0.014,    0.005],
-             500: [0.021,    0.008],
-             600: [0.031,    0.012],
-             700: [0.042,    0.016],
-             800: [0.054,    0.021],
-             900: [0.069,    0.026],
-             1000:[0.085,    0.032],
-             1100:[0.103,    0.039]}
+#RDsConfig = {300: [0.0077,   0.0029],
+#             400: [0.014,    0.005],
+#             500: [0.021,    0.008],
+#             600: [0.031,    0.012],
+#             700: [0.042,    0.016],
+#             800: [0.054,    0.021],
+#             900: [0.069,    0.026],
+#             1000:[0.085,    0.032],
+#             1100:[0.103,    0.039]}
 
 #dictionary of for now 95% CL expected median exclusions
-Excl    = {300: 97.20,
-           400: 82.55,
-           500: 65.34,
-           600: 53.00,
-           700: 43.83,
-           800: 36.86,
-           900: 31.96,
-           1000:28.33,
-           1100:25.68}
+Excl    = {300: 99.92,
+           400: 90.25,
+           500: 69.81,
+           600: 54.34,
+           700: 44.02,
+           800: 36.07,
+           900: 31.42,
+           1000:26.36,
+           1100:23.79}
 
 #MC production parameters and outcomes for our signal samples
 #           mWp: gq, gtau, cs prediction [fb]
