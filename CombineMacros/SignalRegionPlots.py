@@ -51,6 +51,7 @@ for yearName in Years:
                    "CMS_pileup"                  ,
                    "ps_isr"                      ,
                    "ps_fsr"                      ]
+
     #make list of sample-dependent systematics
     extendSystematics = []
     for bgr in backgrounds:
@@ -58,14 +59,24 @@ for yearName in Years:
         extendSystematics.append("pdf_B2G"+B2Gn+"_envelope_"+bgr[0])
         extendSystematics.append("QCDscale_ren_"+bgr[0])
         extendSystematics.append("QCDscale_fac_"+bgr[0])
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfit_"+year+"_e5j1b")
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfit_"+year+"_e6j1b")
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfit_"+year+"_mu5j1b")
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfit_"+year+"_mu6j1b")
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfitFunc_"+year+"_e5j1b")
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfitFunc_"+year+"_e6j1b")
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfitFunc_"+year+"_mu5j1b")
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfitFunc_"+year+"_mu6j1b")
+    extendSystematics.append("CMS_B2G"+B2Gn+"_STfitQCD")
     baseSystematics.extend(extendSystematics)
 
     #loop over bins
     for binString in Bins:
         #card-based systematics to be considered
         CardSystematics = ["CMS_scale_e"            +yearName,
-                           "CMS_B2G"+B2Gn+"_STfit_"+yearName+"_"+binString[0:3]+"2",
-                           "CMS_B2G"+B2Gn+"_NLLnonClosure_"+yearName+"_"+binString[0:3]+"2"]
+                           "lumi_13TeV_1516_l",
+                           "lumi_13TeV_151617_l",
+                           "lumi_13TeV_15161718_l"]
 
         #title configuration
         if binString[0] == 1:
