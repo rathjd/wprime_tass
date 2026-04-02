@@ -9,9 +9,9 @@ def dumpFitInformation(fit):
 
 #get 2018 muon region ST scale factor histograms for 5j and 6j separately
 eosprefix = "/eos/cms/store/group/phys_b2g/wprime/temp/"
-year = "2018"
-inFile5j = TFile(eosprefix+"1153_"+year+"/SF_Bin1152_"+year+".root","READ")
-inFile6j = TFile(eosprefix+"1163_"+year+"/SF_Bin1162_"+year+".root","READ")
+year = "2016apv"
+inFile5j = TFile(eosprefix+"1152_"+year+"/SF_Bin1151_"+year+".root","READ")
+inFile6j = TFile(eosprefix+"1162_"+year+"/SF_Bin1161_"+year+".root","READ")
 
 SFhist5j = inFile5j.Get("SF_")
 SFhist6j = inFile6j.Get("SF_")
