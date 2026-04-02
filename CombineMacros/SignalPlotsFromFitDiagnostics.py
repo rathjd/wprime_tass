@@ -68,11 +68,11 @@ CMS.SetEnergy("13")
 if year == "2016":
     CMS.SetLumi("16.8")
 elif year == "2016apv":
-    CMS.SetLumi("19.52")
+    CMS.SetLumi("19.5")
 elif year == "2017":
-    CMS.SetLumi("41.5")
+    CMS.SetLumi("42.1")
 elif year == "2018":
-    CMS.SetLumi("59.8")
+    CMS.SetLumi("59.6")
 
 #set color options and names for contributions
 backgrounds = [["ttbar", 2],
