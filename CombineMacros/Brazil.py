@@ -95,6 +95,7 @@ if year == "all":
     YearS = "Run 2"
 
 crossSections = [683.8+708.3, 321.7+336.1, 161.1+165.3, 85.92+85.82, 48.84+47.47, 29.81+27.73, 18.33+16.49, 11.73+10.25, 7.683+6.546]
+maxCrossSections = [1693., 843., 425., 227., 128., 76., 46.6, 29.3, 19.0]
 
 #macro to extract limits from combined card
 if not OffMass:
@@ -127,7 +128,7 @@ if not OffMass:
 
     for x in range(0,9):
         central.append(limitNumbers[x][2])
-        theory.append(crossSections[x])
+        theory.append(maxCrossSections[x])
         OneSigmaBand.append(limitNumbers[x][1])
         TwoSigmaBand.append(limitNumbers[x][0])
         massBand.append(float((3+x)*100))
@@ -185,7 +186,7 @@ if not OffMass:
     legend.AddEntry(TwoSigmaGraph, "95% expected", "f")
 
     legend2 = CMS.cmsLeg(0.6, 0.89-0.04*6, 0.89, 0.89-0.04*5, textSize=0.04)
-    legend2.AddEntry(TheoryGraph, "#Gamma_{W'}=10% theory", "l")
+    legend2.AddEntry(TheoryGraph, "#Gamma_{W'}=10% theory, g_{#tau}=0", "l")
 
     #draw manually channel description
     latex = TLatex()
