@@ -54,9 +54,9 @@ else:
 name += " + " + code[2] + "jets and " + code[3] + " b tags"
 
 if channel[10] == "1":
-    var = "m_{fit} [GeV/c]"
+    var = "m_{fit} [GeV]"
 else:
-    var = "H_{T} [GeV/c]"
+    var = "H_{T} [GeV]"
 
 #CMS style setup
 CMS.SetEnergy("13")
