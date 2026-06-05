@@ -54,16 +54,25 @@ for m in range(3,12):
 #             1000:[0.085,    0.032],
 #             1100:[0.103,    0.039]}
 
-#dictionary of for now 95% CL expected median exclusions
-Excl    = {300: 99.92,
-           400: 90.25,
-           500: 69.81,
-           600: 54.34,
-           700: 44.02,
-           800: 36.07,
-           900: 31.42,
-           1000:26.36,
-           1100:23.79}
+#dictionary of expected limit r values in order of 2.5%, 16%, 50%, 84%, 97.5%, and observed (-1 if not available)
+#Excl    = {300: 99.92,
+#           400: 90.25,
+#           500: 69.81,
+#           600: 54.34,
+#           700: 44.02,
+#           800: 36.07,
+#           900: 31.42,
+#           1000:26.36,
+#           1100:23.79}
+Excl    = { 300: [0.0390,    0.0518,    0.0718,   0.1004,   0.1340,   -1], 
+            400: [0.0744991, 0.0989944, 0.137207, 0.191351, 0.254879, -1],
+            500: [0.115288,  0.153795,  0.213867, 0.296558, 0.394677, -1],
+            600: [0.170563,  0.227533,  0.316406, 0.441266, 0.589798, -1],
+            700: [0.246368,  0.328659,  0.457031, 0.637384, 0.85193,  -1],
+            800: [0.337967,  0.450852,  0.626953, 0.87436,  1.16867,  -1],
+            900: [0.48642,   0.64889,   0.902344, 1.26202,  1.69038,  -1],
+           1000: [0.646454,  0.862378,  1.19922,  1.67723,  2.25421,  -1],
+           1100: [0.9012,    1.2023,    1.6719,   2.3450,   3.1474,   -1]}
 
 #MC production parameters and outcomes for our signal samples
 #           mWp: gq, gtau, cs prediction [fb]
@@ -109,6 +118,10 @@ def CSscaling(mWp):
     pars = MCPars[mWp]
     return pars[2] / pars[0]**2 / Gamma_bt(mWp, pars[0]) * TotalDecayWidth(mWp, pars[0], pars[1])
 
+def WidthVal(mWp, gq):
+    gtau = math.sqrt((0.1 - (Gamma_bc(mWp, gq) + Gamma_bt(mWp, gq)) / mWp ) * 24 * math.pi )
+    return gtau
+
 #calculates the exclusion limit translation to the coupling space from the simplified parametrized formula according to the mass
 def ExpExcl(mWp, gq, excl, scaling):
     gtau = -1.
@@ -119,18 +132,18 @@ def ExpExcl(mWp, gq, excl, scaling):
     except:
         #print("no cross section exceeding exclusion possible")
         #print("invalid complex gtau for gq", gq, ", excl vs predicted =", excl, "vs", scaling * gq**2 * Gamma_bt(mWp, gq) / TotalDecayWidth(mWp, gq, gtau))
-        return gtau
+        return [gtau, -1]
     if TotalDecayWidth(mWp, gq, gtau)/mWp <= 0.1:
         #print("valid gtau =",gtau)
-        return gtau
+        return [gtau, 0]
     else:
         #calculate the 10% width border, instead
         try:
-            gtau = math.sqrt((0.1 - (Gamma_bc(mWp, gq) + Gamma_bt(mWp, gq)) / mWp ) * 24 * math.pi )
-            return gtau
+            gtau = WidthVal(mWp, gq)
+            return [gtau, 1]
         except:
             #print("hadronic decay width alone exceeds 10%")
-            return -1.
+            return [gtau, -1]
         #print("Total decay width exceeds 10%", TotalDecayWidth(mWp, gq, gtau)/mWp, mWp, gq, gtau)
         #return -1.
 
@@ -142,55 +155,136 @@ def GtauZero(mWp, excl, scaling):
 def HadWidthTooLarge(mWp):
     return 4 * math.sqrt(math.pi/5) * mWp**3 / math.sqrt(172.5**6 - 3 * 172.5**2 * mWp**4 + 6 * mWp**6)
 
+#fill values from a list of [gq,gtau] values in clockwise plotting order
+def FillArrayFromBand(band, mode, Xarray, Yarray, WidBand):
+    #initial filling, has to be the +sigma variation, logic is the same for observed and expected (no band)
+    if mode >= 0:
+        for val in band:
+            Xarray.append(val[0])
+            Yarray.append(val[1])
+    #reverse order filling, also needs to bridgge the 10% width function edgeg
+    else:
+        #insert width band values from the end of Xarray as already filled with the width band values until hitting the limit of the last entry of the new width band for the -sigma variation
+        if len(band) > 0:
+            minGq = Xarray[len(Xarray)-1]
+            maxGq = band[len(band)-1][0] 
+            for val in WidBand:
+                if val[0] > minGq and val[0] < maxGq:
+                    Xarray.append(val[0])
+                    Yarray.append(val[1])
+            #insert -sigma band in reverse order
+            for val in reversed(band):
+                Xarray.append(val[0])
+                Yarray.append(val[1])
+        else: #case where the band is just beyond the max 10% width
+            minGq = Xarray[len(Xarray)-1]
+            for val in WidBand:
+                if val[0] > minGq:
+                    Xarray.append(val[0])
+                    Yarray.append(val[1])
+
+            
+    return [Xarray, Yarray]
+
 #function to make a plot for a given mWp and exclusion limit
 def MakeCouplingsPlot(excl, mWp):
+    
     #define TGraph arrays
     RDcentralX = array('d')
     RDsCentralX= array('d')
     RDbandX    = array('d')
     RDsBandX   = array('d')
-    ExclusionX = array('d')
+    OneSigmaX  = array('d')
+    TwoSigmaX  = array('d')
+    ExpX       = array('d')
+    ObsX       = array('d')
+    WidX       = array('d')
+
     RDcentralY = array('d')
     RDsCentralY= array('d')
     RDbandY    = array('d')
     RDsBandY   = array('d')
-    ExclusionY = array('d')
+    OneSigmaY  = array('d')
+    TwoSigmaY  = array('d')
+    ExpY       = array('d')
+    ObsY       = array('d')
+    WidY       = array('d')
 
+    
     #define lists of gq-ordered values
     gtausRD     = []
     gtausRDs    = []
-    gtausExcl   = []
+    gtaus10pWid = []
+
+    #define the gQ maximum where 10% is exceeded by the hadronic width
+    maxGq = HadWidthTooLarge(mWp)
+
+    #define theory curve
+    for gqMult in range(1,1000):
+        gq = gqMult * 0.01
+        gtausRD.append( [gq, TheoryCurve(mWp, gq, False)])
+        gtausRDs.append([gq, TheoryCurve(mWp, gq, True)])
+        if gq <= maxGq:
+            gtaus10pWid.append([gq, WidthVal(mWp, gq)])
+
+    #add endpoint for 10% width curve
+    gtaus10pWid.append([maxGq, 0.01])
 
     #calculate scaling for the current masspoint
     scale = CSscaling(mWp)
     print(mWp, "scale is", scale)
 
-    #define the gtau = 0 starting point as an approximation
-    minGq = GtauZero(mWp, excl, scale)
-    gtausExcl.append([minGq, 0.01])
+    #get the exclusion band members
+    tempBands = []
+    for exc in excl:
+        #deactivate observed or invalid values
+        if exc < 0:
+            continue
 
-    #define the gQ maximum where 10% is exceeded by the hadronic width
-    maxGq = HadWidthTooLarge(mWp)
+        excVal = exc * MCPars[mWp][2]
 
-    #gqlist
-    gqlist = [0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2., 3., 4., 5, 6., 7., 8., 9., 10.]
+        #temporary list of gq-ordered exclusion values
+        gtausExcl   = []
 
-    #define theory curve
-    for gq in gqlist:
-        gtausRD.append( [gq, TheoryCurve(mWp, gq, False)])
-        gtausRDs.append([gq, TheoryCurve(mWp, gq, True)])
+        #define the gtau = 0 starting point as an approximation
+        minGq = GtauZero(mWp, excVal, scale)
+        if minGq < maxGq:
+            gtausExcl.append([minGq, 0.01])
 
-    #define a gtau scan between minimum and maximum values for exp limits
-    for i in range(1, 100):
-        gq = minGq + (maxGq-minGq)/100. * float(i)
-        #print(gq, maxGq, minGq)
-        ExpExclRes = ExpExcl(mWp, gq, excl, scale)
-        #catch invalid gtau results
-        if ExpExclRes > 0.:
-            gtausExcl.append([gq, ExpExclRes])
+            #define a gtau scan between minimum and maximum values for exp limits
+            for i in range(1, 100):
+                gq = minGq + (maxGq-minGq)/100. * float(i)
+                #print(gq, maxGq, minGq)
+                ExpExclRes = ExpExcl(mWp, gq, excVal, scale)
+                if ExpExclRes[1] == 0: #normal cross section exclusion values
+                    gtausExcl.append([gq, ExpExclRes[0]])
+                elif ExpExclRes[1] == -1: #catch invalid gtau results
+                    continue
+                elif ExpExclRes[1] == 1: #first value of 10% width line, break once hit
+                    gtausExcl.append([gq, ExpExclRes[0]])
+                    break
 
-    #add endpoint for exclusion
-    gtausExcl.append([maxGq, 0.01])
+        tempBands.append(gtausExcl)
+    
+    #dump tempBands into appropriate band values from tempBand[+2, +1, exp, -1, -2, obs]
+    #2 sigma band
+    TwoSigmas = FillArrayFromBand(tempBands[0],  1, TwoSigmaX, TwoSigmaY, gtaus10pWid)
+    TwoSigmaX = TwoSigmas[0]
+    TwoSigmaY = TwoSigmas[1]
+    TwoSigmas = FillArrayFromBand(tempBands[4], -1, TwoSigmaX, TwoSigmaY, gtaus10pWid)
+    TwoSigmaX = TwoSigmas[0]
+    TwoSigmaY = TwoSigmas[1]
+    #1 sigma band
+    OneSigmas = FillArrayFromBand(tempBands[1],  1, OneSigmaX, OneSigmaY, gtaus10pWid)
+    OneSigmaX = OneSigmas[0]
+    OneSigmaY = OneSigmas[1]
+    OneSigmas = FillArrayFromBand(tempBands[3], -1, OneSigmaX, OneSigmaY, gtaus10pWid)
+    OneSigmaX = OneSigmas[0]
+    OneSigmaY = OneSigmas[1]
+    #exp limit
+    ExpLim = FillArrayFromBand(tempBands[2],  1, ExpX, ExpY, gtaus10pWid)
+    ExpX   = ExpLim[0]
+    ExpY   = ExpLim[1]
 
     #build theory TGraphs
     for gtau in gtausRD:
@@ -217,13 +311,20 @@ def MakeCouplingsPlot(excl, mWp):
     RDsCentralGraph = TGraph(len(RDsCentralX), RDsCentralX, RDsCentralY)
     RDsBandGraph    = TGraph(len(RDsBandX),    RDsBandX,    RDsBandY)
 
-    #build experimental TGraph
-    #print(gtausExcl)
-    for gtau in gtausExcl:
-        ExclusionX.append(gtau[0])
-        ExclusionY.append(gtau[1])
+    for gtau in gtaus10pWid:
+        WidX.append(gtau[0])
+        WidY.append(gtau[1])
 
-    ExclusionGraph  = TGraph(len(ExclusionX), ExclusionX, ExclusionY)
+    WidGraph = TGraph(len(WidX), WidX, WidY)
+
+    #build experimental TGraphs
+    if len(ExpX) > 0:
+        ExclusionGraph  = TGraph(len(ExpX), ExpX, ExpY)
+
+    if len(OneSigmaX) > 0:
+        OneSigmaGraph = TGraph(len(OneSigmaX), OneSigmaX, OneSigmaY)
+    if len(TwoSigmaX) > 0:
+        TwoSigmaGraph = TGraph(len(TwoSigmaX), TwoSigmaX, TwoSigmaY)
 
     #style configurations
     RDcentralGraph.SetLineColor(2)
@@ -242,10 +343,20 @@ def MakeCouplingsPlot(excl, mWp):
     RDsBandGraph.SetLineStyle(2)
     RDsBandGraph.SetLineWidth(2)
 
-    ExclusionGraph.SetLineColor(1)
-    #ExclusionGraph.SetLineWidth(-9902)
-    ExclusionGraph.SetFillStyle(3004);
-    ExclusionGraph.SetFillColor(9);
+    WidGraph.SetLineColor(6)
+    WidGraph.SetLineStyle(3)
+    WidGraph.SetLineWidth(2)
+
+    if len(ExpX) > 0:
+        ExclusionGraph.SetLineColor(1)
+        ExclusionGraph.SetLineWidth(2)
+        ExclusionGraph.SetLineStyle(2)
+
+    #official colors for Brazil band
+    if len(OneSigmaX) > 0:
+        OneSigmaGraph.SetFillColor(TColor.GetColor("#228b22"))
+    if len(TwoSigmaX) > 0:
+        TwoSigmaGraph.SetFillColor(TColor.GetColor("#ffcc00"))
 
     #build CMS plot
     CMS.SetEnergy("13")
@@ -254,19 +365,35 @@ def MakeCouplingsPlot(excl, mWp):
     canvas = CMS.cmsCanvas("CouplingSpace_MWpr"+str(mWp), 0.01, 10., 0.01, 10., "g_{q}", "g_{#tau}", square = CMS.kSquare, extraSpace = 0.01, iPos = 0)
     canvas.cd(1)
 
-    RDbandGraph.Draw("L")
+    if len(TwoSigmaX) > 0:
+        TwoSigmaGraph.Draw("F")
+        OneSigmaGraph.Draw("F,same")
+        RDbandGraph.Draw("L,same")
+    elif len(OneSiggmaX) > 0:
+        OneSigmaGraph.Draw("F")
+        RDbandGraph.Draw("L,same")
+    else:
+        RDbandGraph.Draw("L")
     RDsBandGraph.Draw("L,same")
     RDcentralGraph.Draw("L,same")
     RDsCentralGraph.Draw("L,same")
-    ExclusionGraph.Draw("LF,same")
+    if len(ExpX) > 0:
+        ExclusionGraph.Draw("L,same")
+    WidGraph.Draw("L,same")
 
     legend = CMS.cmsLeg(0.20, 0.89-0.04*6, 0.89, 0.89, textSize=0.04)
     legend.SetHeader("m_{W'} = "+str(mWp)+" GeV")
-    legend.AddEntry(RDcentralGraph, "R(D) central prediction", "l")
-    legend.AddEntry(RDbandGraph, "R(D) #pm 1 #sigma", "l")
-    legend.AddEntry(RDsCentralGraph, "R(D*) central prediction", "l")
-    legend.AddEntry(RDsBandGraph, "R(D*) #pm 1 #sigma", "l")
-    legend.AddEntry(ExclusionGraph, "95% CL median exp. upper limit", "lf")
+    legend.AddEntry(RDcentralGraph, "R(D) prediction", "l")
+    #legend.AddEntry(RDbandGraph, "R(D) #pm 1 #sigma", "l")
+    legend.AddEntry(RDsCentralGraph, "R(D*) prediction", "l")
+    legend.AddEntry(WidGraph, "10% relative decay width", "l")
+    #legend.AddEntry(RDsBandGraph, "R(D*) #pm 1 #sigma", "l")
+    if len(ExpX) > 0:
+        legend.AddEntry(ExclusionGraph, "median exp. upper limit", "l")
+    if len(OneSigmaX) > 0:
+        legend.AddEntry(OneSigmaGraph, "68% exp. upper limit", "f")
+    if len(TwoSigmaX) > 0:
+        legend.AddEntry(TwoSigmaGraph, "95% exp. upper limit", "f")
 
     canvas.SetLogx(True)
     canvas.SetLogy(True)
