@@ -24,19 +24,28 @@ float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
   return sqrt(FinalEnvelope);
 }
 
+vector<float> VecConvert(ROOT::VecOps::RVec<float> entrant){
+  vector<float> result;
+  for(unsigned i = 0; i < entrant.size(); ++i) result.push_back(entrant[i]);
+  return result;
+}
+
 //function to calculate all HT and ST variations for the entire set of pT variations due to jets, leptons, and MET
-vector<vector<float> > PTvariations(vector<ROOT::VecOps::RVec<float> > JetPtMaster_, vector<float> METmaster_, vector<float> LeptonMaster_){
+vector<vector<float> > PTvariations(vector<vector<float> > JetPtMaster_, vector<float> METmaster_, vector<float> LeptonMaster_){
   //define return vectors
   vector<vector<float> > PtVarResults;
   vector<float> HTresults;
   vector<float> STresults;
 
+  //std::cout<<"____"<<JetPtMaster_.size()<<"_____"<<std::endl;
   //loop over all jet variations
   for(unsigned i = 0; i < JetPtMaster_.size(); ++i){
     
     //calculate HT
     float currentHT = 0.;
+
     for(unsigned j = 0; j < JetPtMaster_[i].size(); ++j){
+      //std::cout<<i<<": "<<j<<" out of "<<JetPtMaster_[i].size()<<std::endl;
       if(JetPtMaster_[i][j] > 30.) currentHT+= JetPtMaster_[i][j];
     }
     if(i == 0) for(unsigned k = 0; k < LeptonMaster_.size(); ++ k) HTresults.push_back(currentHT); //exception for lepton pT variations
@@ -115,7 +124,7 @@ void CombineHistogramDumpster::Loop()
   float EleHLTzvtx = 1.;
 
   //define size of pT systematics block
-  unsigned sizePtSysts = 8;
+  unsigned sizePtSysts = 62;
 
   //set sample weight
   int Year = 0;
@@ -171,7 +180,7 @@ void CombineHistogramDumpster::Loop()
   bool IsSF_ttbar = Iterator >= 2 && Iterator <= 7 && SFreg != 0;
 
   //Declare hardcoded what the size of the systematics variations is:
-  unsigned varSize = 45;
+  unsigned varSize = 98;
 
   //assemble histograms with variations for Fit mass, HT, 2D Fit mass vs NLL, 2D HT vs NLL, looping over the mass interpretations from 300 GeV to 1.1 TeV
   vector<vector<TString> > variationsName, HTvariationsName, FitMass2Dnames, HT2Dnames;
@@ -181,7 +190,7 @@ void CombineHistogramDumpster::Loop()
     HTvariationsName.push_back(dummy);
     FitMass2Dnames.push_back(dummy);
     HT2Dnames.push_back(dummy);
-    for(unsigned i = 0; i < varSize; ++i) { //standard systematic names list
+    for(unsigned i = 0; i < varSize+1; ++i) { //standard systematic names list
       TString variation = Systematics(i, YearS, sampleType, B2Gn);
       variationsName[m-3].push_back(gn + "_" + binS + TString::Format("_M%d_",m*100) + variation);
       HTvariationsName[m-3].push_back("HT_" + variationsName[m-3][i]);
@@ -191,7 +200,7 @@ void CombineHistogramDumpster::Loop()
   }
 
   vector<TString> variationsNamePlain;
-  for(unsigned i = 0; i < varSize; ++i){
+  for(unsigned i = 0; i < varSize+1; ++i){
     TString variation = Systematics(i, YearS, sampleType, B2Gn);
     variationsNamePlain.push_back(gn + "_" + binS + "_" + variation);
   }
@@ -204,10 +213,10 @@ void CombineHistogramDumpster::Loop()
     FitMass_2D.push_back(dummy2D);
     HT_2D.push_back(dummy2D);
 
-    for(unsigned i = 0; i < varSize; ++i){
+    for(unsigned i = 0; i < varSize+1; ++i){
       TString variation = "";
-      if(i < varSize) variation = Systematics(i, YearS, sampleType, B2Gn);
-      else            variation = Systematics(i-varSize, YearS, sampleType, B2Gn, true);
+      if(i < varSize+1) variation = Systematics(i, YearS, sampleType, B2Gn);
+      else              variation = Systematics(i-(varSize+1), YearS, sampleType, B2Gn, true);
 
       //Extraction variable block
       if(bin % 100 < 60){
@@ -369,42 +378,83 @@ void CombineHistogramDumpster::Loop()
     //blind data in SRs
     if(Iterator < 2 && bin % 10 >= 3) continue;
 
-    //inputs to calculate all HT and ST for the pT variations
-    //define vector of pT variation sources in correct order
-    vector<ROOT::VecOps::RVec<float> > JetPtMaster = {
-	  *JetPt,					           //default
-	  *JetPtjerup,		      *JetPtjerdown,		   //JER
-	  *JetPtjesAbsoluteStatup,    *JetPtjesAbsoluteStatdown,   //AbsoluteStat
-	  *JetPtjesAbsoluteScaleup,   *JetPtjesAbsoluteScaledown,  //AbsoluteScale
-          *JetPtjesAbsoluteMPFBiasup, *JetPtjesAbsoluteMPFBiasdown,//AbsoluteMPFBias
-          *JetPtjesFlavorQCDup,	      *JetPtjesFlavorQCDdown,      //FlavorQCD
-          *JetPtjesFragmentationup,   *JetPtjesFragmentationdown,  //Fragmentation
-          *JetPtjesPileUpDataMCup,    *JetPtjesPileUpDataMCdown,   //PileUpDataMC
-          *JetPtjesPileUpPtBBup,      *JetPtjesPileUpPtBBdown,     //PileUpPtBB
-          *JetPtjesPileUpPtEC1up,     *JetPtjesPileUpPtEC1down,    //PileUpPtEC1
-          *JetPtjesPileUpPtEC2up,     *JetPtjesPileUpPtEC2down,    //PileUpPtEC2
-          *JetPtjesPileUpPtHFup,      *JetPtjesPileUpPtHFdown,     //PileUpPtHF
-          *JetPtjesPileUpPtRefup,     *JetPtjesPileUpPtRefdown,    //PileUpPtRef
-          *JetPtjesRelativeFSRup,     *JetPtjesRelativeFSRdown,    //RelativeFSR
-          *JetPtjesRelativeJEREC1up,  *JetPtjesRelativeJEREC1down, //RelativeJEREC1
-          *JetPtjesRelativeJEREC2up,  *JetPtjesRelativeJEREC2down, //RelativeJEREC2
-          *JetPtjesRelativeJERHFup,   *JetPtjesRelativeJERHFdown,  //RelativeJERHF
-          *JetPtjesRelativePtBBup,    *JetPtjesRelativePtBBdown,   //RelativePtBB
-          *JetPtjesRelativePtEC1up,   *JetPtjesRelativePtEC1down,  //RelativePtEC1
-          *JetPtjesRelativePtEC2up,   *JetPtjesRelativePtEC2down,  //RelativePtEC2
-          *JetPtjesRelativePtHFup,    *JetPtjesRelativePtHFdown,   //RelativePtHF
-          *JetPtjesRelativeBalup,     *JetPtjesRelativeBaldown,    //RelativeBal
-          *JetPtjesRelativeSampleup,  *JetPtjesRelativeSampledown, //RelativeSample
-          *JetPtjesRelativeStatECup,  *JetPtjesRelativeStatECdown, //RelativeStatEC
-          *JetPtjesRelativeStatFSRup, *JetPtjesRelativeStatFSRdown,//RelativeStatFSR
-          *JetPtjesRelativeStatHFup,  *JetPtjesRelativeStatHFdown, //RelativeStatHF
-          *JetPtjesSinglePionECALup,  *JetPtjesSinglePionECALdown, //PionECAL
-          *JetPtjesSinglePionHCALup,  *JetPtjesSinglePionHCALdown, //PionHCAL
-          *JetPtjesTimePtEtaup,       *JetPtjesTimePtEtadown       //TimePtEta
+    //distinguish data from MC
+    vector<vector<float> > HTandSTvariations;
+
+    //define vector of lepton pT variations, the same for data and MC
+    vector<float> LeptonMaster = {
+      LeptonPt,                 //default
+      LeptonPt_SU, LeptonPt_SD, //electron scale
+      LeptonPt_RU, LeptonPt_RD, //electron resolution
     };
 
-    //define vector of MET variations, 2 longer for unclustered MET variations
-    vector<float> METmaster = {
+    if(Iterator < 2){ //is data, has limited information, just calculate variations by hand and fill systematics variation vectors with dummies, otherwise, for consistency
+      vector<float> HTs = {0.};
+      for(unsigned j = 0; j < JetPt->size(); ++j){
+	if(JetPt->at(j) > 30.) HTs[0] += JetPt->at(j);	
+      }
+      
+      vector<float> STs;
+      for(unsigned l = 0; l < LeptonMaster.size(); ++l){
+	if(l > 0) HTs.push_back(HTs[0]);
+	STs.push_back(HTs[l]);
+	STs[l] += METPt;
+	STs[l] += LeptonMaster[l];
+      }
+
+      //make sure the rest of the vector is filled with repeats of the default
+      for(unsigned k = STs.size(); k < sizePtSysts + 1; ++k){
+	HTs.push_back(HTs[0]);
+	STs.push_back(STs[0]);
+      }
+
+      HTandSTvariations.push_back(HTs);
+      HTandSTvariations.push_back(STs);
+    }
+    else{ //is MC, has more branches
+      //std::cout<<"entered JetPtMaster"<<std::endl;
+      //inputs to calculate all HT and ST for the pT variations
+      //define vector of pT variation sources in correct order
+      vector<vector<float> > JetPtMaster;
+      JetPtMaster.push_back(VecConvert(*JetPt));									    //default
+      JetPtMaster.push_back(VecConvert(*JetPtjerup));               JetPtMaster.push_back(VecConvert(*JetPtjerdown));		    //JER
+      JetPtMaster.push_back(VecConvert(*JetPtjesAbsoluteStatup));   JetPtMaster.push_back(VecConvert(*JetPtjesAbsoluteStatdown));   //AbsoluteStat
+      JetPtMaster.push_back(VecConvert(*JetPtjesAbsoluteScaleup));  JetPtMaster.push_back(VecConvert(*JetPtjesAbsoluteScaledown));  //AbsoluteScale
+      JetPtMaster.push_back(VecConvert(*JetPtjesAbsoluteMPFBiasup));JetPtMaster.push_back(VecConvert(*JetPtjesAbsoluteMPFBiasdown));//AbsoluteMPFBias
+      JetPtMaster.push_back(VecConvert(*JetPtjesFlavorQCDup));      JetPtMaster.push_back(VecConvert(*JetPtjesFlavorQCDdown));      //FlavorQCD
+      JetPtMaster.push_back(VecConvert(*JetPtjesFragmentationup));  JetPtMaster.push_back(VecConvert(*JetPtjesFragmentationdown));  //Fragmentation
+      JetPtMaster.push_back(VecConvert(*JetPtjesPileUpDataMCup));   JetPtMaster.push_back(VecConvert(*JetPtjesPileUpDataMCdown));   //PileUpDataMC
+      JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtBBup));     JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtBBdown));     //PileUpPtBB
+      JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtEC1up));    JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtEC1down));    //PileUpPtEC1
+      JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtEC2up));    JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtEC2down));    //PileUpPtEC2
+      JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtHFup));     JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtHFdown));     //PileUpPtHF
+      JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtRefup));    JetPtMaster.push_back(VecConvert(*JetPtjesPileUpPtRefdown));    //PileUpPtRef
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeFSRup));    JetPtMaster.push_back(VecConvert(*JetPtjesRelativeFSRdown));    //RelativeFSR
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeJEREC1up)); JetPtMaster.push_back(VecConvert(*JetPtjesRelativeJEREC1down)); //RelativeJEREC1
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeJEREC2up)); JetPtMaster.push_back(VecConvert(*JetPtjesRelativeJEREC2down)); //RelativeJEREC2
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeJERHFup));  JetPtMaster.push_back(VecConvert(*JetPtjesRelativeJERHFdown));  //RelativeJERHF
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativePtBBup));   JetPtMaster.push_back(VecConvert(*JetPtjesRelativePtBBdown));   //RelativePtBB
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativePtEC1up));  JetPtMaster.push_back(VecConvert(*JetPtjesRelativePtEC1down));  //RelativePtEC1
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativePtEC2up));  JetPtMaster.push_back(VecConvert(*JetPtjesRelativePtEC2down));  //RelativePtEC2
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativePtHFup));   JetPtMaster.push_back(VecConvert(*JetPtjesRelativePtHFdown));   //RelativePtHF
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeBalup));    JetPtMaster.push_back(VecConvert(*JetPtjesRelativeBaldown));    //RelativeBal
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeSampleup)); JetPtMaster.push_back(VecConvert(*JetPtjesRelativeSampledown)); //RelativeSample
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeStatECup)); JetPtMaster.push_back(VecConvert(*JetPtjesRelativeStatECdown)); //RelativeStatEC
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeStatFSRup));JetPtMaster.push_back(VecConvert(*JetPtjesRelativeStatFSRdown));//RelativeStatFSR
+      JetPtMaster.push_back(VecConvert(*JetPtjesRelativeStatHFup)); JetPtMaster.push_back(VecConvert(*JetPtjesRelativeStatHFdown)); //RelativeStatHF
+      JetPtMaster.push_back(VecConvert(*JetPtjesSinglePionECALup)); JetPtMaster.push_back(VecConvert(*JetPtjesSinglePionECALdown)); //PionECAL
+      JetPtMaster.push_back(VecConvert(*JetPtjesSinglePionHCALup)); JetPtMaster.push_back(VecConvert(*JetPtjesSinglePionHCALdown)); //PionHCAL
+      JetPtMaster.push_back(VecConvert(*JetPtjesTimePtEtaup));      JetPtMaster.push_back(VecConvert(*JetPtjesTimePtEtadown));      //TimePtEta
+
+      //vector<float> entry;
+      //ROOT::VecOps::RVec<float> entrant = *[v];
+      //	      for(unsigned b = 0; b < entrant.size(); ++b) entry.push_back(entrant[b]);
+      //	      JetPtMaster2.push_back(entry);
+      //}
+
+      //std::cout<<"entered METmaster"<<std::endl;
+      //define vector of MET variations, 2 longer for unclustered MET variations
+      vector<float> METmaster = {
 	  METPt,						   //default
           METPt_jerup,                METPt_jerdown,               //JER
 	  METPt_jesAbsoluteStatup,    METPt_jesAbsoluteStatdown,   //AbsoluteStat
@@ -435,19 +485,14 @@ void CombineHistogramDumpster::Loop()
           METPt_jesSinglePionHCALup,  METPt_jesSinglePionHCALdown, //PionHCAL
           METPt_jesTimePtEtaup,       METPt_jesTimePtEtadown,      //TimePtEta
 	  METPt_unclustenup,          METPt_unclustendown          //Unclustered Energy
-    };
+      };
+      //std::cout<<"calculate variations"<<std::endl;
+      //calculate all HT [0] and ST [1]
+      HTandSTvariations = PTvariations(JetPtMaster, METmaster, LeptonMaster);
 
-    //define vector of lepton pT variations
-    vector<float> LeptonMaster = {
-      LeptonPt,                 //default
-      LeptonPt_SU, LeptonPt_SD, //electron scale
-      LeptonPt_RU, LeptonPt_RD, //electron resolution
-    };
+    }
 
-    //calculate all HT [0] and ST [1]
-    vector<vector<float> > HTandSTvariations = PTvariations(JetPtMaster, METmaster, LeptonMaster);
-
-
+    //std::cout<<HTandSTvariations.size()<<HTandSTvariations[0].size()<<HTandSTvariations[1].size()<<std::endl;
 
     //mass-interpretation-independent variables
     //variation of selections
@@ -508,7 +553,7 @@ void CombineHistogramDumpster::Loop()
     //std::cout<<"stage 2"<<std::endl;
 
     //variation of systematic events weights
-    if(RegionIdentifier[0] == bin) for(unsigned i = sizePtSysts+1; i < varSize; ++i){
+    if(RegionIdentifier[0] == bin) for(unsigned i = sizePtSysts+1; i < varSize+1; ++i){
       //additional 2017 lepton pT cut
       if(year == 2017){
         if(RegionIdentifier[0]/1000 == 1 && LeptonMaster[0] < 30.) continue;
@@ -725,7 +770,7 @@ void CombineHistogramDumpster::Loop()
         if(HTandSTvariations[1][0] < 400.) continue;
 
         //EventWeight variations
-        for(unsigned i = sizePtSysts+1; i < varSize; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)
+        for(unsigned i = sizePtSysts+1; i < varSize+1; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)
 	
           string HistName;
 
@@ -765,7 +810,7 @@ void CombineHistogramDumpster::Loop()
     }
   }
 
-  std::cout<<"saving stage"<<std::endl;
+  //std::cout<<"saving stage"<<std::endl;
 
   //save all the W' variation histograms into files
   //fit mass file
@@ -796,7 +841,7 @@ void CombineHistogramDumpster::Loop()
         }	
         FitMass[i][j]->Write();
         if(i==0){
-	  std::cout<<"writing ST reweight histogram"<<std::endl;
+	  //std::cout<<"writing ST reweight histogram"<<std::endl;
           STrew[j]->Write();
           ST[j]->Write();
 	  if(j==0){

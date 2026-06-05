@@ -33,7 +33,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
   }
 
   //set variation size
-  unsigned varSize = 45; //note that this is hardcoded as a crosscheck
+  unsigned varSize = 98; //note that this is hardcoded as a crosscheck
   unsigned qcdExtra = 2; //two more added to produce QCD systematic variations
 
   //loop over samples, organizing data, ttbar, and non-ttbar with variations
@@ -63,7 +63,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
       }
     }
     else if(sam==2 || sam==8 || sam==16 || sam==21 || sam==27){//first sample in each sample set
-      for(unsigned var = 0; var < varSize; ++var){
+      for(unsigned var = 0; var < varSize+1; ++var){
 	TString variation = Systematics(var, YearS, sampleType, B2Gn);
         TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variation;
         //std::cout<<"creating "<<TmpName<<std::endl;
@@ -75,7 +75,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
       }
     }
     else{//additional samples in each sample set
-      for(unsigned var = 0; var < varSize; ++var){
+      for(unsigned var = 0; var < varSize+1; ++var){
 	TString variation = Systematics(var, YearS, sampleType, B2Gn);
         TString TmpName = TString("ST_") + gn + TString::Format("_Wprime%d_",bin) + YearS + "_" + variation;
         //std::cout<<"adding "<<TmpName<<std::endl;
@@ -90,7 +90,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
   //use variations gathered to calculate central SF histogram and variation SF histograms
   vector<TH1F> SFhists, SFs;
-  for(unsigned var = 0; var < varSize + qcdExtra; ++var){
+  for(unsigned var = 0; var < varSize+1 + qcdExtra; ++var){
 
     //except sample-dependent uncertainties for extra logic
     //at this stage, variation i departs from being concurrent with SF histogram iterator, so we just keep appending each different variation
@@ -116,14 +116,14 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
       SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_"+variation));
     }
-    else if(var >= varSize){ //QCD normalization variations special case
-      if(var == varSize) SFhists.push_back(*(TH1F*)dataHist.Clone("SF_STfitQCDUp"));
+    else if(var >= varSize+1){ //QCD normalization variations special case
+      if(var == varSize+1) SFhists.push_back(*(TH1F*)dataHist.Clone("SF_STfitQCDUp"));
       else		 SFhists.push_back(*(TH1F*)dataHist.Clone("SF_STfitQCDDown"));
       unsigned currentPos = SFhists.size()-1;
       for(unsigned sh = 1; sh < SimHists.size(); ++sh){
 	double multiplier = -1.;
 	if(sh == SimHists.size()-1 ){//only vary QCD contribution size
-	  if(var==varSize) multiplier = -1.25 ; //QCD up
+	  if(var==varSize+1) multiplier = -1.25 ; //QCD up
 	  else		   multiplier = -0.75;  //QCD down
 	} 
 	SFhists[currentPos].Add(&SimHists[sh][0], multiplier); //substract non-ttbar simulation
@@ -138,7 +138,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
         }
       }
 
-      if(var == varSize) SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_STfitQCDUp"));
+      if(var == varSize+1) SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_STfitQCDUp"));
       else               SFs.push_back(*(TH1F*)SFhists[currentPos].Clone("SFcalc_STfitQCDDown"));
     }
     else{//standard case

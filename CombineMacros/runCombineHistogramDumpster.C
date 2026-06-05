@@ -1,5 +1,5 @@
 #include "CombineHistogramDumpster.C"
-#include "CombineHistogramDumpsterRvec.C"
+//#include "CombineHistogramDumpsterRvec.C"
 #include "ScaleFactorTTbarCalc.C"
 
 //macro to run the Combine histogram generation process
@@ -7,7 +7,7 @@
 //first: 1 muon, 2 electron
 //third: jet multiplicity, either 5 or 6
 //year options are: 2016, 2017, 2018
-void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
+void runCombineHistogramDumpster(int bin = 1153, TString year = "2016"){
 
   //determine lepton flavour
   int binMajor = 0;
@@ -27,7 +27,7 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
 	D.Loop();
     }
     else{
-	CombineHistogramDumpsterRvec D(0, i, binMajor+1, year, 0);
+	CombineHistogramDumpster D(0, i, binMajor+1, year, 0);
 	D.Loop();
     }
   }
@@ -45,9 +45,9 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
         D.Loop();
       }
       else{
-	CombineHistogramDumpsterRvec C(0, i, binMajor+2, year, binMajor+1);
+	CombineHistogramDumpster C(0, i, binMajor+2, year, binMajor+1);
         C.Loop();
-        CombineHistogramDumpsterRvec D(0, i, binMajor+3, year, binMajor+1);
+        CombineHistogramDumpster D(0, i, binMajor+3, year, binMajor+1);
         D.Loop();
       }
       if(jetMultiplicity != 5){
@@ -56,7 +56,7 @@ void runCombineHistogramDumpster(int bin = 1153, TString year = "2016_APV"){
           E.Loop();
         }
         else{
-          CombineHistogramDumpsterRvec E(0, i, binMajor+4, year, binMajor+1);
+          CombineHistogramDumpster E(0, i, binMajor+4, year, binMajor+1);
           E.Loop();
         }
       }
