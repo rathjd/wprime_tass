@@ -5,7 +5,7 @@ batch_name   = SubmitSignalInjectionTest_$(ProcID)
 log          = SubmitSignalInjectionTest_$(ProcID).log
 universe     = vanilla
 Requirements = (OpSysAndVer =?= "AlmaLinux9")
-+JobFlavour  = "testmatch"
++JobFlavour  = "nextweek"
 RequestCpus  = 1
 stream_error = True
 periodic_release =  (NumJobStarts < 10) && ((CurrentTime - EnteredCurrentStatus) > (5*60))
