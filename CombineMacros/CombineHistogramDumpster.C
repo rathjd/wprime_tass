@@ -24,6 +24,49 @@ float CalculateCovError(float STval, TMatrixD covM, int jetNumber){
   return sqrt(FinalEnvelope);
 }
 
+//function to calculate all HT and ST variations for the entire set of pT variations due to jets, leptons, and MET
+vector<vector<float> > PTvariations(vector<ROOT::VecOps::RVec<float> > JetPtMaster_, vector<float> METmaster_, vector<float> LeptonMaster_){
+  //define return vectors
+  vector<vector<float> > PtVarResults;
+  vector<float> HTresults;
+  vector<float> STresults;
+
+  //loop over all jet variations
+  for(unsigned i = 0; i < JetPtMaster_.size(); ++i){
+    
+    //calculate HT
+    float currentHT = 0.;
+    for(unsigned j = 0; j < JetPtMaster_[i].size(); ++j){
+      if(JetPtMaster_[i][j] > 30.) currentHT+= JetPtMaster_[i][j];
+    }
+    if(i == 0) for(unsigned k = 0; k < LeptonMaster_.size(); ++ k) HTresults.push_back(currentHT); //exception for lepton pT variations
+    else HTresults.push_back(currentHT);
+
+    //calculate ST
+    float currentST = 0.;
+    currentST += currentHT;
+    currentST += METmaster_[i];
+    if(i == 0){ //calculate lepton PT variations
+      for(unsigned k = 0; k < LeptonMaster_.size(); ++k) STresults.push_back(currentST + LeptonMaster_[k]);
+    }
+    else{
+      currentST += LeptonMaster_[0];
+      STresults.push_back(currentST);
+    }
+  }
+
+  //unclustered MET extra variations
+  HTresults.push_back(HTresults[0]);
+  STresults.push_back(HTresults[0] + LeptonMaster_[0] + METmaster_[METmaster_.size()-2]);
+  HTresults.push_back(HTresults[0]);
+  STresults.push_back(HTresults[0] + LeptonMaster_[0] + METmaster_[METmaster_.size()-1]);
+
+  //push back partial results and return results
+  PtVarResults.push_back(HTresults);
+  PtVarResults.push_back(STresults);
+  return PtVarResults;
+}
+
 void CombineHistogramDumpster::Loop()
 {
 //   In a ROOT session, you can do:
@@ -49,6 +92,15 @@ void CombineHistogramDumpster::Loop()
 // METHOD2: replace line
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
+
+  //deactivate superfluous branches
+  fChain->SetBranchStatus("metPhi*",0);
+  fChain->SetBranchStatus("numBtags*",0);
+  fChain->SetBranchStatus("metlepton*",0);
+  fChain->SetBranchStatus("minLepton*",0);
+  fChain->SetBranchStatus("jetEta*",0);
+  fChain->SetBranchStatus("jetPhi*",0);
+  fChain->SetBranchStatus("jetMass*",0);
 
   //define bin for analysis
   TString gn = dset.GroupName;
@@ -317,121 +369,140 @@ void CombineHistogramDumpster::Loop()
     //blind data in SRs
     if(Iterator < 2 && bin % 10 >= 3) continue;
 
-    float LeptonPtVars[9] = {LeptonPt, LeptonPt_SU, LeptonPt_SD, LeptonPt_RU, LeptonPt_RD, LeptonPt, LeptonPt, LeptonPt, LeptonPt}; //Lepton pT
+    //inputs to calculate all HT and ST for the pT variations
+    //define vector of pT variation sources in correct order
+    vector<ROOT::VecOps::RVec<float> > JetPtMaster = {
+	  *JetPt,					           //default
+	  *JetPtjerup,		      *JetPtjerdown,		   //JER
+	  *JetPtjesAbsoluteStatup,    *JetPtjesAbsoluteStatdown,   //AbsoluteStat
+	  *JetPtjesAbsoluteScaleup,   *JetPtjesAbsoluteScaledown,  //AbsoluteScale
+          *JetPtjesAbsoluteMPFBiasup, *JetPtjesAbsoluteMPFBiasdown,//AbsoluteMPFBias
+          *JetPtjesFlavorQCDup,	      *JetPtjesFlavorQCDdown,      //FlavorQCD
+          *JetPtjesFragmentationup,   *JetPtjesFragmentationdown,  //Fragmentation
+          *JetPtjesPileUpDataMCup,    *JetPtjesPileUpDataMCdown,   //PileUpDataMC
+          *JetPtjesPileUpPtBBup,      *JetPtjesPileUpPtBBdown,     //PileUpPtBB
+          *JetPtjesPileUpPtEC1up,     *JetPtjesPileUpPtEC1down,    //PileUpPtEC1
+          *JetPtjesPileUpPtEC2up,     *JetPtjesPileUpPtEC2down,    //PileUpPtEC2
+          *JetPtjesPileUpPtHFup,      *JetPtjesPileUpPtHFdown,     //PileUpPtHF
+          *JetPtjesPileUpPtRefup,     *JetPtjesPileUpPtRefdown,    //PileUpPtRef
+          *JetPtjesRelativeFSRup,     *JetPtjesRelativeFSRdown,    //RelativeFSR
+          *JetPtjesRelativeJEREC1up,  *JetPtjesRelativeJEREC1down, //RelativeJEREC1
+          *JetPtjesRelativeJEREC2up,  *JetPtjesRelativeJEREC2down, //RelativeJEREC2
+          *JetPtjesRelativeJERHFup,   *JetPtjesRelativeJERHFdown,  //RelativeJERHF
+          *JetPtjesRelativePtBBup,    *JetPtjesRelativePtBBdown,   //RelativePtBB
+          *JetPtjesRelativePtEC1up,   *JetPtjesRelativePtEC1down,  //RelativePtEC1
+          *JetPtjesRelativePtEC2up,   *JetPtjesRelativePtEC2down,  //RelativePtEC2
+          *JetPtjesRelativePtHFup,    *JetPtjesRelativePtHFdown,   //RelativePtHF
+          *JetPtjesRelativeBalup,     *JetPtjesRelativeBaldown,    //RelativeBal
+          *JetPtjesRelativeSampleup,  *JetPtjesRelativeSampledown, //RelativeSample
+          *JetPtjesRelativeStatECup,  *JetPtjesRelativeStatECdown, //RelativeStatEC
+          *JetPtjesRelativeStatFSRup, *JetPtjesRelativeStatFSRdown,//RelativeStatFSR
+          *JetPtjesRelativeStatHFup,  *JetPtjesRelativeStatHFdown, //RelativeStatHF
+          *JetPtjesSinglePionECALup,  *JetPtjesSinglePionECALdown, //PionECAL
+          *JetPtjesSinglePionHCALup,  *JetPtjesSinglePionHCALdown, //PionHCAL
+          *JetPtjesTimePtEtaup,       *JetPtjesTimePtEtadown       //TimePtEta
+    };
 
-    //calculate HT variations
-    float Vals[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};//HT version
+    //define vector of MET variations, 2 longer for unclustered MET variations
+    vector<float> METmaster = {
+	  METPt,						   //default
+          METPt_jerup,                METPt_jerdown,               //JER
+	  METPt_jesAbsoluteStatup,    METPt_jesAbsoluteStatdown,   //AbsoluteStat
+          METPt_jesAbsoluteScaleup,   METPt_jesAbsoluteScaledown,  //AbsoluteScale
+          METPt_jesAbsoluteMPFBiasup, METPt_jesAbsoluteMPFBiasdown,//AbsoluteMPFBias
+          METPt_jesFlavorQCDup,       METPt_jesFlavorQCDdown,      //FlavorQCD
+          METPt_jesFragmentationup,   METPt_jesFragmentationdown,  //Fragmentation
+          METPt_jesPileUpDataMCup,    METPt_jesPileUpDataMCdown,   //PileUpDataMC
+          METPt_jesPileUpPtBBup,      METPt_jesPileUpPtBBdown,     //PileUpPtBB
+          METPt_jesPileUpPtEC1up,     METPt_jesPileUpPtEC1down,    //PileUpPtEC1
+          METPt_jesPileUpPtEC2up,     METPt_jesPileUpPtEC2down,    //PileUpPtEC2
+          METPt_jesPileUpPtHFup,      METPt_jesPileUpPtHFdown,     //PileUpPtHF
+          METPt_jesPileUpPtRefup,     METPt_jesPileUpPtRefdown,    //PileUpPtRef
+          METPt_jesRelativeFSRup,     METPt_jesRelativeFSRdown,    //RelativeFSR
+          METPt_jesRelativeJEREC1up,  METPt_jesRelativeJEREC1down, //RelativeJEREC1
+          METPt_jesRelativeJEREC2up,  METPt_jesRelativeJEREC2down, //RelativeJEREC2
+          METPt_jesRelativeJERHFup,   METPt_jesRelativeJERHFdown,  //RelativeJERHF
+          METPt_jesRelativePtBBup,    METPt_jesRelativePtBBdown,   //RelativePtBB
+          METPt_jesRelativePtEC1up,   METPt_jesRelativePtEC1down,  //RelativePtEC1
+          METPt_jesRelativePtEC2up,   METPt_jesRelativePtEC2down,  //RelativePtEC2
+          METPt_jesRelativePtHFup,    METPt_jesRelativePtHFdown,   //RelativePtHF
+          METPt_jesRelativeBalup,     METPt_jesRelativeBaldown,    //RelativeBal
+          METPt_jesRelativeSampleup,  METPt_jesRelativeSampledown, //RelativeSample
+          METPt_jesRelativeStatECup,  METPt_jesRelativeStatECdown, //RelativeStatEC
+          METPt_jesRelativeStatFSRup, METPt_jesRelativeStatFSRdown,//RelativeStatFSR
+          METPt_jesRelativeStatHFup,  METPt_jesRelativeStatHFdown, //RelativeStatHF
+          METPt_jesSinglePionECALup,  METPt_jesSinglePionECALdown, //PionECAL
+          METPt_jesSinglePionHCALup,  METPt_jesSinglePionHCALdown, //PionHCAL
+          METPt_jesTimePtEtaup,       METPt_jesTimePtEtadown,      //TimePtEta
+	  METPt_unclustenup,          METPt_unclustendown          //Unclustered Energy
+    };
 
-    //calculate ST variations
-    float STvals[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+    //define vector of lepton pT variations
+    vector<float> LeptonMaster = {
+      LeptonPt,                 //default
+      LeptonPt_SU, LeptonPt_SD, //electron scale
+      LeptonPt_RU, LeptonPt_RD, //electron resolution
+    };
 
-    //find the actual jet count per variation
-    int JetCounts[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int bJetMainCount = 0;
+    //calculate all HT [0] and ST [1]
+    vector<vector<float> > HTandSTvariations = PTvariations(JetPtMaster, METmaster, LeptonMaster);
 
-    //0: default
-    float defHT = 0.;
 
-    //calculate central HT
-    for(unsigned i = 0; i < JetPt->size(); ++i) if(JetPt->at(i) > 30.){
-      defHT += JetPt->at(i);
-    }
-
-    //calculate all ibject pT variation STs and HTs
-    STvals[0] = LeptonPt + METPt + defHT; Vals[0] = defHT;
-    //1: eScaleUp
-    STvals[1] = LeptonPt_SU + METPt + defHT; Vals[1] = defHT;
-    //2: eScaleDown
-    STvals[2] = LeptonPt_SD + METPt + defHT; Vals[2] = defHT;
-    //3: eResUp
-    STvals[3] = LeptonPt_RU + METPt + defHT; Vals[3] = defHT;
-    //4: eResDown
-    STvals[4] = LeptonPt_RD + METPt + defHT; Vals[4] = defHT;
-    //5: JESup
-    STvals[5] = LeptonPt + METPt_SU;
-    for(unsigned i = 0; i < JetPt_SU->size(); ++i){
-      if(JetPt_SU->at(i) > 30.){
-	STvals[5] += JetPt_SU->at(i);
-       	Vals[5]   += JetPt_SU->at(i);
-	JetCounts[5]++;
-      }
-    }
-    //6: JESdown
-    STvals[6] = LeptonPt + METPt_SD;
-    for(unsigned i = 0; i < JetPt_SD->size(); ++i){
-      if(JetPt_SD->at(i) > 30.){
-	STvals[6] += JetPt_SD->at(i);
-	Vals[6]   += JetPt_SD->at(i);
-	JetCounts[6]++;
-      }
-    }
-    //7: JERup
-    STvals[7] = LeptonPt + METPt_RU;
-    for(unsigned i = 0; i < JetPt_RU->size(); ++i){
-      if(JetPt_RU->at(i) > 30.){
-        STvals[7] += JetPt_RU->at(i);
-	Vals[7]   += JetPt_RU->at(i);
-	JetCounts[7]++;
-      }
-    }
-    //7: JERdown
-    STvals[8] = LeptonPt + METPt_RD;
-    for(unsigned i = 0; i < JetPt_RD->size(); ++i){
-      if(JetPt_RD->at(i) > 30.){
-	STvals[8] += JetPt_RD->at(i);
-	Vals[8]   += JetPt_RD->at(i);
-	JetCounts[8]++;
-      }
-    }
 
     //mass-interpretation-independent variables
     //variation of selections
     for(unsigned i = 0; i < sizePtSysts + 1; ++ i){
       if(RegionIdentifier[i] != bin) continue;
+
+      //ensure that the lepton pT is read from the correction variation
+      float currentLepPt = 0.;
+      if(i < LeptonMaster.size()) currentLepPt = LeptonMaster[i];
+      else currentLepPt = LeptonMaster[0];
       //additional 2017 lepton pT cut
       if(year == 2017){
-        if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
-	if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
+        if(RegionIdentifier[i]/1000 == 1 && currentLepPt < 30.) continue;
+	if(RegionIdentifier[i]/1000 == 2 && currentLepPt < 40.) continue;
       }
       else if (year == 2018){
-        if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
+        if(RegionIdentifier[i]/1000 == 2 && currentLepPt < 32.) continue;
       }
+
       //additional ST cut test
-      if(STvals[i] < 400.) continue;
+      if(HTandSTvariations[1][i] < 400.) continue;
 
       float EvWeight = EventWeight[0];
       if(YearS == "2017" && bin/1000 == 2 && dset.Type != 0) EvWeight *= EleHLTzvtx;
       
       const float CentralWeight = EvWeight*SampleWeight*EventWeightObjectVariations[i];
       if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
-	const float STcorr = SFs[0].Eval(STvals[i]);
+	const float STcorr = SFs[0].Eval(HTandSTvariations[1][i]);
 	const float STcorrCentralWeight = CentralWeight * STcorr;
-	STrew[i]->Fill(STvals[i], STcorrCentralWeight);
+	STrew[i]->Fill(HTandSTvariations[1][i], STcorrCentralWeight);
 	if(i == 0){      
-	  const float statSFunc = CalculateCovError(STvals[0], SFcovs[0], jetMult);
+	  const float statSFunc = CalculateCovError(HTandSTvariations[1][0], SFcovs[0], jetMult);
           const float STcorrStatUp = CentralWeight * (STcorr + statSFunc);
           const float STcorrStatDown = CentralWeight * (STcorr - statSFunc);
-          STrew_STstatUp->Fill(STvals[0], STcorrStatUp);
-          STrew_STstatDown->Fill(STvals[0], STcorrStatDown);
+          STrew_STstatUp->Fill(HTandSTvariations[1][0], STcorrStatUp);
+          STrew_STstatDown->Fill(HTandSTvariations[1][0], STcorrStatDown);
 
 	  //vary ST function parameters and evaluate impact on ST
-	  const float SFcorrParUp = SFparUp.Eval(STvals[i]);
+	  const float SFcorrParUp = SFparUp.Eval(HTandSTvariations[1][i]);
 	  const float STcorrParUp = CentralWeight * SFcorrParUp;
-	  const float SFcorrParDown = SFparDown.Eval(STvals[i]);
+	  const float SFcorrParDown = SFparDown.Eval(HTandSTvariations[1][i]);
           const float STcorrParDown = CentralWeight * SFcorrParDown;
-	  STrew_STparUp->Fill(STvals[0], STcorrParUp);
-	  STrew_STparDown->Fill(STvals[0], STcorrParDown);
+	  STrew_STparUp->Fill(HTandSTvariations[1][0], STcorrParUp);
+	  STrew_STparDown->Fill(HTandSTvariations[1][0], STcorrParDown);
 
 	  //vary QCD contamination in 1b regions and evaluate impact on ST
-	  const float SFcorrQCDUp = SFQCDUp.Eval(STvals[i]);
+	  const float SFcorrQCDUp = SFQCDUp.Eval(HTandSTvariations[1][i]);
           const float STcorrQCDUp = CentralWeight * SFcorrQCDUp;
-          const float SFcorrQCDDown = SFQCDDown.Eval(STvals[i]);
+          const float SFcorrQCDDown = SFQCDDown.Eval(HTandSTvariations[1][i]);
           const float STcorrQCDDown = CentralWeight * SFcorrQCDDown;
-          STrew_STQCDUp->Fill(STvals[0], STcorrQCDUp);
-          STrew_STQCDDown->Fill(STvals[0], STcorrQCDDown);
+          STrew_STQCDUp->Fill(HTandSTvariations[1][0], STcorrQCDUp);
+          STrew_STQCDDown->Fill(HTandSTvariations[1][0], STcorrQCDDown);
 	}
       }
-      ST[i]->Fill(STvals[i], CentralWeight);
+      ST[i]->Fill(HTandSTvariations[1][i], CentralWeight);
     }
 
     //std::cout<<"stage 2"<<std::endl;
@@ -440,14 +511,14 @@ void CombineHistogramDumpster::Loop()
     if(RegionIdentifier[0] == bin) for(unsigned i = sizePtSysts+1; i < varSize; ++i){
       //additional 2017 lepton pT cut
       if(year == 2017){
-        if(RegionIdentifier[0]/1000 == 1 && LeptonPtVars[0] < 30.) continue;
-        if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 40.) continue;
+        if(RegionIdentifier[0]/1000 == 1 && LeptonMaster[0] < 30.) continue;
+        if(RegionIdentifier[0]/1000 == 2 && LeptonMaster[0] < 40.) continue;
       }
       else if (year == 2018){
-        if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 32.) continue;
+        if(RegionIdentifier[0]/1000 == 2 && LeptonMaster[0] < 32.) continue;
       }
       //additional ST cut test
-      if(STvals[0] < 400.) continue;
+      if(HTandSTvariations[1][0] < 400.) continue;
 
       float EvWeight = 1.;
 
@@ -464,10 +535,10 @@ void CombineHistogramDumpster::Loop()
       const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
 
       if(IsSF_ttbar){
-	const float CentralWeightSTcorr = CentralWeight * SFs[0].Eval(STvals[0]);
-	STrew[i]->Fill(STvals[0], CentralWeightSTcorr);	
+	const float CentralWeightSTcorr = CentralWeight * SFs[0].Eval(HTandSTvariations[1][0]);
+	STrew[i]->Fill(HTandSTvariations[1][0], CentralWeightSTcorr);	
       }
-      ST[i]->Fill(STvals[0], CentralWeight);
+      ST[i]->Fill(HTandSTvariations[1][0], CentralWeight);
     }
 
     //std::cout<<"stage 3"<<std::endl;
@@ -512,19 +583,24 @@ void CombineHistogramDumpster::Loop()
       //variations of selections
       for(unsigned i = 0; i < sizePtSysts+1; ++ i){
         if(RegionIdentifier[i] != bin) continue;
+
+	//ensure that the lepton pT is read from the correction variation
+        float currentLepPt = 0.;
+        if(i < LeptonMaster.size()) currentLepPt = LeptonMaster[i];
+        else currentLepPt = LeptonMaster[0];
 	//additional 2017 lepton pT cut
         if(year == 2017){
-          if(RegionIdentifier[i]/1000 == 1 && LeptonPtVars[i] < 30.) continue;
-          if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 40.) continue;
+          if(RegionIdentifier[i]/1000 == 1 && currentLepPt < 30.) continue;
+          if(RegionIdentifier[i]/1000 == 2 && currentLepPt < 40.) continue;
         }
 	else if (year == 2018){
-          if(RegionIdentifier[i]/1000 == 2 && LeptonPtVars[i] < 32.) continue;
+          if(RegionIdentifier[i]/1000 == 2 && currentLepPt < 32.) continue;
         }
 	//additional ST cut test
-        if(STvals[i] < 400.) continue;
+        if(HTandSTvariations[1][i] < 400.) continue;
 
         //determine fill variable
-        float fillVar = Vals[i];
+        float fillVar = HTandSTvariations[0][i];
         float fillBranch = 0.;
 	if(m==3)       fillBranch = Best_WPrimeMass_300->at(i); 
 	else if(m==4)  fillBranch = Best_WPrimeMass_400->at(i);
@@ -564,7 +640,7 @@ void CombineHistogramDumpster::Loop()
         string HistName;
         if(IsSF_ttbar){ //take care of all pT variations and their impact also on the ST values
           const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[i];
-	  const float STcorrCentralWeight = CentralWeight * SFs[0].Eval(STvals[i]);
+	  const float STcorrCentralWeight = CentralWeight * SFs[0].Eval(HTandSTvariations[1][i]);
 	  FitMass[m-3][i]->Fill(fillBranch, STcorrCentralWeight);
 	  HT[m-3][i]->Fill(fillVar, STcorrCentralWeight);
 
@@ -572,8 +648,8 @@ void CombineHistogramDumpster::Loop()
 	  HT_2D[m-3][i]->Fill(fillVar, NLLfill, STcorrCentralWeight);
 
 	  if(i == 0){//make sure to scale ttbar and get stat. and parameter uncs. of fit propagated
-            const float STcorr = SFs[0].Eval(STvals[i]);
-	    const float statSFunc = CalculateCovError(STvals[0], SFcovs[0], jetMult);
+            const float STcorr = SFs[0].Eval(HTandSTvariations[1][i]);
+	    const float statSFunc = CalculateCovError(HTandSTvariations[1][0], SFcovs[0], jetMult);
 	    const float STcorrStatUp = CentralWeight * (STcorr + statSFunc);
 	    const float STcorrStatDown = CentralWeight * (STcorr - statSFunc);
 	    FitMass_STstatUp[m-3]->Fill(fillBranch, STcorrStatUp);
@@ -586,9 +662,9 @@ void CombineHistogramDumpster::Loop()
 	    HT_2D_STstatUp[m-3]->Fill(fillVar, NLLfillZero, STcorrStatUp);
 	    HT_2D_STstatDown[m-3]->Fill(fillVar, NLLfillZero, STcorrStatDown);
 
-	    const float SFcorrParUp = SFparUp.Eval(STvals[i]);
+	    const float SFcorrParUp = SFparUp.Eval(HTandSTvariations[1][i]);
             const float STcorrParUp = CentralWeight * SFcorrParUp;
-            const float SFcorrParDown = SFparDown.Eval(STvals[i]);
+            const float SFcorrParDown = SFparDown.Eval(HTandSTvariations[1][i]);
             const float STcorrParDown = CentralWeight * SFcorrParDown;
 
 	    FitMass_STparUp[m-3]->Fill(fillBranch, STcorrParUp);
@@ -601,9 +677,9 @@ void CombineHistogramDumpster::Loop()
             HT_2D_STparUp[m-3]->Fill(fillVar, NLLfillZero, STcorrParUp);
             HT_2D_STparDown[m-3]->Fill(fillVar, NLLfillZero, STcorrParDown);
 
-	    const float SFcorrQCDUp = SFQCDUp.Eval(STvals[i]);
+	    const float SFcorrQCDUp = SFQCDUp.Eval(HTandSTvariations[1][i]);
             const float STcorrQCDUp = CentralWeight * SFcorrQCDUp;
-            const float SFcorrQCDDown = SFQCDDown.Eval(STvals[i]);
+            const float SFcorrQCDDown = SFQCDDown.Eval(HTandSTvariations[1][i]);
             const float STcorrQCDDown = CentralWeight * SFcorrQCDDown;
 
             FitMass_STQCDUp[m-3]->Fill(fillBranch, STcorrQCDUp);
@@ -639,14 +715,14 @@ void CombineHistogramDumpster::Loop()
       if(RegionIdentifier[0] == bin){
 	//additional 2017 lepton pT cut
         if(year == 2017){
-          if(RegionIdentifier[0]/1000 == 1 && LeptonPtVars[0] < 30.) continue;
-          if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 40.) continue;
+          if(RegionIdentifier[0]/1000 == 1 && LeptonMaster[0] < 30.) continue;
+          if(RegionIdentifier[0]/1000 == 2 && LeptonMaster[0] < 40.) continue;
         }
 	else if (year == 2018){
-          if(RegionIdentifier[0]/1000 == 2 && LeptonPtVars[0] < 32. ) continue;
+          if(RegionIdentifier[0]/1000 == 2 && LeptonMaster[0] < 32. ) continue;
         }
 	//additional ST cut test
-        if(STvals[0] < 400.) continue;
+        if(HTandSTvariations[1][0] < 400.) continue;
 
         //EventWeight variations
         for(unsigned i = sizePtSysts+1; i < varSize; ++i){//after pT variation block for systematics, divided into systWeights block, normalization block, and SFttbar blocks (if applicable for the last)
@@ -654,7 +730,7 @@ void CombineHistogramDumpster::Loop()
           string HistName;
 
 	  //determine fill variable
-	  float fillVar = Vals[0];
+	  float fillVar = HTandSTvariations[0][0];
 
 	  float EvWeight = 1.;
 
@@ -670,7 +746,7 @@ void CombineHistogramDumpster::Loop()
 
 	  const float CentralWeight = EvWeight * SampleWeight * EventWeightObjectVariations[0];
           if(IsSF_ttbar){
-	    const float CentralWeightSTcorr = CentralWeight * SFs[0].Eval(STvals[0]); //note that SFs[i] runs the full length of variations = varSize+varOff
+	    const float CentralWeightSTcorr = CentralWeight * SFs[0].Eval(HTandSTvariations[1][0]); //note that SFs[i] runs the full length of variations = varSize+varOff
 	    FitMass[m-3][i]->Fill(fillBranchZero, CentralWeightSTcorr);
 	    HT[m-3][i]->Fill(fillVar, CentralWeightSTcorr);
 
