@@ -24,7 +24,7 @@ TString Systematics(unsigned index, TString YearS, TString sampleType, TString B
 	  TString("CMS_scale_j_PileUpPtRef")             +"Up", TString("CMS_scale_j_PileUpPtRef")             +"Down",  //27-28: jet energy scale PileUp PT Ref
 	  TString("CMS_scale_j_RelativeFSR")		 +"Up", TString("CMS_scale_j_RelativeFSR")	       +"Down",  //29-30: jet energy scale Relative FSR
 	  TString("CMS_scale_j_RelativeJEREC1_")   +YearS+"Up", TString("CMS_scale_j_RelativeJEREC1_")	 +YearS+"Down",  //31-32: jet energy scale Relative JER EC1
-          TString("CMS_scale_j_RelativeJEREC2_")   +YearS+"Up", TString("CMS_scale_j_RelativeJEREC_2")   +YearS+"Down",  //33-34: jet energy scale Relative JER EC2
+          TString("CMS_scale_j_RelativeJEREC2_")   +YearS+"Up", TString("CMS_scale_j_RelativeJEREC2_")   +YearS+"Down",  //33-34: jet energy scale Relative JER EC2
           TString("CMS_scale_j_RelativeJERHF")           +"Up", TString("CMS_scale_j_RelativeJERHF")           +"Down",  //35-36: jet energy scale Relative JER HF
 	  TString("CMS_scale_j_RelativePtBB")		 +"Up", TString("CMS_scale_j_RelativePtBB")	       +"Down",  //37-38: jet energy scale Relative Pt BB
 	  TString("CMS_scale_j_RelativePtEC1_")    +YearS+"Up", TString("CMS_scale_j_RelativePtEC1_")    +YearS+"Down",  //39-40: jet energy scale Relative Pt EC1
