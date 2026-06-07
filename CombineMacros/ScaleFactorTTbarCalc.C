@@ -94,7 +94,7 @@ void ScaleFactorTTbarCalc(int bin=1152, TString year="2018"){
 
     //except sample-dependent uncertainties for extra logic
     //at this stage, variation i departs from being concurrent with SF histogram iterator, so we just keep appending each different variation
-    if(var >= 35 && var <= 40) for(unsigned sam = 0; sam < SampleTypes.size(); ++sam){ //loop over different samples{ 
+    if(var >= 89 && var <= 94) for(unsigned sam = 0; sam < SampleTypes.size(); ++sam){ //loop over different samples{ 
       TString variation = Systematics(var, YearS, SampleTypes[sam], B2Gn);
       SFhists.push_back(*(TH1F*)dataHist.Clone("SF_"+variation));
       unsigned currentPos = SFhists.size()-1;
