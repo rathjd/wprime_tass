@@ -44,9 +44,9 @@ TString Systematics(unsigned index, TString YearS, TString sampleType, TString B
           TString("CMS_eff_e_trigger")                   +"Up", TString("CMS_eff_e_trigger")                   +"Down",  //63-64:  electron trigger efficiency variation, including HLT Zvtx for 2017
           TString("CMS_eff_e_reco")                      +"Up", TString("CMS_eff_e_reco")                      +"Down",  //65-66: electron reconstruction efficiency variation
           TString("CMS_eff_e")                           +"Up", TString("CMS_eff_e")                           +"Down",  //67-68: electron ID (including ISO) variation
-          TString("CMS_eff_m_trigger_")            +YearS+"Up", TString("CMS_eff_m_trigger_")            +YearS+"Down",  //69-70: muon trigger efficiency variation
-          TString("CMS_eff_m_id_")                 +YearS+"Up", TString("CMS_eff_m_id_")                 +YearS+"Down",  //71-72: muon ID efficiency variation
-          TString("CMS_eff_m_iso_")                +YearS+"Up", TString("CMS_eff_m_iso_")                +YearS+"Down",  //73-74: muon ISO efficiency variation
+          TString("CMS_eff_m_trigger_")                  +"Up", TString("CMS_eff_m_trigger_")                  +"Down",  //69-70: muon trigger efficiency variation
+          TString("CMS_eff_m_id_")                       +"Up", TString("CMS_eff_m_id_")                       +"Down",  //71-72: muon ID efficiency variation
+          TString("CMS_eff_m_iso_")                      +"Up", TString("CMS_eff_m_iso_")                      +"Down",  //73-74: muon ISO efficiency variation
           TString("CMS_btag_light")                      +"Up", TString("CMS_btag_light")                      +"Down",  //75-76: correlated component across years of b-tagging efficiency
           TString("CMS_btag_heavy")                      +"Up", TString("CMS_btag_heavy")                      +"Down",  //77-78: correlated component across years of b-tagging efficiency
           TString("CMS_btag_light_")               +YearS+"Up", TString("CMS_btag_light_")               +YearS+"Down",  //79-80: uncorrelated component across years of b-tagging efficiency
