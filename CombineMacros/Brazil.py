@@ -164,11 +164,11 @@ if not OffMass:
     #CentralGraph.SetMarkerColor(1)
 
     #OneSigmaGraph.SetFillColor(TColor.GetColor("#607641"))
-    OneSigmaGraph.SetFillColor(TColor.GetColor("228b22"))
+    OneSigmaGraph.SetFillColor(TColor.GetColor("#228b22"))
     OneSigmaGraph.SetMarkerStyle(1)
 
     #TwoSigmaGraph.SetFillColor(TColor.GetColor("#F5BB54"))
-    TwoSigmaGraph.SetFillColor(TColor.GetColor("ffcc00"))
+    TwoSigmaGraph.SetFillColor(TColor.GetColor("#ffcc00"))
     TwoSigmaGraph.SetMarkerStyle(1)
     #TwoSigmaGraph.GetXaxis().SetTitle("W' mass [GeV/c^{2}]")
     #TwoSigmaGraph.GetYaxis().SetTitle("#sigma [fb]")
