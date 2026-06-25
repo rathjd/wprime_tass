@@ -71,7 +71,7 @@ for binN in bins:
   binName = "Wprime" + binN + "_" + yearName
   print(binName," ",fileName)
 
-  if os.path.isdir(eospath + "/" + fileName):
+  if os.path.isdir(eospath + "/" + fileName): #FIXME start
       print(fileName," directory already exists, removing it")
       os.system("rm -rf " + eospath + "/" + fileName)
   os.system("mkdir " + eospath + "/" + fileName)
@@ -176,7 +176,7 @@ for binN in bins:
 
                 #control-region uncertainties
                 ["CMS_B2G"+B2Gn+"_STfit_"+yearName+"_"+regName,         "shape", "-"],
-                ["CMS_B2G"+B2Gn+"_STfitFunc_"+yearName+"_"+regName,     "shape", "-"],
+                #["CMS_B2G"+B2Gn+"_STfitFunc_"+yearName+"_"+regName,     "shape", "-"],
                 ["CMS_B2G"+B2Gn+"_STfitQCD",                            "shape", "-"]]
 
 
@@ -269,10 +269,10 @@ for binN in bins:
         binLine += binName
         processLine1 += allNames[i]
         processLine2 += str(allNumbers[i])
-        if not allNames[i] == "qcd":
-            rateLine += "-1" #this option makes Combine read the rate from the histogram integrals
+        if allNames[i] == "qcd" or (allNames[i] == "diboson" and binN[2:4] == "64"):
+            rateLine += "0"
         else:
-            rateLine += " 0"
+            rateLine += "-1" #this option makes Combine read the rate from the histogram integrals
 
         currentLength = max(len(binLine), len(processLine1), len(processLine2), len(rateLine))
 
