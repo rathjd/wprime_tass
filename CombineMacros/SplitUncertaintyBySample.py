@@ -5,7 +5,7 @@ from ROOT import TH1F, TH2F, TFile, gDirectory
 #macro to rename uncertainty histograms to split nuisance by sample into a new file and write a new combine textfile alongside
 
 #subfunction to split nuisances by sample
-def cardSplitBySampleFile(fileName, SplitList, appendName, SampList):
+def cardSplitBySampleFile(fileName, SplitList, appendName, SampList, mass):
     inFile = TFile(fileName,"READ")
 
     #generate reference histogram names from filename per sample and nuisance, then add sample name to new nuisance name
@@ -19,8 +19,12 @@ def cardSplitBySampleFile(fileName, SplitList, appendName, SampList):
             refName = refName.replace("Wprime","WprimeFit")
         elif refName.find("HT") > -1:
             refName = refName.replace("slices","_"+sample)
-            refName = refName.replace("Wprime","WprimeHT")
+            if fileName.find("64") < 0:
+                refName = refName.replace("Wprime","WprimeHT")
         refName = refName.replace(".root","_")
+        if refName.find("SimpleShapes") > -1:
+            refName = refName.replace("SimpleShapes", sample)
+            refName += mass + "_"
 
         for split in SplitList:
             oldName = refName
@@ -30,6 +34,8 @@ def cardSplitBySampleFile(fileName, SplitList, appendName, SampList):
     #setup of input file contents and new copied file
     InFileContent = [key.GetName() for key in gDirectory.GetListOfKeys()]
 
+    if fileName.find("64") > 0:
+        appendName = mass + "_" + appendName
     outFile = TFile(fileName[0:len(fileName)-5]+"_"+appendName+".root","RECREATE")
     outFile.cd()
 
@@ -57,7 +63,11 @@ def cardSplitBySampleFile(fileName, SplitList, appendName, SampList):
         hist = inFile.Get(content)
         outFile.cd()
         if not toRename:
-            hist.Write()
+            if content == hist.GetName():
+                hist.Write()
+            else:
+                hist.SetName(content)
+                hist.Write(content)
         else:
             hist.SetName(testName)
             hist.Write(testName)
@@ -123,12 +133,19 @@ for line in inLines:
     if pos > -1:
         splits = line.split()
         filename = splits[3]
+        filename = filename.replace("../Combination","Combination")
         regionName = splits[2]
         #split nuisances version root file gets generated
-        cardSplitBySampleFile(filename, SplitList, appendName, SampList)
+        cardSplitBySampleFile(filename, SplitList, appendName, SampList, mass)
         #write line with new file ending
-        line = line.replace(".root","_"+appendName+".root")
-        line = line.replace("../Combination/","")
+        if line.find("64") > -1:
+            line = line.replace(".root","_" + mass + "_" + appendName + ".root")
+        else:
+            line = line.replace(".root","_"+appendName+".root")
+        if cardname.find("CRslices") > -1:
+            line = line.replace("../Combination/","")
+        else:
+            line = line.replace("../Combination","Combination")
         outCard.write(line)
     elif elements[0] not in SplitList: #otherwise just write line into outCard
         outCard.write(line)

@@ -104,8 +104,8 @@ if not OffMass:
     for mass in range(0,9):
         masses.append(float((3+mass)*100))
         massString = str((3+mass)*100)
-        print("combine -M AsymptoticLimits --run blind -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
-        os.system("combine -M AsymptoticLimits --run blind -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+".txt")
+        print("combine -M AsymptoticLimits --run blind -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+"_splitPSbySample_noNormTtbar.txt")
+        os.system("combine -M AsymptoticLimits --run blind -m "+massString+" ""Combination/"+cardName+"_Wprime"+binS+"_"+year+"_M"+massString+"_splitPSbySample_noNormTtbar.txt")
 
         infile = TFile("higgsCombineTest.AsymptoticLimits.mH"+massString+".root","READ")
 
@@ -188,7 +188,7 @@ if not OffMass:
     legend.AddEntry(TwoSigmaGraph, "95% expected", "f")
 
     legend2 = CMS.cmsLeg(0.6, 0.89-0.04*6, 0.89, 0.89-0.04*5, textSize=0.04)
-    legend2.AddEntry(TheoryGraph, "#Gamma_{W'}=10% theory, g_{#tau}=0", "l")
+    legend2.AddEntry(TheoryGraph, "#Gamma_{W'}=10%, g_{#tau}=0", "l")
 
     #draw manually channel description
     latex = TLatex()

@@ -27,7 +27,7 @@ public :
   // Declaration of leaf types
   ULong64_t       event;
   Int_t           RegionIdentifier[63];
-  Float_t         EventWeight[37];
+  Float_t         EventWeight[39];
    Float_t         EventWeightObjectVariations[63];
    Float_t         LeptonPt;
    Float_t         LeptonPt_SU;

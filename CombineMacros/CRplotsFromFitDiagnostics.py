@@ -6,7 +6,7 @@ from array import array
 import math
 
 #settings for what to plot
-WpMass = "500"
+WpMass = "300"
 channel = "ch1_ch1_ch1" 
 
 #accept shell inputs
@@ -87,7 +87,7 @@ leg = CMS.cmsLeg(0.51,0.89-0.05*7, 0.8, 0.89, textSize=0.05)
 CMS.cmsHeader(leg, name, textSize=0.05)
 
 #read root file with fit diagnostics
-infile = TFile("fitDiagnosticsTest.root","read")
+infile = TFile("fitDiagnostics_M"+WpMass+".root","read")
 
 #define binnings
 binnings = {"5_1": ["nFitLimits53_500", "FitLimits53_500", 0, array('d')],
@@ -207,5 +207,5 @@ for i in range(0, Ratio_postfit.GetNbinsX()+1):
 
 Ratio_postfit.Draw("P,same")
 
-CMS.SaveCanvas(canv, "PrePostFitComparison_"+channel+".pdf")
+CMS.SaveCanvas(canv, "M"+WpMass+"_Postfit/PrePostFitComparison_"+channel+".pdf")
 

@@ -37,20 +37,20 @@ except:
     print("not smooth version active")
 
 #build RooStat Workspace
-print("text2workspace.py Combination/CRslices_"+cardname+".txt -o workspaceGoFCRsOnly_"+cardname+".root")
-os.system("text2workspace.py Combination/CRslices_"+cardname+".txt -o workspaceGoFCRsOnly_"+cardname+".root")
+print("text2workspace.py Combination/CRslices_"+cardname+"_splitPSbySample_noNormTtbar.txt -o workspaceGoFCRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.root")
+os.system("text2workspace.py Combination/CRslices_"+cardname+"_splitPSbySample_noNormTtbar.txt -o workspaceGoFCRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.root")
 
 #run data GoF test
-print("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _data_"+cardname+" --freezeParameters r --setParameters r=0")
-os.system("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _data_"+cardname+" --freezeParameters r --setParameters r=0")
+print("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.root --algo saturated -n _data_"+cardname+" --freezeParameters r --setParameters r=0")
+os.system("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.root --algo saturated -n _data_"+cardname+" --freezeParameters r --setParameters r=0")
 
 #run GoF test toys
-print("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _toys_"+cardname+" --toysFrequentist -t "+str(ntoys)+" --freezeParameters r --setParameters r=0")
-os.system("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+".root --algo saturated -n _toys_"+cardname+" --toysFrequentist -t "+str(ntoys)+" --freezeParameters r --setParameters r=0")
+print("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.root --algo saturated -n _toys_"+cardname+" --toysFrequentist -t "+str(ntoys)+" --freezeParameters r --setParameters r=0")
+os.system("combine -M GoodnessOfFit -d workspaceGoFCRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.root --algo saturated -n _toys_"+cardname+" --toysFrequentist -t "+str(ntoys)+" --freezeParameters r --setParameters r=0")
 
 #make GoF plots #TBD
-print("combineTool.py -M CollectGoodnessOfFit --input higgsCombine_data_"+cardname+".GoodnessOfFit.mH120.root higgsCombine_toys_"+cardname+".GoodnessOfFit.mH120.123456.root -m 120 -o GoF_CRsOnly_"+cardname+".json")
-os.system("combineTool.py -M CollectGoodnessOfFit --input higgsCombine_data_"+cardname+".GoodnessOfFit.mH120.root higgsCombine_toys_"+cardname+".GoodnessOfFit.mH120.123456.root -m 120 -o GoF_CRsOnly_"+cardname+".json")
+print("combineTool.py -M CollectGoodnessOfFit --input higgsCombine_data_"+cardname+".GoodnessOfFit.mH120.root higgsCombine_toys_"+cardname+".GoodnessOfFit.mH120.123456.root -m 120 -o GoF_CRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.json")
+os.system("combineTool.py -M CollectGoodnessOfFit --input higgsCombine_data_"+cardname+".GoodnessOfFit.mH120.root higgsCombine_toys_"+cardname+".GoodnessOfFit.mH120.123456.root -m 120 -o GoF_CRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.json")
 
 title = ""
 
@@ -94,5 +94,5 @@ elif cardname.find("Muon") > -1:
     else:
         print("WARNING, couldn't figure out right title")
 
-print("plotGof.py GoF_CRsOnly_"+cardname+".json --statistic saturated --mass 120.0 -o GoF_CRsOnly_"+cardname+"_plot --title-right='"+title+"'")
-os.system("plotGof.py GoF_CRsOnly_"+cardname+".json --statistic saturated --mass 120.0 -o GoF_CRsOnly_"+cardname+"_plot --title-right='"+title+"'")
+print("plotGof.py GoF_CRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.json --statistic saturated --mass 120.0 -o GoF_CRsOnly_"+cardname+"_splitPSbySample_noNormTtbar_plot --title-right='"+title+"'")
+os.system("plotGof.py GoF_CRsOnly_"+cardname+"_splitPSbySample_noNormTtbar.json --statistic saturated --mass 120.0 -o GoF_CRsOnly_"+cardname+"_splitPSbySample_noNormTtbar_plot --title-right='"+title+"'")

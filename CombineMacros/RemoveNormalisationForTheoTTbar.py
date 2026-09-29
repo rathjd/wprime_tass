@@ -12,12 +12,16 @@ def NoNormFile(fileName, regionName, histList):
     refName = fileName
     refName = refName.replace("Combination/","")
     refName = refName.replace("_splitPSbySample","")
+    refName = refName.replace("SimpleShapes_","")
     if refName.find("Fit") > -1:
         refName = refName.replace("Slices","_ttbar")
         refName = refName.replace("Wprime","WprimeFit")
     elif refName.find("HT") > -1:
         refName = refName.replace("slices","_ttbar")
-        refName = refName.replace("Wprime","WprimeHT")
+        if refName.find("64") < 0:
+            refName = refName.replace("Wprime","WprimeHT")
+        else:
+            refName = refName.replace("HT_", "HT_ttbar_")
     refName = refName.replace(".root","_")
 
     #setup of input file contents and new copied file

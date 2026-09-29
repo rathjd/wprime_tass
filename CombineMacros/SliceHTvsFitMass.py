@@ -6,6 +6,9 @@ def SuppressNegBins(hist):
     for x in range(0,hist.GetNbinsX()+2):
         if hist.GetBinContent(x) < 0.:
             hist.SetBinContent(x, 0.)
+            hist.SetBinError(x, 0.)
+    hist.SetBinContent(0, 0.)
+    hist.SetBinError(0, 0.)
     return hist
 
 #macro to splice a bin between fitted mass and HT along -log(likelihood) values

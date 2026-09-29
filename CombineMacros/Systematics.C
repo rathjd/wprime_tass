@@ -54,11 +54,12 @@ TString Systematics(unsigned index, TString YearS, TString sampleType, TString B
           TString("CMS_eff_j_PUJET_id_")           +YearS+"Up", TString("CMS_eff_j_PUJET_id_")           +YearS+"Down",  //83-84: uncertaintiy of PU jet ID efficiency
           TString("CMS_l1_ecal_prefiring_")        +YearS+"Up", TString("CMS_l1_ecal_prefiring_")        +YearS+"Down",  //85-86: L1 ECAL prefiring issue in 2016 and 2017 only
           TString("CMS_pileup")                          +"Up", TString("CMS_pileup")                          +"Down",  //87-88: CMS pileup reweighting uncertainty, correlated for Run2
-          TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Up", TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Down",  //89-90: 16th and 84th percentile of 103 PDF variations
+          TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Up", TString("pdf_B2G")+B2Gn+"_envelope_"+sampleType+"Down",  //89-90: 16th and 84th percentile of 100 PDF variations
           TString("QCDscale_ren_")+sampleType            +"Up", TString("QCDscale_ren_")+sampleType            +"Down",  //91-92: PDF renormalization scale uncertainty by sample
           TString("QCDscale_fac_")+sampleType            +"Up", TString("QCDscale_fac_")+sampleType            +"Down",  //93-94: PDF factorization scale uncertainty by sample
           TString("ps_isr")                              +"Up", TString("ps_isr")                              +"Down",  //95-96: PS ISR uncertainty
           TString("ps_fsr")                              +"Up", TString("ps_fsr")                              +"Down",  //97-98: PS FSR uncertainty
+	  TString("pdf_B2G")+B2Gn+"_alphaS_"  +sampleType+"Up", TString("pdf_B2G")+B2Gn+"_alphaS_"  +sampleType+"Down",  //99-100: alphaS PDF variations
 
           //uncertainties CombineHistogramDumpster takes care of, since they are hardcoded numbers
           /*TString("lumi_13TeV_correlated")               +"Up", TString("lumi_13TeV_correlated")               +"Down",  //45-46: correlated luminosity variation for 13 TeV

@@ -180,7 +180,7 @@ void CombineHistogramDumpster::Loop()
   bool IsSF_ttbar = Iterator >= 2 && Iterator <= 7 && SFreg != 0;
 
   //Declare hardcoded what the size of the systematics variations is:
-  unsigned varSize = 98;
+  unsigned varSize = 100;
 
   //assemble histograms with variations for Fit mass, HT, 2D Fit mass vs NLL, 2D HT vs NLL, looping over the mass interpretations from 300 GeV to 1.1 TeV
   vector<vector<TString> > variationsName, HTvariationsName, FitMass2Dnames, HT2Dnames;
